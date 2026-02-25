@@ -9,6 +9,7 @@ import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
 import { ContextBadges } from "../context-badges";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { TextSelect } from "lucide-react";
 import { ContextCategory, ContextSelections, EMPTY_SELECTIONS } from "@/lib/context-selectors";
 
@@ -42,13 +43,24 @@ function MessageContextBadges({ message }: { message: Message }) {
         className="justify-end gap-1 px-0 pt-0"
       />
       {quoteCount > 0 && (
-        <Badge
-          variant="secondary"
-          className="gap-1 rounded-full border-transparent bg-amber-100 text-xs font-normal text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-        >
-          <TextSelect className="h-3 w-3" />
-          {quoteCount} {quoteCount === 1 ? "quote" : "quotes"}
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant="secondary"
+              className="cursor-default gap-1 rounded-full border-transparent bg-amber-100 text-xs font-normal text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+            >
+              <TextSelect className="h-3 w-3" />
+              {quoteCount} {quoteCount === 1 ? "quote" : "quotes"}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-[300px] space-y-1.5 text-left">
+            {ctx.selected_text!.map((text, i) => (
+              <p key={i} className="line-clamp-2 text-xs leading-snug">
+                &ldquo;{text}&rdquo;
+              </p>
+            ))}
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );
