@@ -314,14 +314,17 @@ export function Thread() {
   const handleSuggestionSelect = useCallback(
     (text: string) => {
       const contextMeta = contextToMetadata();
+      const quotesMeta = quotesToMetadata();
+      const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
       const newHumanMessage: Message = {
         id: uuidv4(),
         type: "human",
         content: [{ type: "text", text }] as Message["content"],
-        additional_kwargs: contextMeta ? { context: contextMeta } : {},
+        additional_kwargs: Object.keys(combinedMeta).length > 0
+          ? { context: combinedMeta }
+          : {},
       };
       const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-      const quotesMeta = quotesToMetadata();
       const suggestionContext = {
         ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
         ...(contextMeta ?? {}),
@@ -349,8 +352,9 @@ export function Thread() {
         },
       );
       clearSuggestions();
+      clearQuotes();
     },
-    [clearSuggestions, stream, contextToMetadata, artifactContext],
+    [clearSuggestions, clearQuotes, stream, contextToMetadata, quotesToMetadata, artifactContext],
   );
 
   const handleReuse = useCallback(
