@@ -561,19 +561,21 @@ export function Thread() {
               >
                 <Menu />
               </Button>
-              <button
-                onClick={() => setThreadId(null)}
-                className="flex cursor-pointer items-end gap-2"
-              >
-                <img
-                  src="/adfidence-logo.svg"
-                  alt="Adfidence"
-                  className="h-5 w-auto object-contain flex-shrink-0 dark:brightness-0 dark:invert"
-                />
-                <span className="text-2xl font-semibold italic tracking-tight leading-none translate-y-[0.12em] text-[#4586F7] dark:text-foreground">
-                  AI
-                </span>
-              </button>
+              {chatStarted && (
+                <button
+                  onClick={() => setThreadId(null)}
+                  className="flex cursor-pointer items-end gap-2"
+                >
+                  <img
+                    src="/adfidence-logo.svg"
+                    alt="Adfidence"
+                    className="h-5 w-auto object-contain flex-shrink-0 dark:brightness-0 dark:invert"
+                  />
+                  <span className="text-2xl font-semibold italic tracking-tight leading-none translate-y-[0.12em] text-[#4586F7] dark:text-foreground">
+                    AI
+                  </span>
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-1">
               {chatStarted && (
@@ -626,7 +628,7 @@ export function Thread() {
                 !chatStarted && "flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
-              contentClassName="pt-8 pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full"
+              contentClassName="pt-16 pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full"
               content={
                 <div ref={messagesContainerRef} className="relative">
                   {!chatStarted && (
@@ -713,7 +715,7 @@ export function Thread() {
                             marginBottom: { duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] },
                           },
                         }}
-                        className="overflow-hidden"
+                        className="overflow-hidden pb-1"
                       >
                         <SuggestionCards
                           suggestions={visibleSuggestions}

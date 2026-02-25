@@ -123,7 +123,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
               <CommandItem
                 key={`${cat.id}-${item}`}
                 value={`${cat.id}-${item}`}
-                onSelect={() => onToggleItem(cat.id, item)}
+                onSelect={() => { onToggleItem(cat.id, item); setSearch(""); }}
                 className="flex items-center gap-2"
               >
                 <Checkbox checked={checked} className="pointer-events-none" />
@@ -194,7 +194,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
               <CommandItem
                 key={item}
                 value={item}
-                onSelect={() => onToggleItem(activeCategory!, item)}
+                onSelect={() => { onToggleItem(activeCategory!, item); setSearch(""); }}
                 className="flex items-center gap-2"
               >
                 <Checkbox checked={checked} className="pointer-events-none" />
