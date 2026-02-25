@@ -7,14 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
-import { Badge } from "@/components/ui/badge";
-import { Globe, Megaphone } from "lucide-react";
-import { ContextCategory } from "@/lib/context-selectors";
-
-const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
-  countries: <Globe className="h-3 w-3" />,
-  platforms: <Megaphone className="h-3 w-3" />,
-};
+import { ContextBadges } from "../context-badges";
+import { ContextCategory, ContextSelections, EMPTY_SELECTIONS } from "@/lib/context-selectors";
 
 function MessageContextBadges({ message }: { message: Message }) {
   const ctx = message.additional_kwargs?.context as
@@ -22,30 +16,20 @@ function MessageContextBadges({ message }: { message: Message }) {
     | undefined;
   if (!ctx) return null;
 
-  const badges: { category: ContextCategory; item: string }[] = [];
-  for (const category of ["countries", "platforms"] as ContextCategory[]) {
-    if (ctx[category]) {
-      for (const item of ctx[category]) {
-        badges.push({ category, item });
-      }
-    }
-  }
-
-  if (badges.length === 0) return null;
+  const selections: ContextSelections = {
+    ...EMPTY_SELECTIONS,
+    ...Object.fromEntries(
+      (["countries", "platforms"] as ContextCategory[])
+        .filter((cat) => ctx[cat])
+        .map((cat) => [cat, ctx[cat]]),
+    ),
+  };
 
   return (
-    <div className="flex flex-wrap justify-end gap-1">
-      {badges.map(({ category, item }) => (
-        <Badge
-          key={`${category}-${item}`}
-          variant="secondary"
-          className="gap-1 text-xs font-normal"
-        >
-          {CATEGORY_ICON[category]}
-          {item}
-        </Badge>
-      ))}
-    </div>
+    <ContextBadges
+      selections={selections}
+      className="justify-end gap-1 px-0 pt-0"
+    />
   );
 }
 
@@ -78,9 +62,11 @@ function EditableContent({
 export function HumanMessage({
   message,
   isLoading,
+  onReuse,
 }: {
   message: Message;
   isLoading: boolean;
+  onReuse?: (text: string, context?: Record<string, string[]>) => void;
 }) {
   const thread = useStreamContext();
   const meta = thread.getMessagesMetadata(message);
@@ -89,6 +75,9 @@ export function HumanMessage({
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");
   const contentString = getContentString(message.content);
+  const messageContext = message.additional_kwargs?.context as
+    | Record<string, string[]>
+    | undefined;
 
   const handleSubmitEdit = () => {
     setIsEditing(false);
@@ -185,6 +174,8 @@ export function HumanMessage({
             }}
             handleSubmitEdit={handleSubmitEdit}
             isHumanMessage={true}
+            onReuse={onReuse}
+            messageContext={messageContext}
           />
         </div>
       </div>
