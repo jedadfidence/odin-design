@@ -1,0 +1,67 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type checker / linter caches
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local config / secrets
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Tooling
+.python-version.local
+
+# Temp
+*.tmp
+*.temp
+*.swp
+tmp/
+
+# Langgraph
+.langgraph_api/
+
+# Google Service Account
+credentials.json
+.worktrees/
