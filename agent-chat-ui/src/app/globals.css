@@ -15,6 +15,10 @@
   from { transform: translateY(-180%); }
   to   { transform: translateY(0); }
 }
+@keyframes gradient-shift {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
 
 @theme inline {
   --font-sans: "Google Sans Flex", system-ui, sans-serif;

@@ -60,6 +60,14 @@ import { ContextPopover } from "./context-popover";
 import { SelectionPopup } from "./selection-popup";
 import { QuoteCards } from "./quote-cards";
 
+function ScrollToBottomBridge({ scrollRef }: { scrollRef: React.MutableRefObject<(() => void) | null> }) {
+  const { scrollToBottom } = useStickToBottomContext();
+  useEffect(() => {
+    scrollRef.current = scrollToBottom;
+  }, [scrollToBottom, scrollRef]);
+  return null;
+}
+
 function StickyToBottomContent(props: {
   content: ReactNode;
   footer?: ReactNode;
@@ -173,6 +181,7 @@ export function Thread() {
   } = useContextSelectors();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const scrollToBottomRef = useRef<(() => void) | null>(null);
   const {
     quotes,
     addQuote,
@@ -299,6 +308,7 @@ export function Thread() {
     setInput("");
     setContentBlocks([]);
     clearQuotes();
+    scrollToBottomRef.current?.();
   };
 
   const handleRegenerate = (
@@ -354,6 +364,7 @@ export function Thread() {
       );
       clearSuggestions();
       clearQuotes();
+      scrollToBottomRef.current?.();
     },
     [clearSuggestions, clearQuotes, stream, contextToMetadata, quotesToMetadata, artifactContext],
   );
@@ -460,22 +471,22 @@ export function Thread() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden h-8 w-8"
+                className="lg:hidden"
                 onClick={() => setChatHistoryOpen((p) => !p)}
               >
-                <Menu className="h-5 w-5" />
+                <Menu />
               </Button>
               <button
                 onClick={() => setThreadId(null)}
-                className="flex cursor-pointer items-center gap-2"
+                className="flex cursor-pointer items-end gap-2"
               >
                 <img
                   src="/adfidence-logo.svg"
                   alt="Adfidence"
-                  className="h-6 w-auto object-contain flex-shrink-0"
+                  className="h-5 w-auto object-contain flex-shrink-0 dark:brightness-0 dark:invert"
                 />
-                <span className="text-lg font-semibold tracking-tight">
-                  Assistant
+                <span className="text-2xl font-semibold italic tracking-tight leading-none translate-y-[0.12em] text-[#4586F7] dark:text-foreground">
+                  AI
                 </span>
               </button>
             </div>
@@ -483,42 +494,38 @@ export function Thread() {
               {chatStarted && (
                 <>
                   <TooltipIconButton
-                    size="sm"
                     tooltip="Generate report"
                     variant="ghost"
                     onClick={() => setReportSheetOpen(true)}
                     data-testid="report-btn"
                   >
-                    <FileBarChart className="h-4 w-4" />
+                    <FileBarChart />
                   </TooltipIconButton>
                   <TooltipIconButton
-                    size="sm"
                     tooltip="New thread"
                     variant="ghost"
                     onClick={() => setThreadId(null)}
                   >
-                    <SquarePen className="h-4 w-4" />
+                    <SquarePen />
                   </TooltipIconButton>
                 </>
               )}
               <TooltipIconButton
-                size="sm"
                 tooltip={hideToolCalls ? "Show tool calls" : "Hide tool calls"}
                 variant="ghost"
                 onClick={() => setHideToolCalls(!(hideToolCalls ?? true))}
                 className={cn(
-                  "h-8 w-8",
-                  hideToolCalls !== false && "text-muted-foreground",
                   hideToolCalls === false && "text-primary",
                 )}
               >
-                <Wrench className="h-4 w-4" />
+                <Wrench />
               </TooltipIconButton>
               <ThemeToggle />
             </div>
           </header>
 
           <StickToBottom className="relative flex-1 overflow-hidden">
+            <ScrollToBottomBridge scrollRef={scrollToBottomRef} />
             {/* Top fade gradient */}
             <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[60px] bg-gradient-to-b from-background from-40% via-background/90 via-70% to-transparent" />
             {/* Bottom fade gradient */}
@@ -539,14 +546,14 @@ export function Thread() {
                 <div ref={messagesContainerRef} className="relative">
                   {!chatStarted && (
                     <div className="flex flex-col items-center justify-center gap-3 pt-[20vh]">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-end gap-3">
                         <img
                           src="/adfidence-logo.svg"
                           alt="Adfidence"
-                          className="h-10 w-auto object-contain flex-shrink-0"
+                          className="h-10 w-auto object-contain flex-shrink-0 dark:brightness-0 dark:invert"
                         />
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                          Assistant
+                        <h1 className="text-5xl font-semibold italic tracking-tight leading-none translate-y-[0.12em] text-[#4586F7] dark:text-foreground">
+                          AI
                         </h1>
                       </div>
                       <p className="text-muted-foreground text-sm">

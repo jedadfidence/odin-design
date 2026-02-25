@@ -74,7 +74,7 @@ function SuggestionPlaceholder({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl border border-border/60 bg-card/70 px-4 py-3",
+        "flex items-center gap-3 rounded-full border border-border/60 bg-card/70 px-4 py-3",
         "text-left text-sm text-card-foreground/70 shadow-xs backdrop-blur-sm",
         mobile && "min-w-[260px] snap-start flex-shrink-0",
       )}
@@ -123,7 +123,7 @@ function SuggestionCard({
       data-testid="suggestion-card"
       onClick={() => onSelect(text)}
       className={cn(
-        "group flex items-start gap-3 rounded-xl border border-border/60 bg-card/80 px-4 py-3",
+        "group flex items-center gap-3 rounded-full border border-border/60 bg-card/80 px-4 py-3",
         "text-left text-sm text-card-foreground/90",
         "shadow-xs backdrop-blur-sm transition-all",
         "hover:border-primary/40 hover:bg-primary/5 hover:shadow-md",
@@ -132,7 +132,7 @@ function SuggestionCard({
         mobile && "min-w-[260px] snap-start flex-shrink-0",
       )}
     >
-      <Icon className="mt-0.5 size-4 flex-shrink-0 text-primary opacity-70 group-hover:opacity-100 transition-opacity" />
+      <Icon className="size-4 flex-shrink-0 text-primary opacity-70 group-hover:opacity-100 transition-opacity" />
       <span className="line-clamp-2">{text}</span>
     </button>
   );

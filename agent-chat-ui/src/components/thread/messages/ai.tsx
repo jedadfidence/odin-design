@@ -272,11 +272,11 @@ function FlippingText({ text, suffix }: { text: string; suffix?: string }) {
       {/* Visible animated text */}
       <span
         key={`out-${displayed}`}
-        className="absolute left-0 top-0 inline-block whitespace-nowrap"
+        className="absolute left-0 top-0 inline-block whitespace-nowrap animate-gradient-text bg-clip-text text-transparent"
         style={{
-          animation: incoming
-            ? "arrow-exit-down 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
-            : "none",
+          backgroundImage: "linear-gradient(90deg, #4586F7 0%, #8fb4fc 30%, #4586F7 60%, #8fb4fc 90%, #4586F7 100%)",
+          backgroundSize: "200% 100%",
+          animation: `${incoming ? "arrow-exit-down 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards," : ""} gradient-shift 2s linear infinite`,
         }}
       >
         {displayed}{suffix}
@@ -284,10 +284,12 @@ function FlippingText({ text, suffix }: { text: string; suffix?: string }) {
       {incoming && (
         <span
           key={`in-${incoming}`}
-          className="absolute left-0 top-0 inline-block whitespace-nowrap"
+          className="absolute left-0 top-0 inline-block whitespace-nowrap bg-clip-text text-transparent"
           style={{
+            backgroundImage: "linear-gradient(90deg, #4586F7 0%, #8fb4fc 30%, #4586F7 60%, #8fb4fc 90%, #4586F7 100%)",
+            backgroundSize: "200% 100%",
             animation:
-              "arrow-enter-down 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+              "arrow-enter-down 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards, gradient-shift 2s linear infinite",
           }}
         >
           {incoming}{suffix}
