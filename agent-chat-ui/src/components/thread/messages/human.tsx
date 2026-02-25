@@ -7,6 +7,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
+import { Badge } from "@/components/ui/badge";
+import { Globe, Megaphone } from "lucide-react";
+import { ContextCategory } from "@/lib/context-selectors";
+
+const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
+  countries: <Globe className="h-3 w-3" />,
+  platforms: <Megaphone className="h-3 w-3" />,
+};
+
+function MessageContextBadges({ message }: { message: Message }) {
+  const ctx = message.additional_kwargs?.context as
+    | Record<string, string[]>
+    | undefined;
+  if (!ctx) return null;
+
+  const badges: { category: ContextCategory; item: string }[] = [];
+  for (const category of ["countries", "platforms"] as ContextCategory[]) {
+    if (ctx[category]) {
+      for (const item of ctx[category]) {
+        badges.push({ category, item });
+      }
+    }
+  }
+
+  if (badges.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap justify-end gap-1">
+      {badges.map(({ category, item }) => (
+        <Badge
+          key={`${category}-${item}`}
+          variant="secondary"
+          className="gap-1 text-xs font-normal"
+        >
+          {CATEGORY_ICON[category]}
+          {item}
+        </Badge>
+      ))}
+    </div>
+  );
+}
 
 function EditableContent({
   value,
@@ -115,6 +156,7 @@ export function HumanMessage({
                 {contentString}
               </p>
             ) : null}
+            <MessageContextBadges message={message} />
           </div>
         )}
 

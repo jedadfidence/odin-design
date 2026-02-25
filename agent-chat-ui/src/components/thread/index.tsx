@@ -228,6 +228,7 @@ export function Thread() {
     if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
       return;
 
+    const contextMeta = contextToMetadata();
     const newHumanMessage: Message = {
       id: uuidv4(),
       type: "human",
@@ -235,11 +236,10 @@ export function Thread() {
         ...(input.trim().length > 0 ? [{ type: "text", text: input }] : []),
         ...contentBlocks,
       ] as Message["content"],
+      additional_kwargs: contextMeta ? { context: contextMeta } : {},
     };
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-
-    const contextMeta = contextToMetadata();
     const mergedContext = {
       ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
       ...(contextMeta ?? {}),
@@ -283,13 +283,14 @@ export function Thread() {
 
   const handleSuggestionSelect = useCallback(
     (text: string) => {
+      const contextMeta = contextToMetadata();
       const newHumanMessage: Message = {
         id: uuidv4(),
         type: "human",
         content: [{ type: "text", text }] as Message["content"],
+        additional_kwargs: contextMeta ? { context: contextMeta } : {},
       };
       const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-      const contextMeta = contextToMetadata();
       const suggestionContext = {
         ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
         ...(contextMeta ?? {}),
