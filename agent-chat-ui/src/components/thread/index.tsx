@@ -31,6 +31,8 @@ import {
   Menu,
   Lightbulb,
   Wrench,
+  Globe,
+  Megaphone,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -50,6 +52,9 @@ import {
   useArtifactContext,
 } from "./artifact";
 import { ThemeToggle } from "../ui/theme-toggle";
+import { useContextSelectors } from "@/hooks/use-context-selectors";
+import { ContextBadges } from "./context-badges";
+import { ContextPopover } from "./context-popover";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -147,6 +152,21 @@ export function Thread() {
     dragOver,
     handlePaste,
   } = useFileUpload();
+  const {
+    selections: contextSelections,
+    popoverOpen: contextPopoverOpen,
+    activeCategory,
+    setActiveCategory,
+    triggerSource,
+    toggleItem,
+    removeItem,
+    resetSelections: resetContextSelections,
+    hasSelections: hasContextSelections,
+    toMetadata: contextToMetadata,
+    openPopover: openContextPopover,
+    closePopover: closeContextPopover,
+  } = useContextSelectors();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
@@ -174,6 +194,7 @@ export function Thread() {
     // close artifact and reset artifact context
     closeArtifact();
     setArtifactContext({});
+    resetContextSelections();
   };
 
   useEffect(() => {
@@ -218,8 +239,13 @@ export function Thread() {
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
 
+    const contextMeta = contextToMetadata();
+    const mergedContext = {
+      ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
+      ...(contextMeta ?? {}),
+    };
     const context =
-      Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
+      Object.keys(mergedContext).length > 0 ? mergedContext : undefined;
 
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
@@ -286,7 +312,7 @@ export function Thread() {
 
   const chatStarted = !!threadId || !!messages.length;
 
-  const isComposingMessage = input.trim().length > 0 || contentBlocks.length > 0;
+  const isComposingMessage = input.trim().length > 0 || contentBlocks.length > 0 || hasContextSelections;
   const showSuggestionPlaceholders =
     chatStarted && !isComposingMessage && !isLoading && isFetchingSuggestions;
   const visibleSuggestions = isComposingMessage
@@ -545,11 +571,21 @@ export function Thread() {
                         blocks={contentBlocks}
                         onRemove={removeBlock}
                       />
+                      <ContextBadges selections={contextSelections} onRemove={removeItem} />
                       <textarea
+                        ref={textareaRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onPaste={handlePaste}
                         onKeyDown={(e) => {
+                          if (e.key === "@") {
+                            const val = (e.target as HTMLTextAreaElement).value;
+                            const pos = (e.target as HTMLTextAreaElement).selectionStart;
+                            if (pos === 0 || val[pos - 1] === " ") {
+                              e.preventDefault();
+                              openContextPopover(undefined, "keyboard");
+                            }
+                          }
                           if (
                             e.key === "Enter" &&
                             !e.shiftKey &&
@@ -565,6 +601,23 @@ export function Thread() {
                         placeholder="Type your message..."
                         className="field-sizing-content w-full resize-none border-none bg-transparent px-5 pt-4 pb-0 text-foreground shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
+                      <ContextPopover
+                        open={contextPopoverOpen && triggerSource === "keyboard"}
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            closeContextPopover();
+                            textareaRef.current?.focus();
+                          }
+                        }}
+                        activeCategory={activeCategory}
+                        onCategorySelect={setActiveCategory}
+                        selections={contextSelections}
+                        onToggleItem={toggleItem}
+                        align="start"
+                        side="top"
+                      >
+                        <span className="sr-only">Context menu</span>
+                      </ContextPopover>
 
                       <div className="flex items-center gap-6 px-4 py-3">
                         <TooltipIconButton
@@ -580,6 +633,63 @@ export function Thread() {
                         >
                           <Lightbulb className="h-4 w-4" />
                         </TooltipIconButton>
+
+                        <ContextPopover
+                          open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "countries"}
+                          onOpenChange={(open) => {
+                            if (open) openContextPopover("countries", "icon");
+                            else closeContextPopover();
+                          }}
+                          activeCategory={activeCategory}
+                          onCategorySelect={setActiveCategory}
+                          selections={contextSelections}
+                          onToggleItem={toggleItem}
+                          align="start"
+                          side="top"
+                        >
+                          <TooltipIconButton
+                            tooltip="Countries"
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "h-8 w-8",
+                              contextSelections.countries.length > 0
+                                ? "text-primary"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            <Globe className="h-4 w-4" />
+                          </TooltipIconButton>
+                        </ContextPopover>
+
+                        <ContextPopover
+                          open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "platforms"}
+                          onOpenChange={(open) => {
+                            if (open) openContextPopover("platforms", "icon");
+                            else closeContextPopover();
+                          }}
+                          activeCategory={activeCategory}
+                          onCategorySelect={setActiveCategory}
+                          selections={contextSelections}
+                          onToggleItem={toggleItem}
+                          align="start"
+                          side="top"
+                        >
+                          <TooltipIconButton
+                            tooltip="Platforms"
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "h-8 w-8",
+                              contextSelections.platforms.length > 0
+                                ? "text-primary"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            <Megaphone className="h-4 w-4" />
+                          </TooltipIconButton>
+                        </ContextPopover>
+
                         {/* Hidden for now – uncomment to re-enable file uploads
                         <Label
                           htmlFor="file-input"
