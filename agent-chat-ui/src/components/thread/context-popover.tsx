@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
@@ -33,6 +34,7 @@ interface ContextPopoverProps {
   selections: ContextSelections;
   onToggleItem: (category: ContextCategory, item: string) => void;
   children: React.ReactNode;
+  anchorRef?: React.RefObject<HTMLElement | null>;
   align?: "start" | "center" | "end";
   side?: "top" | "bottom";
 }
@@ -45,6 +47,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   selections,
   onToggleItem,
   children,
+  anchorRef,
   align = "start",
   side = "top",
 }) => {
@@ -206,9 +209,16 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      {anchorRef ? (
+        <>
+          <PopoverAnchor virtualRef={anchorRef as React.RefObject<HTMLElement>} />
+          {children}
+        </>
+      ) : (
+        <PopoverTrigger asChild>{children}</PopoverTrigger>
+      )}
       <PopoverContent
-        className="w-[220px] p-0"
+        className="w-[220px] border-border/60 bg-background/80 p-0 shadow-lg backdrop-blur-sm"
         align={align}
         side={side}
         onCloseAutoFocus={(e) => e.preventDefault()}
@@ -218,7 +228,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           handleKeyDown(e);
         }}
       >
-        <Command shouldFilter={true}>
+        <Command shouldFilter={true} className="bg-transparent">
           {!activeCategory ? (
             <>
               <CommandInput

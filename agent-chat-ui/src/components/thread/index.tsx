@@ -180,6 +180,7 @@ export function Thread() {
     closePopover: closeContextPopover,
   } = useContextSelectors();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputBoxRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const scrollToBottomRef = useRef<(() => void) | null>(null);
   const {
@@ -640,7 +641,10 @@ export function Thread() {
                   </AnimatePresence>
 
                   <div
-                    ref={dropRef}
+                    ref={(el) => {
+                      dropRef.current = el;
+                      inputBoxRef.current = el;
+                    }}
                     className={cn(
                       "bg-background/80 backdrop-blur-sm relative z-10 mx-auto mb-6 w-full max-w-[816px] rounded-2xl shadow-lg transition-all",
                       dragOver
@@ -650,18 +654,51 @@ export function Thread() {
                   >
                     <form
                       onSubmit={handleSubmit}
-                      className="grid grid-rows-[1fr_auto] gap-2"
+                      className="grid grid-rows-[1fr_auto]"
                     >
                       <ContentBlocksPreview
                         blocks={contentBlocks}
                         onRemove={removeBlock}
                       />
-                      <QuoteCards
-                        quotes={quotes}
-                        onUpdate={updateQuote}
-                        onRemove={removeQuote}
-                      />
-                      <ContextBadges selections={contextSelections} onRemove={removeItem} onClearAll={resetContextSelections} />
+                      <AnimatePresence initial={false}>
+                        {quotes.length > 0 && (
+                          <motion.div
+                            key="quote-cards"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{
+                              duration: 0.2,
+                              ease: [0.25, 0.1, 0.25, 1],
+                            }}
+                            style={{ overflow: "clip" }}
+                          >
+                            <QuoteCards
+                              quotes={quotes}
+                              onUpdate={updateQuote}
+                              onRemove={removeQuote}
+                              onClearAll={clearQuotes}
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <AnimatePresence initial={false}>
+                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0) && (
+                          <motion.div
+                            key="context-badges"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{
+                              duration: 0.2,
+                              ease: [0.25, 0.1, 0.25, 1],
+                            }}
+                            style={{ overflow: "clip" }}
+                          >
+                            <ContextBadges selections={contextSelections} onRemove={removeItem} onClearAll={resetContextSelections} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                       <ContextPopover
                         open={contextPopoverOpen && triggerSource === "keyboard"}
                         onOpenChange={(open) => {
@@ -674,6 +711,7 @@ export function Thread() {
                         onCategorySelect={setActiveCategory}
                         selections={contextSelections}
                         onToggleItem={toggleItem}
+                        anchorRef={inputBoxRef}
                         align="start"
                         side="top"
                       >

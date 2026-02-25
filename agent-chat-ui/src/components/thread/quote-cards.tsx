@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Popover,
   PopoverContent,
@@ -74,6 +75,7 @@ interface QuoteCardsProps {
   quotes: TextQuote[];
   onUpdate: (id: string, text: string) => void;
   onRemove: (id: string) => void;
+  onClearAll?: () => void;
   className?: string;
 }
 
@@ -81,6 +83,7 @@ export const QuoteCards: React.FC<QuoteCardsProps> = ({
   quotes,
   onUpdate,
   onRemove,
+  onClearAll,
   className,
 }) => {
   if (quotes.length === 0) return null;
@@ -88,18 +91,44 @@ export const QuoteCards: React.FC<QuoteCardsProps> = ({
   return (
     <div
       className={cn(
-        "flex max-h-[140px] flex-wrap gap-2 overflow-y-auto px-5 pt-3 pb-0",
+        "flex max-h-[140px] flex-wrap items-center gap-2 overflow-y-auto px-5 pt-3 pb-0",
         className,
       )}
     >
-      {quotes.map((quote) => (
-        <QuoteCard
-          key={quote.id}
-          quote={quote}
-          onUpdate={onUpdate}
-          onRemove={onRemove}
-        />
-      ))}
+      <AnimatePresence mode="popLayout">
+        {onClearAll && quotes.length > 1 && (
+          <motion.button
+            key="clear-all"
+            layout
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            type="button"
+            onClick={onClearAll}
+            className="rounded-md px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+            <span className="sr-only">Clear all quotes</span>
+          </motion.button>
+        )}
+        {quotes.map((quote) => (
+          <motion.div
+            key={quote.id}
+            layout
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+          >
+            <QuoteCard
+              quote={quote}
+              onUpdate={onUpdate}
+              onRemove={onRemove}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 };
