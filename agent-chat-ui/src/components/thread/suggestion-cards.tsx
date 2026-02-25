@@ -1,0 +1,167 @@
+"use client";
+
+import { memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, TrendingUp, BarChart3, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface SuggestionCardsProps {
+  suggestions: string[];
+  onSelect: (text: string) => void;
+  loading?: boolean;
+}
+
+const ICONS = [Sparkles, TrendingUp, BarChart3, MessageSquare];
+
+function SuggestionCardsInner({
+  suggestions,
+  onSelect,
+  loading = false,
+}: SuggestionCardsProps) {
+  if (!loading && suggestions.length === 0) return null;
+  const placeholderCount = 4;
+  const placeholders = Array.from({ length: placeholderCount }, (_, i) => i);
+
+  return (
+    <div className="w-full max-w-3xl mx-auto px-2">
+      {/* Desktop: 2x2 grid, Mobile: horizontal scroll */}
+      <div
+        className={cn(
+          "hidden sm:grid sm:grid-cols-2 gap-2",
+        )}
+      >
+        <AnimatePresence mode="popLayout">
+          {loading
+            ? placeholders.map((i) => (
+                <SuggestionPlaceholder key={`desktop-placeholder-${i}`} index={i} />
+              ))
+            : suggestions.map((text, i) => (
+                <SuggestionCard
+                  key={text}
+                  text={text}
+                  icon={ICONS[i % ICONS.length]}
+                  index={i}
+                  onSelect={onSelect}
+                />
+              ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Mobile: horizontal scroll */}
+      <div className="flex sm:hidden overflow-x-auto gap-2 snap-x snap-mandatory pb-1 scrollbar-none">
+        <AnimatePresence mode="popLayout">
+          {loading
+            ? placeholders.map((i) => (
+                <SuggestionPlaceholder
+                  key={`mobile-placeholder-${i}`}
+                  index={i}
+                  mobile
+                />
+              ))
+            : suggestions.map((text, i) => (
+                <SuggestionCard
+                  key={text}
+                  text={text}
+                  icon={ICONS[i % ICONS.length]}
+                  index={i}
+                  onSelect={onSelect}
+                  mobile
+                />
+              ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+function SuggestionPlaceholder({
+  index,
+  mobile,
+}: {
+  index: number;
+  mobile?: boolean;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+      transition={{ delay: index * 0.06, duration: 0.25, ease: "easeOut" }}
+      className={cn(
+        "flex items-center gap-3 rounded-xl border border-border/60 bg-card/70 px-4 py-3",
+        "text-left text-sm text-card-foreground/70 shadow-xs backdrop-blur-sm",
+        mobile && "min-w-[260px] snap-start flex-shrink-0",
+      )}
+    >
+      <div className="size-4 rounded-full bg-primary/30" />
+      <div className="flex items-center">
+        <LoadingDots />
+      </div>
+    </motion.div>
+  );
+}
+
+function LoadingDots() {
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="size-1.5 rounded-full bg-primary/70"
+          animate={{ y: [0, -3, 0], opacity: [0.4, 1, 0.4] }}
+          transition={{
+            duration: 0.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.12,
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function SuggestionCard({
+  text,
+  icon: Icon,
+  index,
+  onSelect,
+  mobile,
+}: {
+  text: string;
+  icon: React.ComponentType<{ className?: string }>;
+  index: number;
+  onSelect: (text: string) => void;
+  mobile?: boolean;
+}) {
+  return (
+    <motion.button
+      data-testid="suggestion-card"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+      transition={{ delay: index * 0.06, duration: 0.25, ease: "easeOut" }}
+      onClick={() => onSelect(text)}
+      className={cn(
+        "group flex items-start gap-3 rounded-xl border border-border/60 bg-card/80 px-4 py-3",
+        "text-left text-sm text-card-foreground/90",
+        "shadow-xs backdrop-blur-sm transition-all",
+        "hover:border-primary/40 hover:bg-primary/5 hover:shadow-md",
+        "active:scale-[0.98]",
+        "cursor-pointer",
+        mobile && "min-w-[260px] snap-start flex-shrink-0",
+      )}
+    >
+      <Icon className="mt-0.5 size-4 flex-shrink-0 text-primary opacity-70 group-hover:opacity-100 transition-opacity" />
+      <span className="line-clamp-2">{text}</span>
+    </motion.button>
+  );
+}
+
+export const SuggestionCards = memo(
+  SuggestionCardsInner,
+  (prev, next) =>
+    prev.loading === next.loading &&
+    prev.suggestions.length === next.suggestions.length &&
+    prev.suggestions.every((s, i) => s === next.suggestions[i]),
+);
