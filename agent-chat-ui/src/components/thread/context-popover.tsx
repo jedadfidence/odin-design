@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   Popover,
   PopoverContent,
@@ -52,6 +52,44 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
     ? CONTEXT_CATEGORIES.find((c) => c.id === activeCategory)
     : null;
 
+  // Trap all keyboard events inside the popover so they don't bubble
+  // up to the chat scroll. Also handle ArrowRight to drill in and
+  // ArrowLeft to go back.
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      // Always stop propagation for navigation keys
+      if (
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight" ||
+        e.key === "Enter" ||
+        e.key === " "
+      ) {
+        e.stopPropagation();
+      }
+
+      if (e.key === "ArrowRight" && !activeCategory) {
+        // Drill into the highlighted category — trigger the selected item's onSelect
+        // cmdk marks the active item with data-selected="true"
+        const selected = (e.currentTarget as HTMLElement).querySelector(
+          '[cmdk-item][data-selected="true"]',
+        ) as HTMLElement | null;
+        if (selected) {
+          selected.click();
+        }
+        e.preventDefault();
+      }
+
+      if (e.key === "ArrowLeft" && activeCategory) {
+        // Go back to categories
+        onCategorySelect(null);
+        e.preventDefault();
+      }
+    },
+    [activeCategory, onCategorySelect],
+  );
+
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
@@ -60,6 +98,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         align={align}
         side={side}
         onCloseAutoFocus={(e) => e.preventDefault()}
+        onKeyDown={handleKeyDown}
       >
         {!activeCategory ? (
           <Command key="categories">
