@@ -2,6 +2,20 @@
 
 @plugin "tailwindcss-animate";
 
+/* Scroll-to-bottom arrow: always moves downward on both hover-in and hover-out */
+@keyframes arrow-exit-down {
+  from { transform: translateY(0); }
+  to   { transform: translateY(180%); }
+}
+@keyframes arrow-enter-down {
+  from { transform: translateY(-180%); }
+  to   { transform: translateY(0); }
+}
+@keyframes arrow-reset-down {
+  from { transform: translateY(-180%); }
+  to   { transform: translateY(0); }
+}
+
 @theme inline {
   --font-sans: "Google Sans Flex", system-ui, sans-serif;
   --font-mono: "Google Sans Code", ui-monospace, monospace;

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Sparkles, TrendingUp, BarChart3, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,51 +24,41 @@ function SuggestionCardsInner({
 
   return (
     <div className="w-full max-w-3xl mx-auto px-2">
-      {/* Desktop: 2x2 grid, Mobile: horizontal scroll */}
-      <div
-        className={cn(
-          "hidden sm:grid sm:grid-cols-2 gap-2",
-        )}
-      >
-        <AnimatePresence mode="popLayout">
-          {loading
-            ? placeholders.map((i) => (
-                <SuggestionPlaceholder key={`desktop-placeholder-${i}`} index={i} />
-              ))
-            : suggestions.map((text, i) => (
-                <SuggestionCard
-                  key={text}
-                  text={text}
-                  icon={ICONS[i % ICONS.length]}
-                  index={i}
-                  onSelect={onSelect}
-                />
-              ))}
-        </AnimatePresence>
+      {/* Desktop: 2x2 grid */}
+      <div className="hidden sm:grid sm:grid-cols-2 gap-2">
+        {loading
+          ? placeholders.map((i) => (
+              <SuggestionPlaceholder key={`desktop-placeholder-${i}`} index={i} />
+            ))
+          : suggestions.map((text, i) => (
+              <SuggestionCard
+                key={text}
+                text={text}
+                icon={ICONS[i % ICONS.length]}
+                onSelect={onSelect}
+              />
+            ))}
       </div>
 
       {/* Mobile: horizontal scroll */}
       <div className="flex sm:hidden overflow-x-auto gap-2 snap-x snap-mandatory pb-1 scrollbar-none">
-        <AnimatePresence mode="popLayout">
-          {loading
-            ? placeholders.map((i) => (
-                <SuggestionPlaceholder
-                  key={`mobile-placeholder-${i}`}
-                  index={i}
-                  mobile
-                />
-              ))
-            : suggestions.map((text, i) => (
-                <SuggestionCard
-                  key={text}
-                  text={text}
-                  icon={ICONS[i % ICONS.length]}
-                  index={i}
-                  onSelect={onSelect}
-                  mobile
-                />
-              ))}
-        </AnimatePresence>
+        {loading
+          ? placeholders.map((i) => (
+              <SuggestionPlaceholder
+                key={`mobile-placeholder-${i}`}
+                index={i}
+                mobile
+              />
+            ))
+          : suggestions.map((text, i) => (
+              <SuggestionCard
+                key={text}
+                text={text}
+                icon={ICONS[i % ICONS.length]}
+                onSelect={onSelect}
+                mobile
+              />
+            ))}
       </div>
     </div>
   );
@@ -82,11 +72,7 @@ function SuggestionPlaceholder({
   mobile?: boolean;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
-      transition={{ delay: index * 0.06, duration: 0.25, ease: "easeOut" }}
+    <div
       className={cn(
         "flex items-center gap-3 rounded-xl border border-border/60 bg-card/70 px-4 py-3",
         "text-left text-sm text-card-foreground/70 shadow-xs backdrop-blur-sm",
@@ -97,7 +83,7 @@ function SuggestionPlaceholder({
       <div className="flex items-center">
         <LoadingDots />
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -124,23 +110,17 @@ function LoadingDots() {
 function SuggestionCard({
   text,
   icon: Icon,
-  index,
   onSelect,
   mobile,
 }: {
   text: string;
   icon: React.ComponentType<{ className?: string }>;
-  index: number;
   onSelect: (text: string) => void;
   mobile?: boolean;
 }) {
   return (
-    <motion.button
+    <button
       data-testid="suggestion-card"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
-      transition={{ delay: index * 0.06, duration: 0.25, ease: "easeOut" }}
       onClick={() => onSelect(text)}
       className={cn(
         "group flex items-start gap-3 rounded-xl border border-border/60 bg-card/80 px-4 py-3",
@@ -154,7 +134,7 @@ function SuggestionCard({
     >
       <Icon className="mt-0.5 size-4 flex-shrink-0 text-primary opacity-70 group-hover:opacity-100 transition-opacity" />
       <span className="line-clamp-2">{text}</span>
-    </motion.button>
+    </button>
   );
 }
 

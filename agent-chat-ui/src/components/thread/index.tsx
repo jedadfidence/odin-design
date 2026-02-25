@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { ReactNode, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
@@ -20,6 +21,7 @@ import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   ArrowDown,
   LoaderCircle,
+  SendHorizontal,
   ChevronsLeft,
   ChevronsRight,
   SquarePen,
@@ -28,6 +30,7 @@ import {
   FileBarChart,
   Menu,
   Lightbulb,
+  Wrench,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -75,15 +78,40 @@ function StickyToBottomContent(props: {
 
 function ScrollToBottom(props: { className?: string }) {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
+  const [hovered, setHovered] = useState(false);
 
   if (isAtBottom) return null;
   return (
     <Button
       variant="outline"
-      className={props.className}
+      className={cn(
+        "rounded-full bg-background/80 backdrop-blur-sm",
+        props.className,
+      )}
       onClick={() => scrollToBottom()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <ArrowDown className="h-4 w-4" />
+      <span className="relative h-4 w-4 overflow-hidden">
+        {/* Visible arrow — exits downward on hover, enters from top on unhover */}
+        <ArrowDown
+          className="h-4 w-4"
+          style={{
+            animation: hovered
+              ? "arrow-exit-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
+              : "arrow-reset-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          }}
+        />
+        {/* Second arrow — enters from top on hover, exits downward on unhover */}
+        <ArrowDown
+          className="absolute inset-0 h-4 w-4"
+          style={{
+            animation: hovered
+              ? "arrow-enter-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
+              : "arrow-exit-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          }}
+        />
+      </span>
       <span>Scroll to bottom</span>
     </Button>
   );
@@ -329,7 +357,7 @@ export function Thread() {
           )}
         >
           {/* Header */}
-          <header className="flex h-12 items-center justify-between border-b border-border px-3">
+          <header className="flex h-12 items-center justify-between px-3">
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -375,11 +403,33 @@ export function Thread() {
                   </TooltipIconButton>
                 </>
               )}
+              <TooltipIconButton
+                size="sm"
+                tooltip={hideToolCalls ? "Show tool calls" : "Hide tool calls"}
+                variant="ghost"
+                onClick={() => setHideToolCalls(!(hideToolCalls ?? true))}
+                className={cn(
+                  "h-8 w-8",
+                  hideToolCalls !== false && "text-muted-foreground",
+                  hideToolCalls === false && "text-primary",
+                )}
+              >
+                <Wrench className="h-4 w-4" />
+              </TooltipIconButton>
               <ThemeToggle />
             </div>
           </header>
 
           <StickToBottom className="relative flex-1 overflow-hidden">
+            {/* Top fade gradient */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[60px] bg-gradient-to-b from-background from-40% via-background/90 via-70% to-transparent" />
+            {/* Bottom fade gradient */}
+            <div className={cn(
+              "pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-background via-background/90 to-transparent transition-all duration-300",
+              showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders)
+                ? "h-[400px] from-30% via-60%"
+                : "h-[100px] from-30% via-60%",
+            )} />
             <StickyToBottomContent
               className={cn(
                 "absolute inset-0 overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-track]:bg-transparent",
@@ -439,21 +489,49 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 pointer-events-none [&>*]:pointer-events-auto">
+                <div className="sticky bottom-0 z-20 flex flex-col items-center pointer-events-none [&>*]:pointer-events-auto">
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
-                  {showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
-                    <SuggestionCards
-                      suggestions={visibleSuggestions}
-                      loading={showSuggestionPlaceholders}
-                      onSelect={handleSuggestionSelect}
-                    />
-                  )}
+                  <AnimatePresence initial={false}>
+                    {showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
+                      <motion.div
+                        key="suggestions"
+                        initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                        animate={{
+                          opacity: 1,
+                          height: "auto",
+                          marginBottom: 24,
+                          transition: {
+                            height: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                            marginBottom: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                            opacity: { duration: 0.3, delay: 0.05, ease: "easeOut" },
+                          },
+                        }}
+                        exit={{
+                          opacity: 0,
+                          height: 0,
+                          marginBottom: 0,
+                          transition: {
+                            opacity: { duration: 0.15, ease: "easeIn" },
+                            height: { duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] },
+                            marginBottom: { duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] },
+                          },
+                        }}
+                        className="overflow-hidden"
+                      >
+                        <SuggestionCards
+                          suggestions={visibleSuggestions}
+                          loading={showSuggestionPlaceholders}
+                          onSelect={handleSuggestionSelect}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-background/80 backdrop-blur-sm relative z-10 mx-auto mb-6 w-full max-w-3xl rounded-2xl shadow-lg transition-all",
+                      "bg-background/80 backdrop-blur-sm relative z-10 mx-auto mb-6 w-full max-w-[816px] rounded-2xl shadow-lg transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-border",
@@ -461,7 +539,7 @@ export function Thread() {
                   >
                     <form
                       onSubmit={handleSubmit}
-                      className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2"
+                      className="grid grid-rows-[1fr_auto] gap-2"
                     >
                       <ContentBlocksPreview
                         blocks={contentBlocks}
@@ -485,25 +563,10 @@ export function Thread() {
                           }
                         }}
                         placeholder="Type your message..."
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 text-foreground shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        className="field-sizing-content w-full resize-none border-none bg-transparent px-5 pt-4 pb-0 text-foreground shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
-                      <div className="flex items-center gap-6 p-2 pt-4">
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="render-tool-calls"
-                              checked={hideToolCalls ?? true}
-                              onCheckedChange={setHideToolCalls}
-                            />
-                            <Label
-                              htmlFor="render-tool-calls"
-                              className="text-sm text-muted-foreground"
-                            >
-                              Hide Tool Calls
-                            </Label>
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-6 px-4 py-3">
                         <TooltipIconButton
                           tooltip={showSuggestions ? "Hide suggestions" : "Show suggestions"}
                           variant="ghost"
@@ -517,6 +580,7 @@ export function Thread() {
                         >
                           <Lightbulb className="h-4 w-4" />
                         </TooltipIconButton>
+                        {/* Hidden for now – uncomment to re-enable file uploads
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
@@ -534,6 +598,7 @@ export function Thread() {
                           accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
                           className="hidden"
                         />
+                        */}
                         {stream.isLoading ? (
                           <Button
                             key="stop"
@@ -546,13 +611,14 @@ export function Thread() {
                         ) : (
                           <Button
                             type="submit"
-                            className="ml-auto bg-primary text-primary-foreground hover:bg-primary-hover rounded-xl shadow-md transition-all"
+                            size="icon"
+                            className="ml-auto h-9 w-9 rounded-full bg-[#4586F7] text-white hover:bg-[#3a75e0] shadow-md transition-all"
                             disabled={
                               isLoading ||
                               (!input.trim() && contentBlocks.length === 0)
                             }
                           >
-                            Send
+                            <SendHorizontal className="h-4 w-4" />
                           </Button>
                         )}
                       </div>

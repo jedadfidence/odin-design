@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
 import { MessageContentComplex } from "@langchain/core/messages";
 import { Fragment } from "react/jsx-runtime";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -231,6 +231,68 @@ export function AssistantMessage({
   );
 }
 
+const ALL_STATUSES = [
+  "Analysing your request",
+  "Running tool",
+  "Reasoning",
+  "Fetching data",
+];
+
+function FlippingText({ text, suffix }: { text: string; suffix?: string }) {
+  const [displayed, setDisplayed] = useState(text);
+  const [incoming, setIncoming] = useState<string | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (text === displayed && !incoming) return;
+    if (text === incoming) return;
+
+    // Start flip: new text enters from top, old exits downward
+    setIncoming(text);
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setDisplayed(text);
+      setIncoming(null);
+    }, 400);
+
+    return () => clearTimeout(timeoutRef.current);
+  }, [text]);
+
+  return (
+    <span className="relative inline-flex overflow-hidden" style={{ height: "1.4em" }}>
+      {/* Invisible sizer: renders all possible texts so the container is always wide enough */}
+      <span className="invisible whitespace-pre" aria-hidden>
+        {ALL_STATUSES.reduce((a, b) => (a.length >= b.length ? a : b), "")}...
+      </span>
+
+      {/* Visible animated text */}
+      <span
+        key={`out-${displayed}`}
+        className="absolute left-0 top-0 inline-block whitespace-nowrap"
+        style={{
+          animation: incoming
+            ? "arrow-exit-down 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
+            : "none",
+        }}
+      >
+        {displayed}{suffix}
+      </span>
+      {incoming && (
+        <span
+          key={`in-${incoming}`}
+          className="absolute left-0 top-0 inline-block whitespace-nowrap"
+          style={{
+            animation:
+              "arrow-enter-down 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          }}
+        >
+          {incoming}{suffix}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function AssistantMessageLoading() {
   const thread = useStreamContext();
   const [dotCount, setDotCount] = useState(1);
@@ -244,7 +306,7 @@ export function AssistantMessageLoading() {
   }, []);
 
   const status = useMemo(() => {
-    let latestStatus = "Analysing Your request";
+    let latestStatus = "Analysing your request";
 
     for (const message of thread.messages) {
       if (message.type === "ai") {
@@ -283,9 +345,8 @@ export function AssistantMessageLoading() {
 
   return (
     <div className="mr-auto flex items-start gap-2">
-      <div className="bg-surface flex min-h-8 items-center rounded-2xl px-4 py-2 text-sm">
-        {status}
-        {".".repeat(dotCount)}
+      <div className="flex min-h-8 items-center py-2 text-sm text-muted-foreground">
+        <FlippingText text={status} suffix={".".repeat(dotCount)} />
       </div>
     </div>
   );

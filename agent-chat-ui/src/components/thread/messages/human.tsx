@@ -76,11 +76,11 @@ export function HumanMessage({
   return (
     <div
       className={cn(
-        "group ml-auto flex items-center gap-2",
-        isEditing && "w-full max-w-xl",
+        "group ml-auto flex w-full items-center justify-end gap-2",
+        isEditing && "max-w-xl",
       )}
     >
-      <div className={cn("flex flex-col gap-2", isEditing && "w-full")}>
+      <div className={cn("flex w-full flex-col gap-2", isEditing && "w-full")}>
         {isEditing ? (
           <EditableContent
             value={value}
@@ -88,7 +88,7 @@ export function HumanMessage({
             onSubmit={handleSubmitEdit}
           />
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex w-full flex-col items-end gap-2">
             {/* Render images and files if no text */}
             {Array.isArray(message.content) && message.content.length > 0 && (
               <div className="flex flex-wrap items-end justify-end gap-2">
@@ -111,7 +111,7 @@ export function HumanMessage({
             )}
             {/* Render text if present, otherwise fallback to file/image name */}
             {contentString ? (
-              <p className="bg-primary-light text-foreground ml-auto w-fit max-w-[80%] rounded-2xl rounded-br-sm px-4 py-2.5 text-right whitespace-pre-wrap shadow-sm">
+              <p className="bg-[#E4EFFE] dark:bg-[#1F356F] text-foreground w-fit max-w-[80%] rounded-2xl rounded-br-sm px-4 py-2.5 text-right whitespace-pre-wrap">
                 {contentString}
               </p>
             ) : null}
