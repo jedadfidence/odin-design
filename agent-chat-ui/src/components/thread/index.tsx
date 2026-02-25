@@ -330,12 +330,14 @@ export function Thread() {
           countries: context.countries ?? [],
           platforms: context.platforms ?? [],
         });
+      } else {
+        resetContextSelections();
       }
       requestAnimationFrame(() => {
         textareaRef.current?.focus();
       });
     },
-    [setContextSelections],
+    [setContextSelections, resetContextSelections],
   );
 
   const chatStarted = !!threadId || !!messages.length;
