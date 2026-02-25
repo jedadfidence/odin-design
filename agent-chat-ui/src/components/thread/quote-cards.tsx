@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TextQuote } from "@/hooks/use-text-quotes";
-import { X, TextSelect } from "lucide-react";
+import { X, TextSelect, ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function truncateText(text: string, maxLength: number = 50): string {
@@ -19,9 +19,10 @@ interface QuoteCardProps {
   quote: TextQuote;
   onUpdate: (id: string, text: string) => void;
   onRemove: (id: string) => void;
+  onScrollToSource?: (quote: TextQuote) => void;
 }
 
-function QuoteCard({ quote, onUpdate, onRemove }: QuoteCardProps) {
+function QuoteCard({ quote, onUpdate, onRemove, onScrollToSource }: QuoteCardProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -57,9 +58,24 @@ function QuoteCard({ quote, onUpdate, onRemove }: QuoteCardProps) {
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-muted-foreground">
-            Edit quoted text
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-muted-foreground">
+              Edit quoted text
+            </label>
+            {onScrollToSource && quote.sourceMessageId && (
+              <button
+                type="button"
+                onClick={() => {
+                  onScrollToSource(quote);
+                  setOpen(false);
+                }}
+                className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <ArrowUp className="h-3 w-3" />
+                Source
+              </button>
+            )}
+          </div>
           <textarea
             value={quote.text}
             onChange={(e) => onUpdate(quote.id, e.target.value)}
@@ -75,6 +91,7 @@ interface QuoteCardsProps {
   quotes: TextQuote[];
   onUpdate: (id: string, text: string) => void;
   onRemove: (id: string) => void;
+  onScrollToSource?: (quote: TextQuote) => void;
   onClearAll?: () => void;
   className?: string;
 }
@@ -83,6 +100,7 @@ export const QuoteCards: React.FC<QuoteCardsProps> = ({
   quotes,
   onUpdate,
   onRemove,
+  onScrollToSource,
   onClearAll,
   className,
 }) => {
@@ -125,6 +143,7 @@ export const QuoteCards: React.FC<QuoteCardsProps> = ({
               quote={quote}
               onUpdate={onUpdate}
               onRemove={onRemove}
+              onScrollToSource={onScrollToSource}
             />
           </motion.div>
         ))}

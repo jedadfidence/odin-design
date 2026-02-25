@@ -202,6 +202,90 @@ export function Thread() {
     },
     [addQuote, clearSelection],
   );
+
+  const handleScrollToQuoteSource = useCallback(
+    (quote: { sourceMessageId: string; text: string }) => {
+      const messageEl = messagesContainerRef.current?.querySelector<HTMLElement>(
+        `[data-message-id="${quote.sourceMessageId}"]`,
+      );
+      if (!messageEl) return;
+
+      // Collect all text nodes in the message
+      const walker = document.createTreeWalker(
+        messageEl,
+        NodeFilter.SHOW_TEXT,
+      );
+      const textNodes: Text[] = [];
+      let node: Node | null;
+      while ((node = walker.nextNode())) textNodes.push(node as Text);
+
+      // Build concatenated text with segment positions
+      let fullText = "";
+      const segments: { node: Text; start: number; len: number }[] = [];
+      for (const tn of textNodes) {
+        const len = tn.textContent?.length ?? 0;
+        segments.push({ node: tn, start: fullText.length, len });
+        fullText += tn.textContent ?? "";
+      }
+
+      const matchStart = fullText.indexOf(quote.text);
+      if (matchStart === -1) {
+        // Fallback: highlight entire message
+        messageEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        messageEl.classList.add("quote-source-highlight");
+        setTimeout(() => {
+          document.addEventListener(
+            "pointerdown",
+            () => messageEl.classList.remove("quote-source-highlight"),
+            { once: true },
+          );
+        }, 0);
+        return;
+      }
+
+      const matchEnd = matchStart + quote.text.length;
+
+      // Find overlapping text nodes, process in reverse to avoid index shift
+      const marks: HTMLElement[] = [];
+      const affected = segments
+        .filter((s) => s.start < matchEnd && s.start + s.len > matchStart)
+        .reverse();
+
+      for (const seg of affected) {
+        const hlStart = Math.max(0, matchStart - seg.start);
+        const hlEnd = Math.min(seg.len, matchEnd - seg.start);
+        const range = document.createRange();
+        range.setStart(seg.node, hlStart);
+        range.setEnd(seg.node, hlEnd);
+        const mark = document.createElement("mark");
+        mark.className = "quote-source-highlight-text";
+        range.surroundContents(mark);
+        marks.push(mark);
+      }
+
+      // Scroll to the first mark
+      const scrollTarget = marks[marks.length - 1] ?? messageEl;
+      scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Remove marks on next click anywhere
+      const removeMarks = () => {
+        for (const m of marks) {
+          const parent = m.parentNode;
+          if (!parent) continue;
+          while (m.firstChild) parent.insertBefore(m.firstChild, m);
+          parent.removeChild(m);
+          parent.normalize();
+        }
+        document.removeEventListener("pointerdown", removeMarks);
+      };
+      // Use setTimeout so the current click doesn't immediately dismiss
+      setTimeout(() => {
+        document.addEventListener("pointerdown", removeMarks, { once: true });
+      }, 0);
+    },
+    [],
+  );
+
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
@@ -677,6 +761,7 @@ export function Thread() {
                               quotes={quotes}
                               onUpdate={updateQuote}
                               onRemove={removeQuote}
+                              onScrollToSource={handleScrollToQuoteSource}
                               onClearAll={clearQuotes}
                             />
                           </motion.div>
