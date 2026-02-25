@@ -35,6 +35,17 @@ export function useTextQuotes() {
     setQuotes([]);
   }, []);
 
+  const setQuotesFromTexts = useCallback((texts: string[]) => {
+    setQuotes(
+      texts.map((text) => ({
+        id: uuidv4(),
+        text,
+        sourceMessageId: "",
+        sourceType: "ai" as const,
+      })),
+    );
+  }, []);
+
   const hasQuotes = quotes.length > 0;
 
   const toMetadata = useCallback(():
@@ -50,6 +61,7 @@ export function useTextQuotes() {
     updateQuote,
     removeQuote,
     clearQuotes,
+    setQuotesFromTexts,
     hasQuotes,
     toMetadata,
   };

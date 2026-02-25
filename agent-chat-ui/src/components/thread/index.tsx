@@ -179,6 +179,7 @@ export function Thread() {
     updateQuote,
     removeQuote,
     clearQuotes,
+    setQuotesFromTexts,
     hasQuotes,
     toMetadata: quotesToMetadata,
   } = useTextQuotes();
@@ -365,14 +366,20 @@ export function Thread() {
           countries: context.countries ?? [],
           platforms: context.platforms ?? [],
         });
+        if (context.selected_text?.length) {
+          setQuotesFromTexts(context.selected_text);
+        } else {
+          clearQuotes();
+        }
       } else {
         resetContextSelections();
+        clearQuotes();
       }
       requestAnimationFrame(() => {
         textareaRef.current?.focus();
       });
     },
-    [setContextSelections, resetContextSelections],
+    [setContextSelections, resetContextSelections, setQuotesFromTexts, clearQuotes],
   );
 
   const chatStarted = !!threadId || !!messages.length;
