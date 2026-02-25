@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   Popover,
   PopoverContent,
@@ -48,49 +48,160 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   align = "start",
   side = "top",
 }) => {
+  const [search, setSearch] = useState("");
+
   const activeCategoryConfig = activeCategory
     ? CONTEXT_CATEGORIES.find((c) => c.id === activeCategory)
     : null;
 
-  // Track the highlighted item so it persists when toggling checkboxes
-  const [highlightedValue, setHighlightedValue] = useState("");
+  // Reset search and refocus command input when popover opens/closes or category changes
+  React.useEffect(() => {
+    setSearch("");
+    if (open) {
+      // After React renders the new page, move focus to the cmdk input
+      requestAnimationFrame(() => {
+        const input = document.querySelector<HTMLInputElement>("[cmdk-input]");
+        input?.focus();
+      });
+    }
+  }, [open, activeCategory]);
 
-  // Trap all keyboard events inside the popover so they don't bubble
-  // up to the chat scroll. Also handle ArrowRight to drill in and
-  // ArrowLeft to go back.
+  /** Get the cmdk-highlighted item's value */
+  const getSelectedValue = useCallback((): string | null => {
+    const el = document.querySelector("[cmdk-item][data-selected=true]");
+    return el?.getAttribute("data-value") ?? null;
+  }, []);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      // Always stop propagation for navigation keys
-      if (
-        e.key === "ArrowUp" ||
-        e.key === "ArrowDown" ||
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowRight" ||
-        e.key === "Enter" ||
-        e.key === " "
-      ) {
-        e.stopPropagation();
-      }
-
-      if (e.key === "ArrowRight" && !activeCategory) {
-        // Drill into the highlighted category — trigger the selected item's onSelect
-        // cmdk marks the active item with data-selected="true"
-        const selected = (e.currentTarget as HTMLElement).querySelector(
-          '[cmdk-item][data-selected="true"]',
-        ) as HTMLElement | null;
-        if (selected) {
-          selected.click();
+      if (e.key === "ArrowRight") {
+        if (!activeCategory && !search) {
+          // On category page with no search — drill into highlighted category
+          const value = getSelectedValue();
+          const cat = CONTEXT_CATEGORIES.find((c) => c.id === value);
+          if (cat) {
+            e.preventDefault();
+            onCategorySelect(cat.id);
+          }
         }
+        // On items page or search results, ArrowRight does nothing special
+      } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-      }
-
-      if (e.key === "ArrowLeft" && activeCategory) {
-        // Go back to categories
-        onCategorySelect(null);
+        if (activeCategory) {
+          // On items page — go back to categories
+          onCategorySelect(null);
+        } else {
+          // On category page — close popover
+          onOpenChange(false);
+        }
+      } else if (e.key === "Escape") {
         e.preventDefault();
+        e.stopPropagation();
+        if (activeCategory) {
+          // On items page — go back to categories
+          onCategorySelect(null);
+        } else {
+          // On category page — close popover
+          onOpenChange(false);
+        }
       }
     },
-    [activeCategory, onCategorySelect],
+    [activeCategory, search, getSelectedValue, onCategorySelect, onOpenChange],
+  );
+
+  /** Root page: cross-category search results */
+  const renderCrossCategorySearch = () => (
+    <>
+      {CONTEXT_CATEGORIES.map((cat) => (
+        <CommandGroup key={cat.id} heading={cat.label}>
+          {cat.items.map((item) => {
+            const checked = selections[cat.id].includes(item);
+            return (
+              <CommandItem
+                key={`${cat.id}-${item}`}
+                value={`${cat.id}-${item}`}
+                onSelect={() => onToggleItem(cat.id, item)}
+                className="flex items-center gap-2"
+              >
+                <Checkbox checked={checked} className="pointer-events-none" />
+                <span>{item}</span>
+              </CommandItem>
+            );
+          })}
+        </CommandGroup>
+      ))}
+    </>
+  );
+
+  /** Root page: category list (no search) */
+  const renderCategoryList = () => (
+    <CommandGroup>
+      {CONTEXT_CATEGORIES.map((cat) => {
+        const count = selections[cat.id].length;
+        return (
+          <CommandItem
+            key={cat.id}
+            value={cat.id}
+            onSelect={() => onCategorySelect(cat.id)}
+            className="flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              {CATEGORY_ICONS[cat.id]}
+              <span>{cat.label}</span>
+              {count > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  ({count})
+                </span>
+              )}
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </CommandItem>
+        );
+      })}
+    </CommandGroup>
+  );
+
+  /** Items page: single category with checkboxes */
+  const renderItemsList = () => (
+    <>
+      <div className="flex items-center gap-1 border-b px-2 py-1.5">
+        <button
+          type="button"
+          onClick={() => onCategorySelect(null)}
+          aria-label="Back to categories"
+          className="flex items-center gap-1 rounded px-1 py-0.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-sm font-medium">
+          {activeCategoryConfig?.label}
+        </span>
+      </div>
+      <CommandInput
+        placeholder={`Search ${activeCategoryConfig?.label?.toLowerCase()}...`}
+        value={search}
+        onValueChange={setSearch}
+      />
+      <CommandList>
+        <CommandEmpty>No items found.</CommandEmpty>
+        <CommandGroup>
+          {activeCategoryConfig?.items.map((item) => {
+            const checked = selections[activeCategory!].includes(item);
+            return (
+              <CommandItem
+                key={item}
+                value={item}
+                onSelect={() => onToggleItem(activeCategory!, item)}
+                className="flex items-center gap-2"
+              >
+                <Checkbox checked={checked} className="pointer-events-none" />
+                <span>{item}</span>
+              </CommandItem>
+            );
+          })}
+        </CommandGroup>
+      </CommandList>
+    </>
   );
 
   return (
@@ -101,84 +212,29 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         align={align}
         side={side}
         onCloseAutoFocus={(e) => e.preventDefault()}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(e) => {
+          // Prevent all keystrokes from leaking to textarea
+          e.stopPropagation();
+          handleKeyDown(e);
+        }}
       >
-        {!activeCategory ? (
-          <Command key="categories">
-            <CommandInput placeholder="Search context..." />
-            <CommandList>
-              <CommandEmpty>No categories found.</CommandEmpty>
-              <CommandGroup>
-                {CONTEXT_CATEGORIES.map((cat) => {
-                  const count = selections[cat.id].length;
-                  return (
-                    <CommandItem
-                      key={cat.id}
-                      onSelect={() => onCategorySelect(cat.id)}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2">
-                        {CATEGORY_ICONS[cat.id]}
-                        <span>{cat.label}</span>
-                        {count > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            ({count})
-                          </span>
-                        )}
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        ) : (
-          <Command
-            key={`items-${activeCategory}`}
-            value={highlightedValue}
-            onValueChange={setHighlightedValue}
-          >
-            <div className="flex items-center gap-1 border-b px-2 py-1.5">
-              <button
-                type="button"
-                onClick={() => onCategorySelect(null)}
-                aria-label="Back to categories"
-                className="flex items-center gap-1 rounded px-1 py-0.5 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="text-sm font-medium">
-                {activeCategoryConfig?.label}
-              </span>
-            </div>
-            <CommandInput
-              placeholder={`Search ${activeCategoryConfig?.label?.toLowerCase()}...`}
-            />
-            <CommandList>
-              <CommandEmpty>No items found.</CommandEmpty>
-              <CommandGroup>
-                {activeCategoryConfig?.items.map((item) => {
-                  const checked = selections[activeCategory].includes(item);
-                  return (
-                    <CommandItem
-                      key={item}
-                      value={item}
-                      onSelect={() => onToggleItem(activeCategory, item)}
-                      className="flex items-center gap-2"
-                    >
-                      <Checkbox
-                        checked={checked}
-                        className="pointer-events-none"
-                      />
-                      <span>{item}</span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        )}
+        <Command shouldFilter={true}>
+          {!activeCategory ? (
+            <>
+              <CommandInput
+                placeholder="Search context..."
+                value={search}
+                onValueChange={setSearch}
+              />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                {search ? renderCrossCategorySearch() : renderCategoryList()}
+              </CommandList>
+            </>
+          ) : (
+            renderItemsList()
+          )}
+        </Command>
       </PopoverContent>
     </Popover>
   );
