@@ -53,8 +53,12 @@ import {
 } from "./artifact";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
+import { useTextQuotes } from "@/hooks/use-text-quotes";
+import { useTextSelection } from "@/hooks/use-text-selection";
 import { ContextBadges } from "./context-badges";
 import { ContextPopover } from "./context-popover";
+import { SelectionPopup } from "./selection-popup";
+import { QuoteCards } from "./quote-cards";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -168,6 +172,25 @@ export function Thread() {
     closePopover: closeContextPopover,
   } = useContextSelectors();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const {
+    quotes,
+    addQuote,
+    updateQuote,
+    removeQuote,
+    clearQuotes,
+    hasQuotes,
+    toMetadata: quotesToMetadata,
+  } = useTextQuotes();
+  const { selection, clearSelection } = useTextSelection(messagesContainerRef);
+
+  const handleAddQuote = useCallback(
+    (text: string, messageId: string, sourceType: "ai" | "human") => {
+      addQuote(text, messageId, sourceType);
+      clearSelection();
+    },
+    [addQuote, clearSelection],
+  );
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
@@ -230,6 +253,8 @@ export function Thread() {
       return;
 
     const contextMeta = contextToMetadata();
+    const quotesMeta = quotesToMetadata();
+    const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
     const newHumanMessage: Message = {
       id: uuidv4(),
       type: "human",
@@ -237,13 +262,16 @@ export function Thread() {
         ...(input.trim().length > 0 ? [{ type: "text", text: input }] : []),
         ...contentBlocks,
       ] as Message["content"],
-      additional_kwargs: contextMeta ? { context: contextMeta } : {},
+      additional_kwargs: Object.keys(combinedMeta).length > 0
+        ? { context: combinedMeta }
+        : {},
     };
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
     const mergedContext = {
       ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
       ...(contextMeta ?? {}),
+      ...(quotesMeta ?? {}),
     };
     const context =
       Object.keys(mergedContext).length > 0 ? mergedContext : undefined;
@@ -269,6 +297,7 @@ export function Thread() {
     clearSuggestions();
     setInput("");
     setContentBlocks([]);
+    clearQuotes();
   };
 
   const handleRegenerate = (
@@ -292,9 +321,11 @@ export function Thread() {
         additional_kwargs: contextMeta ? { context: contextMeta } : {},
       };
       const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+      const quotesMeta = quotesToMetadata();
       const suggestionContext = {
         ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
         ...(contextMeta ?? {}),
+        ...(quotesMeta ?? {}),
       };
       const context =
         Object.keys(suggestionContext).length > 0
@@ -342,7 +373,7 @@ export function Thread() {
 
   const chatStarted = !!threadId || !!messages.length;
 
-  const isComposingMessage = input.trim().length > 0 || contentBlocks.length > 0 || hasContextSelections;
+  const isComposingMessage = input.trim().length > 0 || contentBlocks.length > 0 || hasContextSelections || hasQuotes;
   const showSuggestionPlaceholders =
     chatStarted && !isComposingMessage && !isLoading && isFetchingSuggestions;
   const visibleSuggestions = isComposingMessage
@@ -494,7 +525,7 @@ export function Thread() {
               )}
               contentClassName="pt-8 pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full"
               content={
-                <>
+                <div ref={messagesContainerRef} className="relative">
                   {!chatStarted && (
                     <div className="flex flex-col items-center justify-center gap-3 pt-[20vh]">
                       <div className="flex items-center gap-3">
@@ -543,7 +574,12 @@ export function Thread() {
                   {isLoading && !hasFirstAiToken && (
                     <AssistantMessageLoading />
                   )}
-                </>
+                  <SelectionPopup
+                    selection={selection}
+                    containerRef={messagesContainerRef}
+                    onAdd={handleAddQuote}
+                  />
+                </div>
               }
               footer={
                 <div className="sticky bottom-0 z-20 flex flex-col items-center pointer-events-none [&>*]:pointer-events-auto">
@@ -601,6 +637,11 @@ export function Thread() {
                       <ContentBlocksPreview
                         blocks={contentBlocks}
                         onRemove={removeBlock}
+                      />
+                      <QuoteCards
+                        quotes={quotes}
+                        onUpdate={updateQuote}
+                        onRemove={removeQuote}
                       />
                       <ContextBadges selections={contextSelections} onRemove={removeItem} onClearAll={resetContextSelections} />
                       <ContextPopover
