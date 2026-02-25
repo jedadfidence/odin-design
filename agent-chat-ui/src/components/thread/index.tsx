@@ -606,7 +606,7 @@ export function Thread() {
                             if (e.key === "@") {
                               const val = (e.target as HTMLTextAreaElement).value;
                               const pos = (e.target as HTMLTextAreaElement).selectionStart;
-                              if (pos === 0 || val[pos - 1] === " ") {
+                              if (pos === 0 || val[pos - 1] === " " || val[pos - 1] === "\n") {
                                 e.preventDefault();
                                 openContextPopover(undefined, "keyboard");
                               }

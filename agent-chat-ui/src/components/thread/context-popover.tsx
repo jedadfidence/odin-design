@@ -98,6 +98,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
                 <button
                   type="button"
                   onClick={() => onCategorySelect(null)}
+                  aria-label="Back to categories"
                   className="flex items-center gap-1 rounded px-1 py-0.5 text-sm text-muted-foreground hover:text-foreground"
                 >
                   <ChevronLeft className="h-4 w-4" />
