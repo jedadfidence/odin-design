@@ -66,11 +66,11 @@ export function useTextSelection(containerRef: RefObject<HTMLElement | null>) {
       setSelection(null);
     };
 
-    container.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("mousedown", handleMouseDown);
 
     return () => {
-      container.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mousedown", handleMouseDown);
     };
   }, [containerRef]);
