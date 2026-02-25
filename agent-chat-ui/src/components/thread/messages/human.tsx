@@ -53,7 +53,7 @@ function MessageContextBadges({ message }: { message: Message }) {
               {quoteCount} {quoteCount === 1 ? "quote" : "quotes"}
             </Badge>
           </TooltipTrigger>
-          <TooltipContent side="top" sideOffset={6} hideArrow className="w-max max-w-[min(500px,80vw)] space-y-1.5 border-border/60 bg-background/80 text-foreground shadow-lg backdrop-blur-sm text-left">
+          <TooltipContent side="top" sideOffset={6} hideArrow className="w-max max-w-[min(500px,80vw)] space-y-1.5 border-border/60 bg-background/80 text-foreground shadow-lg backdrop-blur-sm text-left text-wrap">
             {ctx.selected_text!.map((text, i) => (
               <p key={i} className="text-xs leading-snug">
                 &ldquo;{text}&rdquo;
