@@ -56,7 +56,7 @@ function ThreadList({
                   size="icon"
                   className={cn(
                     "h-8 w-8 mx-auto",
-                    isActive && "bg-sidebar-accent",
+                    isActive && "bg-muted",
                   )}
                   onClick={(e) => {
                     e.preventDefault();
@@ -81,7 +81,7 @@ function ThreadList({
               variant="ghost"
               className={cn(
                 "w-full items-start justify-start text-left font-normal text-sm",
-                isActive && "bg-sidebar-accent",
+                isActive && "bg-muted",
               )}
               onClick={(e) => {
                 e.preventDefault();

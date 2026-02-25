@@ -27,6 +27,7 @@ import {
   Plus,
   FileBarChart,
   Menu,
+  Lightbulb,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -107,6 +108,7 @@ export function Thread() {
   );
   const [input, setInput] = useState("");
   const [reportSheetOpen, setReportSheetOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const {
     contentBlocks,
     setContentBlocks,
@@ -284,7 +286,7 @@ export function Thread() {
       {/* Collapsible sidebar — desktop only */}
       <div
         className={cn(
-          "hidden lg:flex flex-col border-r border-border bg-sidebar transition-all duration-300 ease-in-out",
+          "hidden lg:flex flex-col border-r border-border bg-background transition-all duration-300 ease-in-out",
           sidebarCollapsed ? "w-14" : "w-60",
         )}
       >
@@ -440,7 +442,7 @@ export function Thread() {
                 <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-background">
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
-                  {(visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
+                  {showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
                     <SuggestionCards
                       suggestions={visibleSuggestions}
                       loading={showSuggestionPlaceholders}
@@ -451,7 +453,7 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-surface relative z-10 mx-auto mb-6 w-full max-w-3xl rounded-2xl shadow-lg transition-all",
+                      "bg-background relative z-10 mx-auto mb-6 w-full max-w-3xl rounded-2xl shadow-lg transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-border",
@@ -502,6 +504,19 @@ export function Thread() {
                             </Label>
                           </div>
                         </div>
+                        <TooltipIconButton
+                          tooltip={showSuggestions ? "Hide suggestions" : "Show suggestions"}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowSuggestions((p) => !p)}
+                          className={cn(
+                            "h-8 w-8",
+                            showSuggestions && "text-primary",
+                            !showSuggestions && "text-muted-foreground",
+                          )}
+                        >
+                          <Lightbulb className="h-4 w-4" />
+                        </TooltipIconButton>
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
