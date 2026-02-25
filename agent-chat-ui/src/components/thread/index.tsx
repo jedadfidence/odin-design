@@ -154,6 +154,7 @@ export function Thread() {
   } = useFileUpload();
   const {
     selections: contextSelections,
+    setSelections: setContextSelections,
     popoverOpen: contextPopoverOpen,
     activeCategory,
     setActiveCategory,
@@ -319,6 +320,22 @@ export function Thread() {
       clearSuggestions();
     },
     [clearSuggestions, stream, contextToMetadata, artifactContext],
+  );
+
+  const handleReuse = useCallback(
+    (text: string, context?: Record<string, string[]>) => {
+      setInput(text);
+      if (context) {
+        setContextSelections({
+          countries: context.countries ?? [],
+          platforms: context.platforms ?? [],
+        });
+      }
+      requestAnimationFrame(() => {
+        textareaRef.current?.focus();
+      });
+    },
+    [setContextSelections],
   );
 
   const chatStarted = !!threadId || !!messages.length;
@@ -502,6 +519,7 @@ export function Thread() {
                           key={message.id || `${message.type}-${index}`}
                           message={message}
                           isLoading={isLoading}
+                          onReuse={handleReuse}
                         />
                       ) : (
                         <AssistantMessage
@@ -582,7 +600,7 @@ export function Thread() {
                         blocks={contentBlocks}
                         onRemove={removeBlock}
                       />
-                      <ContextBadges selections={contextSelections} onRemove={removeItem} />
+                      <ContextBadges selections={contextSelections} onRemove={removeItem} onClearAll={resetContextSelections} />
                       <ContextPopover
                         open={contextPopoverOpen && triggerSource === "keyboard"}
                         onOpenChange={(open) => {
