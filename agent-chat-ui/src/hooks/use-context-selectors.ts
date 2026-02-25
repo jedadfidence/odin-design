@@ -71,6 +71,7 @@ export function useContextSelectors() {
 
   return {
     selections,
+    setSelections,
     popoverOpen,
     activeCategory,
     setActiveCategory,
