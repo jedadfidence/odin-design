@@ -439,7 +439,7 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-background">
+                <div className="sticky bottom-0 flex flex-col items-center gap-8 pointer-events-none [&>*]:pointer-events-auto">
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                   {showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
