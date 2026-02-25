@@ -8,11 +8,13 @@ import { BranchSwitcher, CommandBar } from "./shared";
 import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
 import { ContextBadges } from "../context-badges";
+import { Badge } from "@/components/ui/badge";
+import { TextSelect } from "lucide-react";
 import { ContextCategory, ContextSelections, EMPTY_SELECTIONS } from "@/lib/context-selectors";
 
 function MessageContextBadges({ message }: { message: Message }) {
   const ctx = message.additional_kwargs?.context as
-    | Record<string, string[]>
+    | Record<string, string[] | undefined>
     | undefined;
   if (!ctx) return null;
 
@@ -25,11 +27,30 @@ function MessageContextBadges({ message }: { message: Message }) {
     ),
   };
 
+  const quoteCount = ctx.selected_text?.length ?? 0;
+
+  const hasAnything =
+    selections.countries.length > 0 ||
+    selections.platforms.length > 0 ||
+    quoteCount > 0;
+  if (!hasAnything) return null;
+
   return (
-    <ContextBadges
-      selections={selections}
-      className="justify-end gap-1 px-0 pt-0"
-    />
+    <div className="flex flex-wrap items-center justify-end gap-1">
+      <ContextBadges
+        selections={selections}
+        className="justify-end gap-1 px-0 pt-0"
+      />
+      {quoteCount > 0 && (
+        <Badge
+          variant="secondary"
+          className="gap-1 rounded-full border-transparent bg-amber-100 text-xs font-normal text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+        >
+          <TextSelect className="h-3 w-3" />
+          {quoteCount} {quoteCount === 1 ? "quote" : "quotes"}
+        </Badge>
+      )}
+    </div>
   );
 }
 
