@@ -20,6 +20,11 @@ def _build_context_message(context: dict[str, Any] | None) -> SystemMessage | No
         parts.append(f"Countries: {', '.join(context['countries'])}")
     if context.get("platforms"):
         parts.append(f"Platforms: {', '.join(context['platforms'])}")
+    if context.get("selected_text"):
+        parts.append(
+            "The user is referring to the following text from the conversation:\n"
+            + "\n---\n".join(f'"{t}"' for t in context["selected_text"])
+        )
     if not parts:
         return None
     return SystemMessage(
