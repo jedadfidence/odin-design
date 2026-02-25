@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -51,6 +51,9 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   const activeCategoryConfig = activeCategory
     ? CONTEXT_CATEGORIES.find((c) => c.id === activeCategory)
     : null;
+
+  // Track the highlighted item so it persists when toggling checkboxes
+  const [highlightedValue, setHighlightedValue] = useState("");
 
   // Trap all keyboard events inside the popover so they don't bubble
   // up to the chat scroll. Also handle ArrowRight to drill in and
@@ -131,7 +134,11 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
             </CommandList>
           </Command>
         ) : (
-          <Command key={`items-${activeCategory}`}>
+          <Command
+            key={`items-${activeCategory}`}
+            value={highlightedValue}
+            onValueChange={setHighlightedValue}
+          >
             <div className="flex items-center gap-1 border-b px-2 py-1.5">
               <button
                 type="button"
@@ -156,6 +163,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
                   return (
                     <CommandItem
                       key={item}
+                      value={item}
                       onSelect={() => onToggleItem(activeCategory, item)}
                       className="flex items-center gap-2"
                     >
