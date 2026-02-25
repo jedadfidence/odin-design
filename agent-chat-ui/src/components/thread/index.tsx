@@ -453,7 +453,7 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-background relative z-10 mx-auto mb-6 w-full max-w-3xl rounded-2xl shadow-lg transition-all",
+                      "bg-background/80 backdrop-blur-sm relative z-10 mx-auto mb-6 w-full max-w-3xl rounded-2xl shadow-lg transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-border",
