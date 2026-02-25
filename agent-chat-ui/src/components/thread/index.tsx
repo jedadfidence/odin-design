@@ -289,14 +289,24 @@ export function Thread() {
         content: [{ type: "text", text }] as Message["content"],
       };
       const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+      const contextMeta = contextToMetadata();
+      const suggestionContext = {
+        ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
+        ...(contextMeta ?? {}),
+      };
+      const context =
+        Object.keys(suggestionContext).length > 0
+          ? suggestionContext
+          : undefined;
       stream.submit(
-        { messages: [...toolMessages, newHumanMessage] },
+        { messages: [...toolMessages, newHumanMessage], context },
         {
           streamMode: ["values"],
           streamSubgraphs: true,
           streamResumable: true,
           optimisticValues: (prev) => ({
             ...prev,
+            context,
             messages: [
               ...(prev.messages ?? []),
               ...toolMessages,
@@ -307,7 +317,7 @@ export function Thread() {
       );
       clearSuggestions();
     },
-    [clearSuggestions, stream],
+    [clearSuggestions, stream, contextToMetadata, artifactContext],
   );
 
   const chatStarted = !!threadId || !!messages.length;
@@ -572,35 +582,6 @@ export function Thread() {
                         onRemove={removeBlock}
                       />
                       <ContextBadges selections={contextSelections} onRemove={removeItem} />
-                      <textarea
-                        ref={textareaRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onPaste={handlePaste}
-                        onKeyDown={(e) => {
-                          if (e.key === "@") {
-                            const val = (e.target as HTMLTextAreaElement).value;
-                            const pos = (e.target as HTMLTextAreaElement).selectionStart;
-                            if (pos === 0 || val[pos - 1] === " ") {
-                              e.preventDefault();
-                              openContextPopover(undefined, "keyboard");
-                            }
-                          }
-                          if (
-                            e.key === "Enter" &&
-                            !e.shiftKey &&
-                            !e.metaKey &&
-                            !e.nativeEvent.isComposing
-                          ) {
-                            e.preventDefault();
-                            const el = e.target as HTMLElement | undefined;
-                            const form = el?.closest("form");
-                            form?.requestSubmit();
-                          }
-                        }}
-                        placeholder="Type your message..."
-                        className="field-sizing-content w-full resize-none border-none bg-transparent px-5 pt-4 pb-0 text-foreground shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
-                      />
                       <ContextPopover
                         open={contextPopoverOpen && triggerSource === "keyboard"}
                         onOpenChange={(open) => {
@@ -616,7 +597,35 @@ export function Thread() {
                         align="start"
                         side="top"
                       >
-                        <span className="sr-only">Context menu</span>
+                        <textarea
+                          ref={textareaRef}
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onPaste={handlePaste}
+                          onKeyDown={(e) => {
+                            if (e.key === "@") {
+                              const val = (e.target as HTMLTextAreaElement).value;
+                              const pos = (e.target as HTMLTextAreaElement).selectionStart;
+                              if (pos === 0 || val[pos - 1] === " ") {
+                                e.preventDefault();
+                                openContextPopover(undefined, "keyboard");
+                              }
+                            }
+                            if (
+                              e.key === "Enter" &&
+                              !e.shiftKey &&
+                              !e.metaKey &&
+                              !e.nativeEvent.isComposing
+                            ) {
+                              e.preventDefault();
+                              const el = e.target as HTMLElement | undefined;
+                              const form = el?.closest("form");
+                              form?.requestSubmit();
+                            }
+                          }}
+                          placeholder="Type your message..."
+                          className="field-sizing-content w-full resize-none border-none bg-transparent px-5 pt-4 pb-0 text-foreground shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        />
                       </ContextPopover>
 
                       <div className="flex items-center gap-6 px-4 py-3">
