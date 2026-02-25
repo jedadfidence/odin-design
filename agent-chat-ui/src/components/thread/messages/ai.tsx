@@ -241,7 +241,7 @@ const ALL_STATUSES = [
 function FlippingText({ text, suffix }: { text: string; suffix?: string }) {
   const [displayed, setDisplayed] = useState(text);
   const [incoming, setIncoming] = useState<string | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     if (text === displayed && !incoming) return;
