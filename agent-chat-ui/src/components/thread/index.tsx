@@ -31,9 +31,6 @@ import {
   Menu,
   Lightbulb,
   Wrench,
-  Globe,
-  Megaphone,
-  BarChart3,
   Bookmark,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
@@ -1017,7 +1014,7 @@ export function Thread() {
                         />
                       </ContextPopover>
 
-                      <div className="flex items-center gap-6 px-4 py-3">
+                      <div className="flex items-center gap-1 px-4 py-3">
                         <TooltipIconButton
                           tooltip={showSuggestions ? "Hide suggestions" : "Show suggestions"}
                           variant="ghost"
@@ -1033,21 +1030,29 @@ export function Thread() {
                         </TooltipIconButton>
 
                         {input.trim().length > 0 && (
-                          <TooltipIconButton
-                            tooltip="Save as shortcut"
-                            variant="ghost"
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={handleSaveAsShortcutFromToolbar}
-                            className="h-8 w-8 text-muted-foreground"
+                            className="flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-sm transition-colors hover:bg-muted/80"
                           >
-                            <Bookmark className="h-4 w-4" />
-                          </TooltipIconButton>
+                            <Bookmark className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span
+                              className="inline-block bg-clip-text font-medium text-transparent"
+                              style={{
+                                backgroundImage: "linear-gradient(90deg, #4586F7 0%, #8fb4fc 30%, #4586F7 60%, #8fb4fc 90%, #4586F7 100%)",
+                                backgroundSize: "200% 100%",
+                                animation: "gradient-shift 2s linear infinite",
+                              }}
+                            >
+                              Save Shortcut
+                            </span>
+                          </button>
                         )}
 
                         <ContextPopover
-                          open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "countries"}
+                          open={contextPopoverOpen && triggerSource === "icon"}
                           onOpenChange={(open) => {
-                            if (open) openContextPopover("countries", "icon");
+                            if (open) openContextPopover(undefined, "icon");
                             else closeContextPopover();
                           }}
                           activeCategory={activeCategory}
@@ -1061,98 +1066,23 @@ export function Thread() {
                           onEditPreset={handleEditPreset}
                           onDuplicatePreset={handleDuplicatePreset}
                           onDeletePreset={deletePreset}
-                        onRenamePreset={handleRenamePreset}
+                          onRenamePreset={handleRenamePreset}
                           onSavePreset={handleSavePreset}
                           hasSelections={hasContextSelections}
                           isEditing={!!presetEditing}
                         >
-                          <TooltipIconButton
-                            tooltip="Countries"
-                            variant="ghost"
-                            size="sm"
+                          <button
+                            type="button"
                             className={cn(
-                              "h-8 w-8",
-                              contextSelections.countries.length > 0
+                              "flex items-center gap-1 rounded-md px-2 py-1 text-sm transition-colors hover:bg-muted",
+                              hasContextSelections
                                 ? "text-primary"
                                 : "text-muted-foreground",
                             )}
                           >
-                            <Globe className="h-4 w-4" />
-                          </TooltipIconButton>
-                        </ContextPopover>
-
-                        <ContextPopover
-                          open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "platforms"}
-                          onOpenChange={(open) => {
-                            if (open) openContextPopover("platforms", "icon");
-                            else closeContextPopover();
-                          }}
-                          activeCategory={activeCategory}
-                          onCategorySelect={setActiveCategory}
-                          selections={contextSelections}
-                          onToggleItem={toggleItem}
-                          align="start"
-                          side="top"
-                          presets={presets}
-                          onApplyPreset={handleApplyPreset}
-                          onEditPreset={handleEditPreset}
-                          onDuplicatePreset={handleDuplicatePreset}
-                          onDeletePreset={deletePreset}
-                        onRenamePreset={handleRenamePreset}
-                          onSavePreset={handleSavePreset}
-                          hasSelections={hasContextSelections}
-                          isEditing={!!presetEditing}
-                        >
-                          <TooltipIconButton
-                            tooltip="Platforms"
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                              "h-8 w-8",
-                              contextSelections.platforms.length > 0
-                                ? "text-primary"
-                                : "text-muted-foreground",
-                            )}
-                          >
-                            <Megaphone className="h-4 w-4" />
-                          </TooltipIconButton>
-                        </ContextPopover>
-
-                        <ContextPopover
-                          open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "metrics"}
-                          onOpenChange={(open) => {
-                            if (open) openContextPopover("metrics", "icon");
-                            else closeContextPopover();
-                          }}
-                          activeCategory={activeCategory}
-                          onCategorySelect={setActiveCategory}
-                          selections={contextSelections}
-                          onToggleItem={toggleItem}
-                          align="start"
-                          side="top"
-                          presets={presets}
-                          onApplyPreset={handleApplyPreset}
-                          onEditPreset={handleEditPreset}
-                          onDuplicatePreset={handleDuplicatePreset}
-                          onDeletePreset={deletePreset}
-                        onRenamePreset={handleRenamePreset}
-                          onSavePreset={handleSavePreset}
-                          hasSelections={hasContextSelections}
-                          isEditing={!!presetEditing}
-                        >
-                          <TooltipIconButton
-                            tooltip="Metrics"
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                              "h-8 w-8",
-                              contextSelections.metrics.length > 0
-                                ? "text-primary"
-                                : "text-muted-foreground",
-                            )}
-                          >
-                            <BarChart3 className="h-4 w-4" />
-                          </TooltipIconButton>
+                            <span className="font-medium">@</span>
+                            <span>Add Context</span>
+                          </button>
                         </ContextPopover>
 
                         {/* Hidden for now – uncomment to re-enable file uploads
@@ -1256,8 +1186,8 @@ export function Thread() {
         onSaveAsNew={handleSaveShortcutAsNew}
         onDelete={deleteShortcutFn}
         onDuplicate={(id) => {
-          duplicateShortcutFn(id);
-          closeShortcutDialog();
+          const copy = duplicateShortcutFn(id);
+          if (copy) openShortcutEditDialog(copy);
         }}
       />
     </div>

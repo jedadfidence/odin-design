@@ -393,7 +393,6 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
                 size="sm"
                 onClick={() => {
                   onDuplicate(shortcut!.id);
-                  onOpenChange(false);
                 }}
               >
                 <Copy className="mr-1 h-3.5 w-3.5" />

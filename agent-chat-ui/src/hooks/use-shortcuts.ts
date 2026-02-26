@@ -54,16 +54,16 @@ export function useShortcuts() {
     setShortcuts((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
-  const duplicate = useCallback((id: string): Shortcut | undefined => {
-    let newShortcut: Shortcut | undefined;
-    setShortcuts((prev) => {
-      const original = prev.find((s) => s.id === id);
-      if (!original) return prev;
-      newShortcut = duplicateShortcut(original);
-      return [...prev, newShortcut];
-    });
-    return newShortcut;
-  }, []);
+  const duplicate = useCallback(
+    (id: string): Shortcut | undefined => {
+      const original = shortcuts.find((s) => s.id === id);
+      if (!original) return undefined;
+      const newShortcut = duplicateShortcut(original);
+      setShortcuts((prev) => [...prev, newShortcut]);
+      return newShortcut;
+    },
+    [shortcuts],
+  );
 
   const openPopover = useCallback(() => {
     setPopoverOpen(true);

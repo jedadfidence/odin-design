@@ -27,6 +27,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+button, [role="button"], a, select, label[for], summary, [type="checkbox"], [type="radio"] {
+  cursor: pointer;
+}
+
 :root {
   --background: #FFFFFF;
   --foreground: #111118;
