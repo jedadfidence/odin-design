@@ -55,6 +55,13 @@ interface ShortcutDialogProps {
   onDuplicate?: (id: string) => void;
 }
 
+function getActiveCategories(selections: ContextSelections | null): ContextCategory[] {
+  if (!selections) return [];
+  return (["countries", "platforms", "metrics"] as ContextCategory[]).filter(
+    (c) => selections[c].length > 0,
+  );
+}
+
 export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
   open,
   onOpenChange,
@@ -74,8 +81,6 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
   const [activeFilters, setActiveFilters] = useState<ContextCategory[]>([]);
   const [context, setContext] = useState<ContextSelections>(EMPTY_SELECTIONS);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
-  const [addFilterOpen, setAddFilterOpen] = useState(false);
-
   // Reset form when dialog opens
   useEffect(() => {
     if (!open) return;
@@ -84,13 +89,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       setInstructions(shortcut.instructions);
       setContext(shortcut.context ?? { ...EMPTY_SELECTIONS });
       setSelectedPresetId(shortcut.presetId);
-      // Auto-open Advanced and show active filter categories
-      const cats: ContextCategory[] = [];
-      if (shortcut.context) {
-        if (shortcut.context.countries.length > 0) cats.push("countries");
-        if (shortcut.context.platforms.length > 0) cats.push("platforms");
-        if (shortcut.context.metrics.length > 0) cats.push("metrics");
-      }
+      const cats = getActiveCategories(shortcut.context);
       setActiveFilters(cats);
       setAdvancedOpen(cats.length > 0 || !!shortcut.presetId);
     } else if (prefill) {
@@ -98,12 +97,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       setInstructions(prefill.instructions);
       setContext(prefill.context ?? { ...EMPTY_SELECTIONS });
       setSelectedPresetId(null);
-      const cats: ContextCategory[] = [];
-      if (prefill.context) {
-        if (prefill.context.countries.length > 0) cats.push("countries");
-        if (prefill.context.platforms.length > 0) cats.push("platforms");
-        if (prefill.context.metrics.length > 0) cats.push("metrics");
-      }
+      const cats = getActiveCategories(prefill.context);
       setActiveFilters(cats);
       setAdvancedOpen(cats.length > 0);
     } else {
@@ -114,14 +108,14 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       setActiveFilters([]);
       setAdvancedOpen(false);
     }
-    setAddFilterOpen(false);
+
   }, [open, shortcut, prefill]);
 
   const handleAddFilter = (category: ContextCategory) => {
     if (!activeFilters.includes(category)) {
       setActiveFilters((prev) => [...prev, category]);
     }
-    setAddFilterOpen(false);
+
   };
 
   const handleRemoveFilter = (category: ContextCategory) => {
@@ -141,16 +135,15 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
 
   const handleApplyPreset = (preset: ContextPreset) => {
     setSelectedPresetId(preset.id);
-    setContext(preset.selections);
+    setContext({
+      countries: [...preset.selections.countries],
+      platforms: [...preset.selections.platforms],
+      metrics: [...preset.selections.metrics],
+    });
     // Auto-add categories that the preset has values for
-    const cats: ContextCategory[] = [...activeFilters];
-    if (preset.selections.countries.length > 0 && !cats.includes("countries"))
-      cats.push("countries");
-    if (preset.selections.platforms.length > 0 && !cats.includes("platforms"))
-      cats.push("platforms");
-    if (preset.selections.metrics.length > 0 && !cats.includes("metrics"))
-      cats.push("metrics");
-    setActiveFilters(cats);
+    const presetCats = getActiveCategories(preset.selections);
+    const merged = [...new Set([...activeFilters, ...presetCats])];
+    setActiveFilters(merged);
   };
 
   const getContextToSave = (): ContextSelections | null => {
@@ -227,39 +220,36 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
             {advancedOpen && (
               <div className="mt-3 space-y-3 rounded-md border border-border/60 p-3">
                 {/* Add filter button */}
-                <div className="relative">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setAddFilterOpen((p) => !p)}
-                    className="gap-1"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Add filter
-                  </Button>
-                  {addFilterOpen && (
-                    <div className="absolute left-0 top-full z-10 mt-1 w-40 rounded-md border border-border bg-background shadow-lg">
-                      {CONTEXT_CATEGORIES.map((cat) => {
-                        const isAdded = activeFilters.includes(cat.id);
-                        return (
-                          <button
-                            key={cat.id}
-                            type="button"
-                            disabled={isAdded}
-                            onClick={() => handleAddFilter(cat.id)}
-                            className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <span>{cat.label}</span>
-                            {isAdded && (
-                              <span className="text-xs text-muted-foreground">Added</span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Add filter
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-40">
+                    {CONTEXT_CATEGORIES.map((cat) => {
+                      const isAdded = activeFilters.includes(cat.id);
+                      return (
+                        <DropdownMenuItem
+                          key={cat.id}
+                          disabled={isAdded}
+                          onClick={() => handleAddFilter(cat.id)}
+                        >
+                          <span>{cat.label}</span>
+                          {isAdded && (
+                            <span className="ml-auto text-xs text-muted-foreground">Added</span>
+                          )}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 {/* Active filter categories */}
                 {activeFilters.map((catId) => {

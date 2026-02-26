@@ -92,7 +92,13 @@ export function duplicateShortcut(shortcut: Shortcut): Shortcut {
     ...shortcut,
     id: generateId(),
     name: `Copy of ${shortcut.name}`,
-    context: shortcut.context ? { ...shortcut.context } : null,
+    context: shortcut.context
+      ? {
+          countries: [...shortcut.context.countries],
+          platforms: [...shortcut.context.platforms],
+          metrics: [...shortcut.context.metrics],
+        }
+      : null,
     createdAt: now,
     updatedAt: now,
   };

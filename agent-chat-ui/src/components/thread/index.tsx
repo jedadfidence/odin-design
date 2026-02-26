@@ -55,6 +55,7 @@ import {
 } from "./artifact";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
+import { ContextSelections } from "@/lib/context-selectors";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
 import { useTextSelection } from "@/hooks/use-text-selection";
 import { ContextBadges } from "./context-badges";
@@ -64,6 +65,7 @@ import { QuoteCards } from "./quote-cards";
 import { useContextPresets } from "@/hooks/use-context-presets";
 import { PresetNameDialog } from "./preset-name-dialog";
 import { useShortcuts } from "@/hooks/use-shortcuts";
+import { Shortcut } from "@/lib/shortcuts";
 import { ShortcutPopover } from "./shortcut-popover";
 import { ShortcutDialog } from "./shortcut-dialog";
 
@@ -273,7 +275,7 @@ export function Thread() {
   }, [stopPresetEditing, resetContextSelections]);
 
   const handleSelectShortcut = useCallback(
-    (shortcut: import("@/lib/shortcuts").Shortcut) => {
+    (shortcut: Shortcut) => {
       setInput(shortcut.instructions);
       if (shortcut.context) {
         setContextSelections(shortcut.context);
@@ -285,7 +287,7 @@ export function Thread() {
   );
 
   const handleEditShortcutFromPopover = useCallback(
-    (shortcut: import("@/lib/shortcuts").Shortcut) => {
+    (shortcut: Shortcut) => {
       closeShortcutPopover();
       openShortcutEditDialog(shortcut);
     },
@@ -301,7 +303,7 @@ export function Thread() {
     (
       name: string,
       instructions: string,
-      context: import("@/lib/context-selectors").ContextSelections | null,
+      context: ContextSelections | null,
       presetId: string | null,
     ) => {
       if (editingShortcut) {
@@ -318,7 +320,7 @@ export function Thread() {
     (
       name: string,
       instructions: string,
-      context: import("@/lib/context-selectors").ContextSelections | null,
+      context: ContextSelections | null,
       presetId: string | null,
     ) => {
       addShortcut(name, instructions, context, presetId);
