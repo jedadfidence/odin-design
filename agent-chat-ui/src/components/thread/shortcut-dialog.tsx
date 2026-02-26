@@ -12,18 +12,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  X,
-  Trash2,
-  Copy,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, X, Trash2, Copy } from "lucide-react";
 import { Shortcut } from "@/lib/shortcuts";
 import { ContextPreset } from "@/lib/context-presets";
 import {
@@ -33,10 +39,86 @@ import {
   EMPTY_SELECTIONS,
 } from "@/lib/context-selectors";
 
+// Multi-select dropdown for a single filter category
+function FilterSelect({
+  category,
+  items,
+  selected,
+  onToggle,
+  onRemove,
+}: {
+  category: string;
+  items: string[];
+  selected: string[];
+  onToggle: (item: string) => void;
+  onRemove: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const label =
+    selected.length === 0
+      ? "Select..."
+      : selected.length <= 2
+        ? selected.join(", ")
+        : `${selected.slice(0, 2).join(", ")} +${selected.length - 2} more`;
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-20 shrink-0 text-sm font-medium">{category}</span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="flex h-8 min-w-0 flex-1 items-center justify-between gap-1 rounded-md border border-border bg-background px-3 text-sm hover:bg-muted truncate"
+          >
+            <span className="truncate text-left">{label}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[240px] p-0"
+          align="start"
+          onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+          <Command>
+            <CommandInput placeholder={`Search ${category.toLowerCase()}...`} />
+            <CommandList className="max-h-[200px]">
+              <CommandEmpty>No results.</CommandEmpty>
+              <CommandGroup>
+                {items.map((item) => {
+                  const checked = selected.includes(item);
+                  return (
+                    <CommandItem
+                      key={item}
+                      value={item}
+                      onSelect={() => onToggle(item)}
+                      className="flex items-center gap-2"
+                    >
+                      <Checkbox checked={checked} className="pointer-events-none" />
+                      <span>{item}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
 interface ShortcutDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  shortcut: Shortcut | null; // null = create mode
+  shortcut: Shortcut | null;
   prefill?: { instructions: string; context: ContextSelections | null } | null;
   presets: ContextPreset[];
   onSave: (
@@ -81,7 +163,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
   const [activeFilters, setActiveFilters] = useState<ContextCategory[]>([]);
   const [context, setContext] = useState<ContextSelections>(EMPTY_SELECTIONS);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
-  // Reset form when dialog opens
+
   useEffect(() => {
     if (!open) return;
     if (shortcut) {
@@ -108,14 +190,12 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       setActiveFilters([]);
       setAdvancedOpen(false);
     }
-
   }, [open, shortcut, prefill]);
 
   const handleAddFilter = (category: ContextCategory) => {
     if (!activeFilters.includes(category)) {
       setActiveFilters((prev) => [...prev, category]);
     }
-
   };
 
   const handleRemoveFilter = (category: ContextCategory) => {
@@ -140,7 +220,6 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       platforms: [...preset.selections.platforms],
       metrics: [...preset.selections.metrics],
     });
-    // Auto-add categories that the preset has values for
     const presetCats = getActiveCategories(preset.selections);
     const merged = [...new Set([...activeFilters, ...presetCats])];
     setActiveFilters(merged);
@@ -219,15 +298,26 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
 
             {advancedOpen && (
               <div className="mt-3 space-y-3 rounded-md border border-border/60 p-3">
-                {/* Add filter button */}
+                {/* Active filter rows */}
+                {activeFilters.map((catId) => {
+                  const cat = CONTEXT_CATEGORIES.find((c) => c.id === catId);
+                  if (!cat) return null;
+                  return (
+                    <FilterSelect
+                      key={catId}
+                      category={cat.label}
+                      items={cat.items}
+                      selected={context[catId]}
+                      onToggle={(item) => handleToggleItem(catId, item)}
+                      onRemove={() => handleRemoveFilter(catId)}
+                    />
+                  );
+                })}
+
+                {/* Add filter */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="gap-1"
-                    >
+                    <Button type="button" variant="outline" size="sm" className="gap-1">
                       <Plus className="h-3.5 w-3.5" />
                       Add filter
                     </Button>
@@ -251,45 +341,6 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Active filter categories */}
-                {activeFilters.map((catId) => {
-                  const cat = CONTEXT_CATEGORIES.find((c) => c.id === catId);
-                  if (!cat) return null;
-                  return (
-                    <div key={catId} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{cat.label}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFilter(catId)}
-                          className="rounded p-0.5 text-muted-foreground hover:text-foreground"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {cat.items.map((item) => {
-                          const checked = context[catId].includes(item);
-                          return (
-                            <label
-                              key={item}
-                              className="flex items-center gap-1.5 text-sm cursor-pointer"
-                            >
-                              <Checkbox
-                                checked={checked}
-                                onCheckedChange={() =>
-                                  handleToggleItem(catId, item)
-                                }
-                              />
-                              <span>{item}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-
                 {/* Preset picker */}
                 {presets.length > 0 && (
                   <div className="border-t border-border/60 pt-3">
@@ -299,9 +350,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
                     <select
                       value={selectedPresetId ?? ""}
                       onChange={(e) => {
-                        const preset = presets.find(
-                          (p) => p.id === e.target.value,
-                        );
+                        const preset = presets.find((p) => p.id === e.target.value);
                         if (preset) handleApplyPreset(preset);
                       }}
                       className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
@@ -321,7 +370,6 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
         </div>
 
         <DialogFooter className="flex items-center justify-between sm:justify-between">
-          {/* Left side: Delete + Duplicate (edit mode only) */}
           <div className="flex gap-2">
             {isEditing && onDelete && (
               <Button
@@ -354,13 +402,8 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
             )}
           </div>
 
-          {/* Right side: Cancel + Save */}
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             {isEditing ? (
