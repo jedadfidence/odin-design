@@ -34,6 +34,7 @@ import {
   Globe,
   Megaphone,
   BarChart3,
+  Bookmark,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -62,6 +63,9 @@ import { SelectionPopup } from "./selection-popup";
 import { QuoteCards } from "./quote-cards";
 import { useContextPresets } from "@/hooks/use-context-presets";
 import { PresetNameDialog } from "./preset-name-dialog";
+import { useShortcuts } from "@/hooks/use-shortcuts";
+import { ShortcutPopover } from "./shortcut-popover";
+import { ShortcutDialog } from "./shortcut-dialog";
 
 function ScrollToBottomBridge({ scrollRef }: { scrollRef: React.MutableRefObject<(() => void) | null> }) {
   const { scrollToBottom } = useStickToBottomContext();
@@ -193,6 +197,22 @@ export function Thread() {
     stopEditing: stopPresetEditing,
     saveEditing: savePresetEditing,
   } = useContextPresets();
+  const {
+    shortcuts,
+    popoverOpen: shortcutPopoverOpen,
+    dialogOpen: shortcutDialogOpen,
+    editingShortcut,
+    prefill: shortcutPrefill,
+    addShortcut,
+    updateShortcut,
+    deleteShortcut: deleteShortcutFn,
+    duplicate: duplicateShortcutFn,
+    openPopover: openShortcutPopover,
+    closePopover: closeShortcutPopover,
+    openCreateDialog: openShortcutCreateDialog,
+    openEditDialog: openShortcutEditDialog,
+    closeDialog: closeShortcutDialog,
+  } = useShortcuts();
   const [presetNameDialogOpen, setPresetNameDialogOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
 
@@ -251,6 +271,68 @@ export function Thread() {
     stopPresetEditing();
     resetContextSelections();
   }, [stopPresetEditing, resetContextSelections]);
+
+  const handleSelectShortcut = useCallback(
+    (shortcut: import("@/lib/shortcuts").Shortcut) => {
+      setInput(shortcut.instructions);
+      if (shortcut.context) {
+        setContextSelections(shortcut.context);
+      }
+      closeShortcutPopover();
+      requestAnimationFrame(() => textareaRef.current?.focus());
+    },
+    [setContextSelections, closeShortcutPopover],
+  );
+
+  const handleEditShortcutFromPopover = useCallback(
+    (shortcut: import("@/lib/shortcuts").Shortcut) => {
+      closeShortcutPopover();
+      openShortcutEditDialog(shortcut);
+    },
+    [closeShortcutPopover, openShortcutEditDialog],
+  );
+
+  const handleCreateShortcutFromPopover = useCallback(() => {
+    closeShortcutPopover();
+    openShortcutCreateDialog();
+  }, [closeShortcutPopover, openShortcutCreateDialog]);
+
+  const handleSaveShortcut = useCallback(
+    (
+      name: string,
+      instructions: string,
+      context: import("@/lib/context-selectors").ContextSelections | null,
+      presetId: string | null,
+    ) => {
+      if (editingShortcut) {
+        updateShortcut(editingShortcut.id, { name, instructions, context, presetId });
+      } else {
+        addShortcut(name, instructions, context, presetId);
+      }
+      closeShortcutDialog();
+    },
+    [editingShortcut, updateShortcut, addShortcut, closeShortcutDialog],
+  );
+
+  const handleSaveShortcutAsNew = useCallback(
+    (
+      name: string,
+      instructions: string,
+      context: import("@/lib/context-selectors").ContextSelections | null,
+      presetId: string | null,
+    ) => {
+      addShortcut(name, instructions, context, presetId);
+      closeShortcutDialog();
+    },
+    [addShortcut, closeShortcutDialog],
+  );
+
+  const handleSaveAsShortcutFromToolbar = useCallback(() => {
+    openShortcutCreateDialog({
+      instructions: input,
+      context: hasContextSelections ? contextSelections : null,
+    });
+  }, [openShortcutCreateDialog, input, hasContextSelections, contextSelections]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputBoxRef = useRef<HTMLDivElement>(null);
@@ -907,6 +989,14 @@ export function Thread() {
                                 openContextPopover(undefined, "keyboard");
                               }
                             }
+                            if (e.key === "/") {
+                              const val = (e.target as HTMLTextAreaElement).value;
+                              const pos = (e.target as HTMLTextAreaElement).selectionStart;
+                              if (pos === 0 || val[pos - 1] === " " || val[pos - 1] === "\n") {
+                                e.preventDefault();
+                                openShortcutPopover();
+                              }
+                            }
                             if (
                               e.key === "Enter" &&
                               !e.shiftKey &&
@@ -938,6 +1028,18 @@ export function Thread() {
                         >
                           <Lightbulb className="h-4 w-4" />
                         </TooltipIconButton>
+
+                        {input.trim().length > 0 && (
+                          <TooltipIconButton
+                            tooltip="Save as shortcut"
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSaveAsShortcutFromToolbar}
+                            className="h-8 w-8 text-muted-foreground"
+                          >
+                            <Bookmark className="h-4 w-4" />
+                          </TooltipIconButton>
+                        )}
 
                         <ContextPopover
                           open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "countries"}
@@ -1092,6 +1194,17 @@ export function Thread() {
                           </Button>
                         )}
                       </div>
+                      <ShortcutPopover
+                        open={shortcutPopoverOpen}
+                        onOpenChange={(open) => {
+                          if (!open) closeShortcutPopover();
+                        }}
+                        shortcuts={shortcuts}
+                        onSelectShortcut={handleSelectShortcut}
+                        onEditShortcut={handleEditShortcutFromPopover}
+                        onCreateNew={handleCreateShortcutFromPopover}
+                        anchorRef={inputBoxRef}
+                      />
                     </form>
                   </div>
                 </div>
@@ -1126,6 +1239,22 @@ export function Thread() {
         onConfirm={handleConfirmRename}
         defaultName={renameTarget?.name ?? ""}
         title="Rename preset"
+      />
+      <ShortcutDialog
+        open={shortcutDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) closeShortcutDialog();
+        }}
+        shortcut={editingShortcut}
+        prefill={shortcutPrefill}
+        presets={presets}
+        onSave={handleSaveShortcut}
+        onSaveAsNew={handleSaveShortcutAsNew}
+        onDelete={deleteShortcutFn}
+        onDuplicate={(id) => {
+          duplicateShortcutFn(id);
+          closeShortcutDialog();
+        }}
       />
     </div>
   );
