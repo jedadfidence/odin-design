@@ -60,6 +60,7 @@ function makeShortcut(data: Omit<Shortcut, "id" | "createdAt" | "updatedAt">): S
 }
 
 export function loadShortcuts(): Shortcut[] {
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
@@ -73,6 +74,7 @@ export function loadShortcuts(): Shortcut[] {
 }
 
 export function saveShortcuts(shortcuts: Shortcut[]): void {
+  if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(shortcuts));
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   Popover,
   PopoverAnchor,
@@ -33,6 +33,12 @@ const CATEGORY_ICONS: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-4 w-4 text-muted-foreground" />,
   platforms: <Megaphone className="h-4 w-4 text-muted-foreground" />,
   metrics: <BarChart3 className="h-4 w-4 text-muted-foreground" />,
+};
+
+const CATEGORY_TAG_COLORS: Record<ContextCategory, string> = {
+  countries: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  platforms: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+  metrics: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
 };
 
 interface ContextPopoverProps {
@@ -80,6 +86,10 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
 }) => {
   const [search, setSearch] = useState("");
   const [showPresets, setShowPresets] = useState(false);
+  const [hoveredPresetId, setHoveredPresetId] = useState<string | null>(null);
+  const [previewPos, setPreviewPos] = useState<{ top: number } | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const dropdownActionRef = useRef(false);
 
   const activeCategoryConfig = activeCategory
     ? CONTEXT_CATEGORIES.find((c) => c.id === activeCategory)
@@ -95,7 +105,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         input?.focus();
       });
     }
-    if (!open) setShowPresets(false);
+    if (!open) { setShowPresets(false); setHoveredPresetId(null); }
   }, [open, activeCategory, showPresets]);
 
   /** Get the cmdk-highlighted item's value */
@@ -272,6 +282,25 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
     );
   };
 
+  const handlePresetMouseEnter = useCallback(
+    (presetId: string, e: React.MouseEvent<HTMLDivElement>) => {
+      setHoveredPresetId(presetId);
+      const row = e.currentTarget;
+      const popover = popoverRef.current;
+      if (row && popover) {
+        const rowRect = row.getBoundingClientRect();
+        const popoverRect = popover.getBoundingClientRect();
+        setPreviewPos({ top: rowRect.top - popoverRect.top });
+      }
+    },
+    [],
+  );
+
+  const handlePresetMouseLeave = useCallback(() => {
+    setHoveredPresetId(null);
+    setPreviewPos(null);
+  }, []);
+
   /** Presets drill-in page */
   const renderPresetsPage = () => (
     <>
@@ -298,8 +327,10 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
             <CommandItem
               key={preset.id}
               value={`preset-${preset.name}`}
-              onSelect={() => { onApplyPreset?.(preset); }}
+              onSelect={() => { if (dropdownActionRef.current) { dropdownActionRef.current = false; return; } onApplyPreset?.(preset); }}
               className="flex items-center justify-between"
+              onMouseEnter={(e) => handlePresetMouseEnter(preset.id, e)}
+              onMouseLeave={handlePresetMouseLeave}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <Bookmark className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -320,18 +351,18 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side="right" className="w-36">
-                  <DropdownMenuItem onClick={() => onEditPreset?.(preset)}>
+                <DropdownMenuContent align="end" side="right" className="w-36" onCloseAutoFocus={(e) => e.preventDefault()}>
+                  <DropdownMenuItem onClick={() => { dropdownActionRef.current = true; onEditPreset?.(preset); }}>
                     <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onRenamePreset?.(preset.id, preset.name)}>
+                  <DropdownMenuItem onClick={() => { dropdownActionRef.current = true; onRenamePreset?.(preset.id, preset.name); }}>
                     <Type className="mr-2 h-3.5 w-3.5" /> Rename
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onDuplicatePreset?.(preset.id)}>
+                  <DropdownMenuItem onClick={() => { dropdownActionRef.current = true; onDuplicatePreset?.(preset.id); }}>
                     <Copy className="mr-2 h-3.5 w-3.5" /> Duplicate
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onDeletePreset?.(preset.id)}
+                    onClick={() => { dropdownActionRef.current = true; onDeletePreset?.(preset.id); }}
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
@@ -366,7 +397,8 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         <PopoverTrigger asChild>{children}</PopoverTrigger>
       )}
       <PopoverContent
-        className="w-[220px] border-border/60 bg-background/80 p-0 shadow-lg backdrop-blur-sm"
+        ref={popoverRef}
+        className="relative overflow-visible w-[220px] border-border/60 bg-background/80 p-0 shadow-lg backdrop-blur-sm"
         align={align}
         side={side}
         onCloseAutoFocus={(e) => e.preventDefault()}
@@ -376,6 +408,39 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           handleKeyDown(e);
         }}
       >
+        {showPresets && hoveredPresetId && previewPos && (() => {
+          const preset = presets.find((p) => p.id === hoveredPresetId);
+          if (!preset) return null;
+          const cats = (
+            ["countries", "platforms", "metrics"] as ContextCategory[]
+          ).filter((c) => preset.selections[c].length > 0);
+          if (cats.length === 0) return null;
+          return (
+            <div
+              className="pointer-events-none absolute right-full mr-2 w-[180px] rounded-md border border-border/60 bg-background/80 p-2.5 shadow-lg backdrop-blur-sm"
+              style={{ top: previewPos.top }}
+            >
+              {cats.map((cat) => (
+                <div key={cat} className="mb-2 last:mb-0">
+                  <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    {CATEGORY_ICONS[cat]}
+                    <span className="capitalize">{cat}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {preset.selections[cat].map((item) => (
+                      <span
+                        key={item}
+                        className={`rounded-full px-1.5 py-0.5 text-[10px] ${CATEGORY_TAG_COLORS[cat]}`}
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         <Command shouldFilter={true} className="bg-transparent">
           {showPresets ? (
             renderPresetsPage()
