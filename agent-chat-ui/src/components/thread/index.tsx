@@ -60,6 +60,8 @@ import { ContextBadges } from "./context-badges";
 import { ContextPopover } from "./context-popover";
 import { SelectionPopup } from "./selection-popup";
 import { QuoteCards } from "./quote-cards";
+import { useContextPresets } from "@/hooks/use-context-presets";
+import { PresetNameDialog } from "./preset-name-dialog";
 
 function ScrollToBottomBridge({ scrollRef }: { scrollRef: React.MutableRefObject<(() => void) | null> }) {
   const { scrollToBottom } = useStickToBottomContext();
@@ -180,6 +182,76 @@ export function Thread() {
     openPopover: openContextPopover,
     closePopover: closeContextPopover,
   } = useContextSelectors();
+  const {
+    presets,
+    editing: presetEditing,
+    addPreset,
+    deletePreset,
+    renamePreset,
+    duplicate: duplicatePreset,
+    startEditing: startPresetEditing,
+    stopEditing: stopPresetEditing,
+    saveEditing: savePresetEditing,
+  } = useContextPresets();
+  const [presetNameDialogOpen, setPresetNameDialogOpen] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const handleRenamePreset = useCallback((id: string, currentName: string) => {
+    setRenameTarget({ id, name: currentName });
+  }, []);
+
+  const handleConfirmRename = useCallback((newName: string) => {
+    if (renameTarget) {
+      renamePreset(renameTarget.id, newName);
+      setRenameTarget(null);
+    }
+  }, [renameTarget, renamePreset]);
+
+  const handleApplyPreset = useCallback((preset: import("@/lib/context-presets").ContextPreset) => {
+    setContextSelections(preset.selections);
+    startPresetEditing(preset);
+    closeContextPopover();
+  }, [setContextSelections, startPresetEditing, closeContextPopover]);
+
+  const handleEditPreset = useCallback((preset: import("@/lib/context-presets").ContextPreset) => {
+    setContextSelections(preset.selections);
+    startPresetEditing(preset);
+    closeContextPopover();
+  }, [setContextSelections, startPresetEditing, closeContextPopover]);
+
+  const handleDuplicatePreset = useCallback((presetId: string) => {
+    const newPreset = duplicatePreset(presetId);
+    if (newPreset) {
+      setContextSelections(newPreset.selections);
+      startPresetEditing(newPreset);
+      closeContextPopover();
+    }
+  }, [duplicatePreset, setContextSelections, startPresetEditing, closeContextPopover]);
+
+  const handleSavePreset = useCallback(() => {
+    if (presetEditing) {
+      savePresetEditing(contextSelections);
+    }
+  }, [presetEditing, savePresetEditing, contextSelections]);
+
+  const handleSaveAsNewPreset = useCallback(() => {
+    setPresetNameDialogOpen(true);
+  }, []);
+
+  const handleConfirmNewPreset = useCallback((name: string) => {
+    const preset = addPreset(name, contextSelections);
+    startPresetEditing(preset);
+  }, [addPreset, contextSelections, startPresetEditing]);
+
+  const handleDeactivatePreset = useCallback(() => {
+    stopPresetEditing();
+  }, [stopPresetEditing]);
+
+  const handleClearSelections = useCallback(() => {
+    stopPresetEditing();
+    resetContextSelections();
+  }, [stopPresetEditing, resetContextSelections]);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputBoxRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -783,7 +855,16 @@ export function Thread() {
                             }}
                             style={{ overflow: "clip" }}
                           >
-                            <ContextBadges selections={contextSelections} onRemove={removeItem} onClearAll={resetContextSelections} />
+                            <ContextBadges
+                              selections={contextSelections}
+                              onRemove={removeItem}
+                              onClearAll={handleClearSelections}
+                              onSave={presetEditing && hasContextSelections ? handleSavePreset : undefined}
+                              onSaveAsNew={hasContextSelections ? handleSaveAsNewPreset : undefined}
+                              activePresetName={presetEditing?.presetName ?? null}
+                              onDeactivatePreset={handleDeactivatePreset}
+                              onRenameActivePreset={presetEditing ? () => handleRenamePreset(presetEditing.presetId, presetEditing.presetName) : undefined}
+                            />
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -802,6 +883,15 @@ export function Thread() {
                         anchorRef={inputBoxRef}
                         align="start"
                         side="top"
+                        presets={presets}
+                        onApplyPreset={handleApplyPreset}
+                        onEditPreset={handleEditPreset}
+                        onDuplicatePreset={handleDuplicatePreset}
+                        onDeletePreset={deletePreset}
+                        onRenamePreset={handleRenamePreset}
+                        onSavePreset={handleSavePreset}
+                        hasSelections={hasContextSelections}
+                        isEditing={!!presetEditing}
                       >
                         <textarea
                           ref={textareaRef}
@@ -861,6 +951,15 @@ export function Thread() {
                           onToggleItem={toggleItem}
                           align="start"
                           side="top"
+                          presets={presets}
+                          onApplyPreset={handleApplyPreset}
+                          onEditPreset={handleEditPreset}
+                          onDuplicatePreset={handleDuplicatePreset}
+                          onDeletePreset={deletePreset}
+                        onRenamePreset={handleRenamePreset}
+                          onSavePreset={handleSavePreset}
+                          hasSelections={hasContextSelections}
+                          isEditing={!!presetEditing}
                         >
                           <TooltipIconButton
                             tooltip="Countries"
@@ -889,6 +988,15 @@ export function Thread() {
                           onToggleItem={toggleItem}
                           align="start"
                           side="top"
+                          presets={presets}
+                          onApplyPreset={handleApplyPreset}
+                          onEditPreset={handleEditPreset}
+                          onDuplicatePreset={handleDuplicatePreset}
+                          onDeletePreset={deletePreset}
+                        onRenamePreset={handleRenamePreset}
+                          onSavePreset={handleSavePreset}
+                          hasSelections={hasContextSelections}
+                          isEditing={!!presetEditing}
                         >
                           <TooltipIconButton
                             tooltip="Platforms"
@@ -917,6 +1025,15 @@ export function Thread() {
                           onToggleItem={toggleItem}
                           align="start"
                           side="top"
+                          presets={presets}
+                          onApplyPreset={handleApplyPreset}
+                          onEditPreset={handleEditPreset}
+                          onDuplicatePreset={handleDuplicatePreset}
+                          onDeletePreset={deletePreset}
+                        onRenamePreset={handleRenamePreset}
+                          onSavePreset={handleSavePreset}
+                          hasSelections={hasContextSelections}
+                          isEditing={!!presetEditing}
                         >
                           <TooltipIconButton
                             tooltip="Metrics"
@@ -998,6 +1115,18 @@ export function Thread() {
         </div>
       </div>
       <ReportSheet open={reportSheetOpen} onOpenChange={setReportSheetOpen} />
+      <PresetNameDialog
+        open={presetNameDialogOpen}
+        onOpenChange={setPresetNameDialogOpen}
+        onConfirm={handleConfirmNewPreset}
+      />
+      <PresetNameDialog
+        open={!!renameTarget}
+        onOpenChange={(open) => { if (!open) setRenameTarget(null); }}
+        onConfirm={handleConfirmRename}
+        defaultName={renameTarget?.name ?? ""}
+        title="Rename preset"
+      />
     </div>
   );
 }
