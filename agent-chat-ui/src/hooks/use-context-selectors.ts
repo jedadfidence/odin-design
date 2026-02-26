@@ -44,13 +44,14 @@ export function useContextSelectors() {
   }, []);
 
   const hasSelections =
-    selections.countries.length > 0 || selections.platforms.length > 0;
+    selections.countries.length > 0 || selections.platforms.length > 0 || selections.metrics.length > 0;
 
   const toMetadata = useCallback((): Record<string, string[]> | undefined => {
     if (!hasSelections) return undefined;
     const meta: Record<string, string[]> = {};
     if (selections.countries.length > 0) meta.countries = selections.countries;
     if (selections.platforms.length > 0) meta.platforms = selections.platforms;
+    if (selections.metrics.length > 0) meta.metrics = selections.metrics;
     return meta;
   }, [selections, hasSelections]);
 

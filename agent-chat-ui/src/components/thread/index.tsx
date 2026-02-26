@@ -33,6 +33,7 @@ import {
   Wrench,
   Globe,
   Megaphone,
+  BarChart3,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -770,7 +771,7 @@ export function Thread() {
                         )}
                       </AnimatePresence>
                       <AnimatePresence initial={false}>
-                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0) && (
+                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.metrics.length > 0) && (
                           <motion.div
                             key="context-badges"
                             initial={{ height: 0, opacity: 0 }}
@@ -901,6 +902,34 @@ export function Thread() {
                             )}
                           >
                             <Megaphone className="h-4 w-4" />
+                          </TooltipIconButton>
+                        </ContextPopover>
+
+                        <ContextPopover
+                          open={contextPopoverOpen && triggerSource === "icon" && activeCategory === "metrics"}
+                          onOpenChange={(open) => {
+                            if (open) openContextPopover("metrics", "icon");
+                            else closeContextPopover();
+                          }}
+                          activeCategory={activeCategory}
+                          onCategorySelect={setActiveCategory}
+                          selections={contextSelections}
+                          onToggleItem={toggleItem}
+                          align="start"
+                          side="top"
+                        >
+                          <TooltipIconButton
+                            tooltip="Metrics"
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "h-8 w-8",
+                              contextSelections.metrics.length > 0
+                                ? "text-primary"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            <BarChart3 className="h-4 w-4" />
                           </TooltipIconButton>
                         </ContextPopover>
 

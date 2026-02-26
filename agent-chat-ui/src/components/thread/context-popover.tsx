@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Globe, Megaphone, ChevronRight, ChevronLeft } from "lucide-react";
+import { Globe, Megaphone, BarChart3, ChevronRight, ChevronLeft } from "lucide-react";
 import {
   ContextCategory,
   ContextSelections,
@@ -24,6 +24,7 @@ import {
 const CATEGORY_ICONS: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-4 w-4 text-muted-foreground" />,
   platforms: <Megaphone className="h-4 w-4 text-muted-foreground" />,
+  metrics: <BarChart3 className="h-4 w-4 text-muted-foreground" />,
 };
 
 interface ContextPopoverProps {

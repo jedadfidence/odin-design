@@ -1,4 +1,4 @@
-export type ContextCategory = "countries" | "platforms";
+export type ContextCategory = "countries" | "platforms" | "metrics";
 
 export interface ContextCategoryConfig {
   id: ContextCategory;
@@ -45,6 +45,32 @@ export const CONTEXT_CATEGORIES: ContextCategoryConfig[] = [
       "Programmatic (Other)",
     ],
   },
+  {
+    id: "metrics",
+    label: "Metrics",
+    items: [
+      "Impressions",
+      "Clicks",
+      "CTR (Click-Through Rate)",
+      "CPC (Cost Per Click)",
+      "CPM (Cost Per Mille)",
+      "Spend",
+      "Conversions",
+      "Conversion Rate",
+      "CPA (Cost Per Acquisition)",
+      "ROAS (Return on Ad Spend)",
+      "Revenue",
+      "Reach",
+      "Frequency",
+      "Video Views",
+      "VTR (View-Through Rate)",
+      "Engagement Rate",
+      "Bounce Rate",
+      "Add to Cart",
+      "CPV (Cost Per View)",
+      "ACOS (Ad Cost of Sales)",
+    ],
+  },
 ];
 
 export type ContextSelections = Record<ContextCategory, string[]>;
@@ -52,4 +78,5 @@ export type ContextSelections = Record<ContextCategory, string[]>;
 export const EMPTY_SELECTIONS: ContextSelections = {
   countries: [],
   platforms: [],
+  metrics: [],
 };

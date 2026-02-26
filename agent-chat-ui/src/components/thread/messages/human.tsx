@@ -22,7 +22,7 @@ function MessageContextBadges({ message }: { message: Message }) {
   const selections: ContextSelections = {
     ...EMPTY_SELECTIONS,
     ...Object.fromEntries(
-      (["countries", "platforms"] as ContextCategory[])
+      (["countries", "platforms", "metrics"] as ContextCategory[])
         .filter((cat) => ctx[cat])
         .map((cat) => [cat, ctx[cat]]),
     ),
@@ -33,6 +33,7 @@ function MessageContextBadges({ message }: { message: Message }) {
   const hasAnything =
     selections.countries.length > 0 ||
     selections.platforms.length > 0 ||
+    selections.metrics.length > 0 ||
     quoteCount > 0;
   if (!hasAnything) return null;
 

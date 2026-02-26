@@ -20,6 +20,11 @@ def _build_context_message(context: dict[str, Any] | None) -> SystemMessage | No
         parts.append(f"Countries: {', '.join(context['countries'])}")
     if context.get("platforms"):
         parts.append(f"Platforms: {', '.join(context['platforms'])}")
+    if context.get("metrics"):
+        parts.append(
+            "Metrics: Make sure your response includes these metrics: "
+            + ", ".join(context["metrics"])
+        )
     if context.get("selected_text"):
         parts.append(
             "The user is referring to the following text from the conversation:\n"

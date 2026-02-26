@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { X, Globe, Megaphone } from "lucide-react";
+import { X, Globe, Megaphone, BarChart3 } from "lucide-react";
 import { ContextCategory, ContextSelections } from "@/lib/context-selectors";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ interface ContextBadgesProps {
 const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-3 w-3" />,
   platforms: <Megaphone className="h-3 w-3" />,
+  metrics: <BarChart3 className="h-3 w-3" />,
 };
 
 const CATEGORY_COLORS: Record<ContextCategory, string> = {
@@ -22,6 +23,8 @@ const CATEGORY_COLORS: Record<ContextCategory, string> = {
     "border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   platforms:
     "border-transparent bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+  metrics:
+    "border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
 };
 
 export const ContextBadges: React.FC<ContextBadgesProps> = ({
@@ -31,7 +34,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
   className,
 }) => {
   const allBadges: { category: ContextCategory; item: string }[] = [];
-  for (const category of ["countries", "platforms"] as ContextCategory[]) {
+  for (const category of ["countries", "platforms", "metrics"] as ContextCategory[]) {
     for (const item of selections[category]) {
       allBadges.push({ category, item });
     }
