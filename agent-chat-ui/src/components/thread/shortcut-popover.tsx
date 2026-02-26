@@ -23,6 +23,7 @@ interface ShortcutPopoverProps {
   onEditShortcut: (shortcut: Shortcut) => void;
   onCreateNew: () => void;
   anchorRef: React.RefObject<HTMLElement | null>;
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
@@ -33,6 +34,7 @@ export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
   onEditShortcut,
   onCreateNew,
   anchorRef,
+  textareaRef,
 }) => {
   const [search, setSearch] = useState("");
 
@@ -45,8 +47,11 @@ export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
         );
         input?.focus();
       });
+    } else {
+      // Refocus textarea when popover closes
+      requestAnimationFrame(() => textareaRef?.current?.focus());
     }
-  }, [open]);
+  }, [open, textareaRef]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

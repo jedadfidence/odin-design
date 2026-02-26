@@ -1204,6 +1204,7 @@ export function Thread() {
                         onEditShortcut={handleEditShortcutFromPopover}
                         onCreateNew={handleCreateShortcutFromPopover}
                         anchorRef={inputBoxRef}
+                        textareaRef={textareaRef}
                       />
                     </form>
                   </div>
