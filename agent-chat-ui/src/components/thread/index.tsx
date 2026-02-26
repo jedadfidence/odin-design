@@ -618,6 +618,7 @@ export function Thread() {
         setContextSelections({
           countries: context.countries ?? [],
           platforms: context.platforms ?? [],
+          metrics: context.metrics ?? [],
         });
         if (context.selected_text?.length) {
           setQuotesFromTexts(context.selected_text);
