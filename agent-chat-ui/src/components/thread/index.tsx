@@ -883,12 +883,18 @@ export function Thread() {
                   </AnimatePresence>
 
                   <div
+                    className={cn(
+                      "relative mx-auto mb-6 w-full max-w-[816px]",
+                      !chatStarted && "input-glow-wrapper",
+                    )}
+                  >
+                  <div
                     ref={(el) => {
                       dropRef.current = el;
                       inputBoxRef.current = el;
                     }}
                     className={cn(
-                      "bg-background/80 backdrop-blur-sm relative z-10 mx-auto mb-6 w-full max-w-[816px] rounded-2xl shadow-lg transition-all",
+                      "bg-background/80 backdrop-blur-sm relative z-10 w-full rounded-2xl transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-border",
@@ -1162,6 +1168,7 @@ export function Thread() {
                         textareaRef={textareaRef}
                       />
                     </form>
+                  </div>
                   </div>
                 </div>
               }

@@ -74,8 +74,8 @@ function SuggestionPlaceholder({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-full border border-border/60 bg-card/70 px-4 py-3",
-        "text-left text-sm text-card-foreground/70 shadow-xs backdrop-blur-sm",
+        "flex items-center gap-3 rounded-full border border-border/60 bg-background/80 px-4 py-3",
+        "text-left text-sm text-card-foreground/70 backdrop-blur-sm",
         mobile && "min-w-[260px] snap-start flex-shrink-0",
       )}
     >
@@ -123,10 +123,10 @@ function SuggestionCard({
       data-testid="suggestion-card"
       onClick={() => onSelect(text)}
       className={cn(
-        "group flex items-center gap-3 rounded-full border border-border/60 bg-card/80 px-4 py-3",
+        "group flex items-center gap-3 rounded-full border border-border/60 bg-background/60 px-4 py-3",
         "text-left text-sm text-card-foreground/90",
-        "shadow-xs backdrop-blur-sm transition-all",
-        "hover:border-primary/40 hover:bg-primary/5 hover:shadow-md",
+        "backdrop-blur-sm transition-all",
+        "hover:border-primary/40 hover:bg-primary/5",
         "active:scale-[0.98]",
         "cursor-pointer",
         mobile && "min-w-[260px] snap-start flex-shrink-0",
