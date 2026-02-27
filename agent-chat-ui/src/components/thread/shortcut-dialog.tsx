@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -46,12 +46,14 @@ function FilterSelect({
   selected,
   onToggle,
   onRemove,
+  container,
 }: {
   category: string;
   items: string[];
   selected: string[];
   onToggle: (item: string) => void;
   onRemove: () => void;
+  container?: HTMLElement | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -78,6 +80,7 @@ function FilterSelect({
         <PopoverContent
           className="w-[240px] p-0"
           align="start"
+          container={container}
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <Command>
@@ -156,6 +159,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
   onDuplicate,
 }) => {
   const isEditing = !!shortcut;
+  const dialogContentRef = useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState("");
   const [instructions, setInstructions] = useState("");
@@ -249,7 +253,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent ref={dialogContentRef} className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Shortcut" : "Create Shortcut"}
@@ -310,6 +314,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
                       selected={context[catId]}
                       onToggle={(item) => handleToggleItem(catId, item)}
                       onRemove={() => handleRemoveFilter(catId)}
+                      container={dialogContentRef.current}
                     />
                   );
                 })}

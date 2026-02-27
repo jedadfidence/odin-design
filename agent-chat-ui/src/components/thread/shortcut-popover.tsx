@@ -3,6 +3,7 @@ import {
   Popover,
   PopoverAnchor,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import {
   Command,
@@ -22,8 +23,9 @@ interface ShortcutPopoverProps {
   onSelectShortcut: (shortcut: Shortcut) => void;
   onEditShortcut: (shortcut: Shortcut) => void;
   onCreateNew: () => void;
-  anchorRef: React.RefObject<HTMLElement | null>;
+  anchorRef?: React.RefObject<HTMLElement | null>;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
+  children?: React.ReactNode;
 }
 
 export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
@@ -35,6 +37,7 @@ export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
   onCreateNew,
   anchorRef,
   textareaRef,
+  children,
 }) => {
   const [search, setSearch] = useState("");
 
@@ -66,7 +69,14 @@ export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverAnchor virtualRef={anchorRef as React.RefObject<HTMLElement>} />
+      {anchorRef ? (
+        <>
+          <PopoverAnchor virtualRef={anchorRef as React.RefObject<HTMLElement>} />
+          {children}
+        </>
+      ) : (
+        <PopoverTrigger asChild>{children}</PopoverTrigger>
+      )}
       <PopoverContent
         data-shortcut-popover
         className="w-[220px] border-border/60 bg-background/80 p-0 shadow-lg backdrop-blur-sm"

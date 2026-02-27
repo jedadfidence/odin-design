@@ -199,6 +199,7 @@ export function Thread() {
   const {
     shortcuts,
     popoverOpen: shortcutPopoverOpen,
+    triggerSource: shortcutTriggerSource,
     dialogOpen: shortcutDialogOpen,
     editingShortcut,
     prefill: shortcutPrefill,
@@ -1049,6 +1050,27 @@ export function Thread() {
                           </button>
                         )}
 
+                        <ShortcutPopover
+                          open={shortcutPopoverOpen && shortcutTriggerSource === "icon"}
+                          onOpenChange={(open) => {
+                            if (open) openShortcutPopover("icon");
+                            else closeShortcutPopover();
+                          }}
+                          shortcuts={shortcuts}
+                          onSelectShortcut={handleSelectShortcut}
+                          onEditShortcut={handleEditShortcutFromPopover}
+                          onCreateNew={handleCreateShortcutFromPopover}
+                          textareaRef={textareaRef}
+                        >
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted"
+                          >
+                            <span className="font-medium">/</span>
+                            <span>Shortcuts</span>
+                          </button>
+                        </ShortcutPopover>
+
                         <ContextPopover
                           open={contextPopoverOpen && triggerSource === "icon"}
                           onOpenChange={(open) => {
@@ -1128,7 +1150,7 @@ export function Thread() {
                         )}
                       </div>
                       <ShortcutPopover
-                        open={shortcutPopoverOpen}
+                        open={shortcutPopoverOpen && shortcutTriggerSource === "keyboard"}
                         onOpenChange={(open) => {
                           if (!open) closeShortcutPopover();
                         }}

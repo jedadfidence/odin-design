@@ -12,6 +12,7 @@ export function useShortcuts() {
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
   const hydrated = useRef(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [triggerSource, setTriggerSource] = useState<"icon" | "keyboard" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<Shortcut | null>(null);
   const [prefill, setPrefill] = useState<{
@@ -75,7 +76,8 @@ export function useShortcuts() {
     [shortcuts],
   );
 
-  const openPopover = useCallback(() => {
+  const openPopover = useCallback((source: "icon" | "keyboard" = "keyboard") => {
+    setTriggerSource(source);
     setPopoverOpen(true);
   }, []);
 
@@ -107,6 +109,7 @@ export function useShortcuts() {
   return {
     shortcuts,
     popoverOpen,
+    triggerSource,
     dialogOpen,
     editingShortcut,
     prefill,
