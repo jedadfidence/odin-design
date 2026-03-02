@@ -1,9 +1,6 @@
 "use client";
 
 import React from "react";
-import { ThreadProvider } from "@/providers/Thread";
-import { StreamProvider } from "@/providers/Stream";
-import { ArtifactProvider } from "@/components/thread/artifact";
 import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
 
@@ -74,16 +71,18 @@ function MockDashboard() {
               User Activity
             </p>
             <div className="mt-4 space-y-3">
-              {["North America", "Europe", "Asia Pacific", "Latin America"].map(
-                (region) => (
+              {[
+                { region: "North America", pct: 72 },
+                { region: "Europe", pct: 55 },
+                { region: "Asia Pacific", pct: 88 },
+                { region: "Latin America", pct: 41 },
+              ].map(({ region, pct }) => (
                   <div key={region} className="flex items-center gap-3">
                     <span className="w-32 text-sm">{region}</span>
                     <div className="h-3 flex-1 rounded-full bg-muted">
                       <div
                         className="h-3 rounded-full bg-primary/40"
-                        style={{
-                          width: `${Math.floor(Math.random() * 60) + 30}%`,
-                        }}
+                        style={{ width: `${pct}%` }}
                       />
                     </div>
                   </div>
@@ -139,14 +138,11 @@ export default function DemoPage() {
   return (
     <React.Suspense fallback={null}>
       <Toaster />
-      <ThreadProvider>
-        <StreamProvider>
-          <ArtifactProvider>
-            <MockDashboard />
-            {/* MiniThread widget will be added here in Task 2 */}
-          </ArtifactProvider>
-        </StreamProvider>
-      </ThreadProvider>
+      <MockDashboard />
+      {/* MiniThread widget will be added here in Task 2.
+          Providers (ThreadProvider, StreamProvider, ArtifactProvider)
+          are rendered inside MiniThread itself so the demo page
+          shows the dashboard even when the API is not configured. */}
     </React.Suspense>
   );
 }
