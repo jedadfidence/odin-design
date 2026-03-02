@@ -33,6 +33,7 @@ function getStoredHeight(): number {
 export function MiniThread() {
   const [isOpen, setIsOpen] = useState(false);
   const [height, setHeight] = useState(MINI_CHAT_DEFAULT_HEIGHT);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Load persisted height on mount
   useEffect(() => {
@@ -45,7 +46,7 @@ export function MiniThread() {
         {isOpen ? (
           <motion.div
             key="chat-window"
-            initial={{ scale: 0.5, opacity: 0, originX: 1, originY: 1 }}
+            initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
@@ -55,6 +56,7 @@ export function MiniThread() {
             style={{
               width: MINI_CHAT_WIDTH,
               height,
+              transformOrigin: "bottom right",
             }}
           >
             <ThreadProvider>
