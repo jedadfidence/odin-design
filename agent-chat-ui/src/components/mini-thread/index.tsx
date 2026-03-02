@@ -420,12 +420,29 @@ export function MiniThread() {
         animate={isOpen ? expandedVariant(height) : collapsedVariant}
         transition={morphTransition}
         onClick={!isOpen ? () => setIsOpen(true) : undefined}
+        onKeyDown={
+          !isOpen
+            ? (e: React.KeyboardEvent) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setIsOpen(true);
+                }
+              }
+            : undefined
+        }
+        role={!isOpen ? "button" : undefined}
+        tabIndex={!isOpen ? 0 : undefined}
+        aria-label={!isOpen ? "Open chat" : undefined}
         className={cn(
           "relative flex flex-col overflow-hidden shadow-2xl",
-          !isOpen && "cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover",
+          !isOpen &&
+            "cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover",
           isOpen && "bg-background/80 backdrop-blur-xl border border-border",
         )}
-        style={{ transformOrigin: "bottom right" }}
+        style={{
+          transformOrigin: "bottom right",
+          transition: "background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+        }}
       >
         {/* FAB icon layer */}
         <motion.div
