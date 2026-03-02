@@ -2,14 +2,19 @@
 
 import { useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, ArrowDown } from "lucide-react";
+import { MessageCircle, ArrowDown, X } from "lucide-react";
 import { MiniHeader } from "./mini-header";
 import { MiniSidebar } from "./mini-sidebar";
 import { MiniInput } from "./mini-input";
 import { cn } from "@/lib/utils";
 import { ThreadProvider } from "@/providers/Thread";
 import { StreamProvider, useStreamContext } from "@/providers/Stream";
-import { ArtifactProvider } from "@/components/thread/artifact";
+import {
+  ArtifactProvider,
+  ArtifactContent,
+  ArtifactTitle,
+  useArtifactOpen,
+} from "@/components/thread/artifact";
 import { useQueryState } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { HumanMessage } from "../thread/messages/human";
@@ -115,6 +120,7 @@ function MiniThreadContent({
   onCloseSidebar: () => void;
   sidebarOpen: boolean;
 }) {
+  const [artifactOpen, onArtifactClose] = useArtifactOpen();
   const stream = useStreamContext();
   const [threadId] = useQueryState("threadId");
   const messages = stream.messages;
@@ -277,6 +283,32 @@ function MiniThreadContent({
           }
         />
       </StickToBottom>
+
+      {/* Inline artifact */}
+      <AnimatePresence>
+        {artifactOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "40%", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="shrink-0 overflow-hidden border-t border-border"
+          >
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
+                <ArtifactTitle className="truncate text-xs font-medium" />
+                <button
+                  onClick={onArtifactClose}
+                  className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+              <ArtifactContent className="flex-1 overflow-auto" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Suggestions */}
       <AnimatePresence initial={false}>
