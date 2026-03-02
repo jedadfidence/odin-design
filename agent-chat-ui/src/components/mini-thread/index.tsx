@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { MiniHeader } from "./mini-header";
 import { cn } from "@/lib/utils";
 import { ThreadProvider } from "@/providers/Thread";
 import { StreamProvider } from "@/providers/Stream";
@@ -62,16 +63,10 @@ export function MiniThread() {
             <ThreadProvider>
               <StreamProvider>
                 <ArtifactProvider>
-                  {/* Header placeholder */}
-                  <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-3">
-                    <span className="text-sm font-medium">AI Chat</span>
-                    <button
-                      onClick={() => setIsOpen(false)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
+                  <MiniHeader
+                    onClose={() => setIsOpen(false)}
+                    onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+                  />
 
                   {/* Message area placeholder */}
                   <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
