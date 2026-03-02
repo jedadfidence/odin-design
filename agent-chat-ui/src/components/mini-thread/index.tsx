@@ -326,6 +326,7 @@ function MiniThreadContent({
                 suggestions={visibleSuggestions}
                 loading={showSuggestionPlaceholders}
                 onSelect={handleSuggestionSelect}
+                compact
               />
             </motion.div>
           )}
