@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, ArrowDown } from "lucide-react";
 import { MiniHeader } from "./mini-header";
+import { MiniInput } from "./mini-input";
 import { cn } from "@/lib/utils";
 import { ThreadProvider } from "@/providers/Thread";
 import { StreamProvider, useStreamContext } from "@/providers/Stream";
@@ -17,8 +18,15 @@ import {
 } from "../thread/messages/ai";
 import { DO_NOT_RENDER_ID_PREFIX } from "@/lib/ensure-tool-responses";
 import { getContentString } from "../thread/utils";
-import { Checkpoint } from "@langchain/langgraph-sdk";
+import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { Button } from "../ui/button";
+import { v4 as uuidv4 } from "uuid";
+import {
+  useSuggestions,
+  INITIAL_SUGGESTIONS,
+} from "@/hooks/use-suggestions";
+import { SuggestionCards } from "../thread/suggestion-cards";
+import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
 
 const MINI_CHAT_WIDTH = 420;
 const MINI_CHAT_DEFAULT_HEIGHT = 600;
@@ -83,6 +91,18 @@ function ScrollToBottom(props: { className?: string }) {
   );
 }
 
+function ScrollToBottomBridge({
+  scrollRef,
+}: {
+  scrollRef: React.MutableRefObject<(() => void) | null>;
+}) {
+  const { scrollToBottom } = useStickToBottomContext();
+  useEffect(() => {
+    scrollRef.current = scrollToBottom;
+  }, [scrollToBottom, scrollRef]);
+  return null;
+}
+
 function MiniThreadContent({
   onClose,
   onToggleSidebar,
@@ -95,6 +115,27 @@ function MiniThreadContent({
   const messages = stream.messages;
   const isLoading = stream.isLoading;
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const scrollToBottomRef = useRef<(() => void) | null>(null);
+
+  // --- Suggestions ---
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const {
+    suggestions,
+    isFetchingSuggestions,
+    fetchSuggestions,
+    clearSuggestions,
+  } = useSuggestions();
+
+  // Fetch dynamic suggestions after each AI response
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg?.type === "ai") {
+        fetchSuggestions(messages);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, messages.length]);
 
   const chatStarted = !!threadId || !!messages.length;
   const hasNoAIOrToolMessages = !messages.find(
@@ -110,6 +151,44 @@ function MiniThreadContent({
     !!lastAiMessage &&
     getContentString(lastAiMessage.content).trim().length > 0;
 
+  const visibleSuggestions = !chatStarted
+    ? INITIAL_SUGGESTIONS
+    : isLoading
+      ? []
+      : suggestions;
+  const showSuggestionPlaceholders =
+    chatStarted && !isLoading && isFetchingSuggestions;
+
+  const handleSuggestionSelect = useCallback(
+    (text: string) => {
+      const newHumanMessage: Message = {
+        id: uuidv4(),
+        type: "human",
+        content: [{ type: "text", text }] as Message["content"],
+      };
+      const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+      stream.submit(
+        { messages: [...toolMessages, newHumanMessage] },
+        {
+          streamMode: ["values"],
+          streamSubgraphs: true,
+          streamResumable: true,
+          optimisticValues: (prev) => ({
+            ...prev,
+            messages: [
+              ...(prev.messages ?? []),
+              ...toolMessages,
+              newHumanMessage,
+            ],
+          }),
+        },
+      );
+      clearSuggestions();
+      scrollToBottomRef.current?.();
+    },
+    [clearSuggestions, stream],
+  );
+
   const handleRegenerate = useCallback(
     (parentCheckpoint: Checkpoint | null | undefined) => {
       if (!parentCheckpoint) return;
@@ -123,12 +202,17 @@ function MiniThreadContent({
     [stream],
   );
 
+  const handleScrollToBottom = useCallback(() => {
+    scrollToBottomRef.current?.();
+  }, []);
+
   return (
     <>
       <MiniHeader onClose={onClose} onToggleSidebar={onToggleSidebar} />
 
       {/* Message area */}
       <StickToBottom className="relative flex-1 overflow-hidden">
+        <ScrollToBottomBridge scrollRef={scrollToBottomRef} />
         <StickyToBottomContent
           className={cn(
             "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-track]:bg-transparent",
@@ -188,12 +272,34 @@ function MiniThreadContent({
         />
       </StickToBottom>
 
-      {/* Input placeholder */}
-      <div className="shrink-0 border-t border-border p-3">
-        <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
-          Input will render here
-        </div>
-      </div>
+      {/* Suggestions */}
+      <AnimatePresence initial={false}>
+        {showSuggestions &&
+          (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
+            <motion.div
+              key="suggestions"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="shrink-0 overflow-hidden border-t border-border px-3 pt-2"
+            >
+              <SuggestionCards
+                suggestions={visibleSuggestions}
+                loading={showSuggestionPlaceholders}
+                onSelect={handleSuggestionSelect}
+              />
+            </motion.div>
+          )}
+      </AnimatePresence>
+
+      {/* Input area */}
+      <MiniInput
+        showSuggestions={showSuggestions}
+        onToggleSuggestions={() => setShowSuggestions((p) => !p)}
+        clearSuggestions={clearSuggestions}
+        scrollToBottom={handleScrollToBottom}
+      />
     </>
   );
 }
