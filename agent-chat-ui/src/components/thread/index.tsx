@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { SuggestionCards } from "./suggestion-cards";
@@ -32,6 +33,7 @@ import {
   Lightbulb,
   Wrench,
   Bookmark,
+  PanelBottomClose,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -763,6 +765,11 @@ export function Thread() {
               >
                 <Wrench />
               </TooltipIconButton>
+              <Link href="/demo">
+                <TooltipIconButton tooltip="Try Mini Mode" variant="ghost" className="h-8 w-8">
+                  <PanelBottomClose className="h-4 w-4" />
+                </TooltipIconButton>
+              </Link>
               <ThemeToggle />
             </div>
           </header>
