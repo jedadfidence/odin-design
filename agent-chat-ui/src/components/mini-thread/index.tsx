@@ -349,6 +349,10 @@ export function MiniThread() {
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartY = useRef(0);
   const resizeStartHeight = useRef(0);
+  const heightRef = useRef(height);
+  useEffect(() => {
+    heightRef.current = height;
+  }, [height]);
 
   // Load persisted height on mount
   useEffect(() => {
@@ -382,8 +386,8 @@ export function MiniThread() {
   const handleResizeEnd = useCallback(() => {
     if (!isResizing) return;
     setIsResizing(false);
-    localStorage.setItem(LS_HEIGHT_KEY, String(height));
-  }, [isResizing, height]);
+    localStorage.setItem(LS_HEIGHT_KEY, String(heightRef.current));
+  }, [isResizing]);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">

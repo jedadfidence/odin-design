@@ -17,7 +17,6 @@ export function MiniHeader({ onClose, onToggleSidebar }: MiniHeaderProps) {
   const handleNewThread = () => {
     stream.stop();
     setThreadId(null);
-    window.location.reload();
   };
 
   return (

@@ -1,4 +1,7 @@
+"use client";
+
 import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import ThreadHistory from "../thread/history";
 
 interface MiniSidebarProps {
@@ -34,7 +37,7 @@ export function MiniSidebar({ open, onClose }: MiniSidebarProps) {
                 onClick={onClose}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               >
-                &times;
+                <X className="h-4 w-4" />
               </button>
             </div>
             <div className="h-[calc(100%-2.5rem)] overflow-y-auto">
