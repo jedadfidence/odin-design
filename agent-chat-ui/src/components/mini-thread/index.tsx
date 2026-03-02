@@ -400,7 +400,7 @@ export function MiniThread() {
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={cn(
-              "relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl",
+              "relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background/80 backdrop-blur-xl shadow-2xl",
             )}
             style={{
               width: MINI_CHAT_WIDTH,
