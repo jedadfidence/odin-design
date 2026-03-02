@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Shortcut,
   loadShortcuts,
@@ -9,8 +9,7 @@ import {
 import { ContextSelections } from "@/lib/context-selectors";
 
 export function useShortcuts() {
-  const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
-  const hydrated = useRef(false);
+  const [shortcuts, setShortcuts] = useState<Shortcut[]>(() => loadShortcuts());
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [triggerSource, setTriggerSource] = useState<"icon" | "keyboard" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -20,17 +19,9 @@ export function useShortcuts() {
     context: ContextSelections | null;
   } | null>(null);
 
-  // Hydrate from localStorage on mount (client only)
+  // Persist to localStorage whenever shortcuts change
   useEffect(() => {
-    setShortcuts(loadShortcuts());
-    hydrated.current = true;
-  }, []);
-
-  // Persist to localStorage on changes (skip initial hydration)
-  useEffect(() => {
-    if (hydrated.current) {
-      saveShortcuts(shortcuts);
-    }
+    saveShortcuts(shortcuts);
   }, [shortcuts]);
 
   const addShortcut = useCallback(
