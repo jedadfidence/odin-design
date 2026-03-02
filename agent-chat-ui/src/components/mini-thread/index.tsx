@@ -40,6 +40,30 @@ const MINI_CHAT_MIN_HEIGHT = 400;
 const MINI_CHAT_MAX_HEIGHT = 800;
 const LS_HEIGHT_KEY = "mini-chat:height";
 
+const FAB_SIZE = 48;
+
+const collapsedVariant = {
+  width: FAB_SIZE,
+  height: FAB_SIZE,
+  borderRadius: FAB_SIZE / 2,
+};
+
+const expandedVariant = (h: number) => ({
+  width: MINI_CHAT_WIDTH,
+  height: h,
+  borderRadius: 16,
+});
+
+const morphTransition = {
+  duration: 0.4,
+  ease: [0.32, 0.72, 0, 1] as const,
+};
+
+const contentTransition = {
+  duration: 0.15,
+  ease: "easeOut" as const,
+};
+
 function getStoredHeight(): number {
   if (typeof window === "undefined") return MINI_CHAT_DEFAULT_HEIGHT;
   const stored = localStorage.getItem(LS_HEIGHT_KEY);
@@ -391,61 +415,70 @@ export function MiniThread() {
   }, [isResizing]);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <AnimatePresence mode="wait">
-        {isOpen ? (
-          <motion.div
-            key="chat-window"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className={cn(
-              "relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background/80 backdrop-blur-xl shadow-2xl",
-            )}
-            style={{
-              width: MINI_CHAT_WIDTH,
-              height,
-              transformOrigin: "bottom right",
-            }}
-          >
-            {/* Resize handle */}
-            <div
-              onPointerDown={handleResizeStart}
-              onPointerMove={handleResizeMove}
-              onPointerUp={handleResizeEnd}
-              onPointerCancel={handleResizeEnd}
-              className="absolute -top-1 left-0 right-0 z-50 flex h-3 cursor-ns-resize items-center justify-center"
-            >
-              <div className="h-1 w-10 rounded-full bg-border opacity-0 transition-opacity hover:opacity-100" />
-            </div>
-            <ThreadProvider>
-              <StreamProvider>
-                <ArtifactProvider>
-                  <MiniThreadContent
-                    onClose={() => setIsOpen(false)}
-                    onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-                    onCloseSidebar={() => setSidebarOpen(false)}
-                    sidebarOpen={sidebarOpen}
-                  />
-                </ArtifactProvider>
-              </StreamProvider>
-            </ThreadProvider>
-          </motion.div>
-        ) : (
-          <motion.button
-            key="fab"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            onClick={() => setIsOpen(true)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary-hover transition-colors"
-          >
-            <MessageCircle className="h-5 w-5" />
-          </motion.button>
+    <div className="fixed bottom-6 right-6 z-50 flex items-end justify-end">
+      <motion.div
+        animate={isOpen ? expandedVariant(height) : collapsedVariant}
+        transition={morphTransition}
+        onClick={!isOpen ? () => setIsOpen(true) : undefined}
+        className={cn(
+          "relative flex flex-col overflow-hidden shadow-2xl",
+          !isOpen && "cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover",
+          isOpen && "bg-background/80 backdrop-blur-xl border border-border",
         )}
-      </AnimatePresence>
+        style={{ transformOrigin: "bottom right" }}
+      >
+        {/* FAB icon layer */}
+        <motion.div
+          animate={{ opacity: isOpen ? 0 : 1 }}
+          transition={contentTransition}
+          className={cn(
+            "absolute inset-0 flex items-center justify-center",
+            isOpen && "pointer-events-none",
+          )}
+        >
+          <MessageCircle className="h-5 w-5" />
+        </motion.div>
+
+        {/* Chat content layer */}
+        <motion.div
+          animate={{ opacity: isOpen ? 1 : 0 }}
+          transition={{
+            ...contentTransition,
+            delay: isOpen ? 0.15 : 0,
+          }}
+          className={cn(
+            "flex flex-col h-full w-full",
+            !isOpen && "pointer-events-none",
+          )}
+        >
+          {isOpen && (
+            <>
+              {/* Resize handle */}
+              <div
+                onPointerDown={handleResizeStart}
+                onPointerMove={handleResizeMove}
+                onPointerUp={handleResizeEnd}
+                onPointerCancel={handleResizeEnd}
+                className="absolute -top-1 left-0 right-0 z-50 flex h-3 cursor-ns-resize items-center justify-center"
+              >
+                <div className="h-1 w-10 rounded-full bg-border opacity-0 transition-opacity hover:opacity-100" />
+              </div>
+              <ThreadProvider>
+                <StreamProvider>
+                  <ArtifactProvider>
+                    <MiniThreadContent
+                      onClose={() => setIsOpen(false)}
+                      onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+                      onCloseSidebar={() => setSidebarOpen(false)}
+                      sidebarOpen={sidebarOpen}
+                    />
+                  </ArtifactProvider>
+                </StreamProvider>
+              </ThreadProvider>
+            </>
+          )}
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
