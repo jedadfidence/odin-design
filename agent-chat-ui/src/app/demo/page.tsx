@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { MiniThread } from "@/components/mini-thread";
 import Link from "next/link";
 
 function MockDashboard() {
@@ -139,10 +140,7 @@ export default function DemoPage() {
     <React.Suspense fallback={null}>
       <Toaster />
       <MockDashboard />
-      {/* MiniThread widget will be added here in Task 2.
-          Providers (ThreadProvider, StreamProvider, ArtifactProvider)
-          are rendered inside MiniThread itself so the demo page
-          shows the dashboard even when the API is not configured. */}
+      <MiniThread />
     </React.Suspense>
   );
 }
