@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, ArrowDown } from "lucide-react";
 import { MiniHeader } from "./mini-header";
+import { MiniSidebar } from "./mini-sidebar";
 import { MiniInput } from "./mini-input";
 import { cn } from "@/lib/utils";
 import { ThreadProvider } from "@/providers/Thread";
@@ -106,9 +107,13 @@ function ScrollToBottomBridge({
 function MiniThreadContent({
   onClose,
   onToggleSidebar,
+  onCloseSidebar,
+  sidebarOpen,
 }: {
   onClose: () => void;
   onToggleSidebar: () => void;
+  onCloseSidebar: () => void;
+  sidebarOpen: boolean;
 }) {
   const stream = useStreamContext();
   const [threadId] = useQueryState("threadId");
@@ -209,6 +214,7 @@ function MiniThreadContent({
   return (
     <>
       <MiniHeader onClose={onClose} onToggleSidebar={onToggleSidebar} />
+      <MiniSidebar open={sidebarOpen} onClose={() => onCloseSidebar()} />
 
       {/* Message area */}
       <StickToBottom className="relative flex-1 overflow-hidden">
@@ -307,12 +313,45 @@ function MiniThreadContent({
 export function MiniThread() {
   const [isOpen, setIsOpen] = useState(false);
   const [height, setHeight] = useState(MINI_CHAT_DEFAULT_HEIGHT);
-  const [_sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartY = useRef(0);
+  const resizeStartHeight = useRef(0);
 
   // Load persisted height on mount
   useEffect(() => {
     setHeight(getStoredHeight());
   }, []);
+
+  const handleResizeStart = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      setIsResizing(true);
+      resizeStartY.current = e.clientY;
+      resizeStartHeight.current = height;
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [height],
+  );
+
+  const handleResizeMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isResizing) return;
+      const delta = resizeStartY.current - e.clientY;
+      const newHeight = Math.min(
+        MINI_CHAT_MAX_HEIGHT,
+        Math.max(MINI_CHAT_MIN_HEIGHT, resizeStartHeight.current + delta),
+      );
+      setHeight(newHeight);
+    },
+    [isResizing],
+  );
+
+  const handleResizeEnd = useCallback(() => {
+    if (!isResizing) return;
+    setIsResizing(false);
+    localStorage.setItem(LS_HEIGHT_KEY, String(height));
+  }, [isResizing, height]);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -333,12 +372,24 @@ export function MiniThread() {
               transformOrigin: "bottom right",
             }}
           >
+            {/* Resize handle */}
+            <div
+              onPointerDown={handleResizeStart}
+              onPointerMove={handleResizeMove}
+              onPointerUp={handleResizeEnd}
+              onPointerCancel={handleResizeEnd}
+              className="absolute -top-1 left-0 right-0 z-50 flex h-3 cursor-ns-resize items-center justify-center"
+            >
+              <div className="h-1 w-10 rounded-full bg-border opacity-0 transition-opacity hover:opacity-100" />
+            </div>
             <ThreadProvider>
               <StreamProvider>
                 <ArtifactProvider>
                   <MiniThreadContent
                     onClose={() => setIsOpen(false)}
                     onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+                    onCloseSidebar={() => setSidebarOpen(false)}
+                    sidebarOpen={sidebarOpen}
                   />
                 </ArtifactProvider>
               </StreamProvider>
