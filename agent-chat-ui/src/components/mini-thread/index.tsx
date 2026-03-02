@@ -320,7 +320,7 @@ function MiniThreadContent({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="shrink-0 overflow-hidden border-t border-border px-3 pt-2"
+              className="shrink-0 overflow-hidden border-t border-border px-3 py-2"
             >
               <SuggestionCards
                 suggestions={visibleSuggestions}
