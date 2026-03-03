@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { SuggestionCards } from "./suggestion-cards";
@@ -143,6 +144,7 @@ function ScrollToBottom(props: { className?: string }) {
 }
 
 export function Thread() {
+  const searchParams = useSearchParams();
   const [artifactContext, setArtifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
@@ -765,7 +767,7 @@ export function Thread() {
               >
                 <Wrench />
               </TooltipIconButton>
-              <Link href="/demo">
+              <Link href={`/demo${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}>
                 <TooltipIconButton tooltip="Try Mini Mode" variant="ghost" className="h-8 w-8">
                   <PanelBottomClose className="h-4 w-4" />
                 </TooltipIconButton>
