@@ -1,6 +1,7 @@
 "use client";
 
-import { Menu, SquarePen, X } from "lucide-react";
+import { Menu, Maximize2, SquarePen, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TooltipIconButton } from "../thread/tooltip-icon-button";
 import { useStreamContext } from "@/providers/Stream";
 import { useQueryState } from "nuqs";
@@ -17,6 +18,14 @@ export function MiniHeader({ onClose, onToggleSidebar }: MiniHeaderProps) {
   const handleNewThread = () => {
     stream.stop();
     setThreadId(null);
+  };
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleExpand = () => {
+    const params = searchParams.toString();
+    router.push(params ? `/?${params}` : "/");
   };
 
   return (
@@ -40,6 +49,14 @@ export function MiniHeader({ onClose, onToggleSidebar }: MiniHeaderProps) {
           onClick={handleNewThread}
         >
           <SquarePen className="h-3.5 w-3.5" />
+        </TooltipIconButton>
+        <TooltipIconButton
+          tooltip="Full screen"
+          variant="ghost"
+          className="h-7 w-7"
+          onClick={handleExpand}
+        >
+          <Maximize2 className="h-3.5 w-3.5" />
         </TooltipIconButton>
         <TooltipIconButton
           tooltip="Close"
