@@ -9,11 +9,13 @@ import {
   TrendingUp,
   BarChart3,
   ClipboardCheck,
+  MessageCircle,
   ChevronsUpDown,
   User,
   Settings,
   LogOut,
 } from "lucide-react";
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
@@ -122,6 +124,14 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="AI Chat">
+                  <Link href="/">
+                    <MessageCircle />
+                    <span>AI Chat</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {NAV_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
