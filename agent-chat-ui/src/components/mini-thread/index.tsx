@@ -384,6 +384,35 @@ export function MiniThread() {
     setHeight(getStoredHeight());
   }, []);
 
+  // Auto-open mini thread when page context is added, queue events for after mount
+  const pendingContextRef = useRef<string[]>([]);
+  useEffect(() => {
+    const handler = ((e: CustomEvent<string>) => {
+      if (!isOpen) {
+        pendingContextRef.current.push(e.detail);
+        setIsOpen(true);
+      }
+    }) as EventListener;
+    window.addEventListener("odin:add-page-context", handler);
+    return () => window.removeEventListener("odin:add-page-context", handler);
+  }, [isOpen]);
+
+  // Re-dispatch queued context events after mini thread opens
+  useEffect(() => {
+    if (isOpen && pendingContextRef.current.length > 0) {
+      const pending = [...pendingContextRef.current];
+      pendingContextRef.current = [];
+      // Delay to ensure MiniInput is mounted and listening
+      requestAnimationFrame(() => {
+        pending.forEach((id) => {
+          window.dispatchEvent(
+            new CustomEvent("odin:add-page-context", { detail: id }),
+          );
+        });
+      });
+    }
+  }, [isOpen]);
+
   const handleResizeStart = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
@@ -417,6 +446,7 @@ export function MiniThread() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex items-end justify-end">
       <motion.div
+        initial={false}
         animate={isOpen ? expandedVariant(height) : collapsedVariant}
         transition={morphTransition}
         onClick={!isOpen ? () => setIsOpen(true) : undefined}
