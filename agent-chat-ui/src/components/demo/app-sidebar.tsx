@@ -112,7 +112,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r-0 [&>[data-sidebar=sidebar]]:bg-[rgba(255,255,255,0.08)] [&>[data-sidebar=sidebar]]:backdrop-blur-xl"
+      className="border-r-0 bg-[#EAECF5] dark:bg-[#0D0D14] [&>[data-sidebar=sidebar]]:bg-transparent"
     >
       <SidebarHeader className="p-4">
         <SidebarLogo />
