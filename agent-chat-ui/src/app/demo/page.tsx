@@ -56,10 +56,10 @@ function MockDashboard() {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
+    <div className="flex-1 min-h-screen overflow-auto bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
       {/* Dashboard content */}
-      <main className="p-6">
-        <div className="mb-6 flex items-center gap-2">
+      <main className="p-4 flex flex-col gap-4">
+        <div className="flex items-center gap-2">
           <SidebarTrigger />
           <h1 className="text-2xl font-semibold">Dashboard Overview</h1>
         </div>
@@ -72,7 +72,7 @@ function MockDashboard() {
               text="Revenue has grown 12.5% to $124,500 this month, driven primarily by enterprise subscription renewals. Active users are up 3.2% to 8,420, with Asia Pacific showing the strongest engagement at 88%. Conversion rate has dipped slightly by 0.3 percentage points to 4.8%, suggesting potential optimization opportunities in the checkout flow."
               initialDelay={500}
               onDismiss={() => setShowExecSummary(false)}
-              className="mb-6"
+              className=""
             />
           )}
         </AnimatePresence>
@@ -219,7 +219,7 @@ function MockDashboard() {
 
         {/* Analytics Section */}
         <div
-          className="group/section mt-6 flex flex-col items-stretch self-stretch rounded-3xl p-6"
+          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6"
           style={{
             background: "rgba(255, 255, 255, 0.08)",
             boxShadow:
@@ -349,7 +349,7 @@ function MockDashboard() {
 
         {/* Transactions Section */}
         <div
-          className="group/section mt-6 flex flex-col items-stretch self-stretch rounded-3xl p-6"
+          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6"
           style={{
             background: "rgba(255, 255, 255, 0.08)",
             boxShadow:
