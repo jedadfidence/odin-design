@@ -128,7 +128,7 @@ export function AppSidebar() {
                     asChild
                     isActive={"active" in item && item.active}
                     tooltip={item.title}
-                    className="data-[active=true]:bg-white/15"
+                    className="data-[active=true]:rounded-full data-[active=true]:border data-[active=true]:border-[#F5F9FF] data-[active=true]:bg-[rgba(255,255,255,0.20)] data-[active=true]:[box-shadow:0_10px_20px_0_rgba(255,255,255,0.20)_inset,0_0_0_0.5px_rgba(255,255,255,0.20)_inset,0.5px_0.5px_4px_0_rgba(255,255,255,0.40)_inset,-0.5px_-0.5px_0_0_rgba(255,255,255,0.40)_inset]"
                   >
                     <a href="#">
                       <item.icon />
