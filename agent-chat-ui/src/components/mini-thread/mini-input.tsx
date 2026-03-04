@@ -19,6 +19,7 @@ import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "../thread/ContentBlocksPreview";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
 import { ContextCategory, ContextSelections } from "@/lib/context-selectors";
+import { usePageWidgets } from "@/lib/dashboard-widgets";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
 import { ContextBadges } from "../thread/context-badges";
 import { ContextPopover } from "../thread/context-popover";
@@ -47,6 +48,9 @@ export function MiniInput({
   const isLoading = stream.isLoading;
 
   const [input, setInput] = useState("");
+
+  // --- Page widgets (for resolving context IDs) ---
+  const pageWidgets = usePageWidgets();
 
   // --- File upload ---
   const {
@@ -290,7 +294,17 @@ export function MiniInput({
 
     const contextMeta = contextToMetadata();
     const quotesMeta = quotesToMetadata();
-    const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
+    const combinedMeta: Record<string, unknown> = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
+
+    // Resolve page widget IDs to full widget data
+    if (combinedMeta.page && Array.isArray(combinedMeta.page)) {
+      combinedMeta.page = (combinedMeta.page as string[]).map((id) => {
+        const widget = pageWidgets.find((w) => w.id === id);
+        return widget
+          ? { id: widget.id, title: widget.title, type: widget.type, data: widget.data }
+          : { id };
+      });
+    }
     const newHumanMessage: Message = {
       id: uuidv4(),
       type: "human",
