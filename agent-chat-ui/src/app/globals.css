@@ -41,21 +41,21 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
 
 :root {
   --background: #FFFFFF;
-  --foreground: #111118;
+  --foreground: #20356F;
   --card: #FFFFFF;
-  --card-foreground: #111118;
+  --card-foreground: #20356F;
   --popover: #FFFFFF;
-  --popover-foreground: #111118;
+  --popover-foreground: #20356F;
   --primary: #214DA5;
   --primary-foreground: #FFFFFF;
   --primary-hover: #1F356F;
   --primary-light: #D3E4FD;
   --secondary: #F0F0FF;
-  --secondary-foreground: #111118;
+  --secondary-foreground: #20356F;
   --muted: #F0F0FF;
   --muted-foreground: #6B7280;
   --accent: #E4EFFE;
-  --accent-foreground: #111118;
+  --accent-foreground: #20356F;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --border: #E5E7EB;
@@ -70,11 +70,11 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --chart-5: #E4EFFE;
   --radius: 0.625rem;
   --sidebar: #F0F0FF;
-  --sidebar-foreground: #111118;
+  --sidebar-foreground: #20356F;
   --sidebar-primary: #214DA5;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #E4EFFE;
-  --sidebar-accent-foreground: #111118;
+  --sidebar-accent-foreground: #20356F;
   --sidebar-border: #E5E7EB;
   --sidebar-ring: #214DA5;
 }
