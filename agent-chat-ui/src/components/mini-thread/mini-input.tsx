@@ -379,7 +379,8 @@ export function MiniInput({
             <AnimatePresence initial={false}>
               {(contextSelections.countries.length > 0 ||
                 contextSelections.platforms.length > 0 ||
-                contextSelections.metrics.length > 0) && (
+                contextSelections.metrics.length > 0 ||
+                contextSelections.page.length > 0) && (
                 <motion.div
                   key="context-badges"
                   initial={{ height: 0, opacity: 0 }}

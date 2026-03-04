@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { X, Globe, Megaphone, BarChart3, Save, Bookmark, Pencil } from "lucide-react";
+import { X, Globe, Megaphone, BarChart3, Save, Bookmark, Pencil, Monitor } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContextCategory, ContextSelections } from "@/lib/context-selectors";
+import { usePageWidgets } from "@/lib/dashboard-widgets";
 import { cn } from "@/lib/utils";
 
 interface ContextBadgesProps {
@@ -27,6 +28,7 @@ const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-3 w-3" />,
   platforms: <Megaphone className="h-3 w-3" />,
   metrics: <BarChart3 className="h-3 w-3" />,
+  page: <Monitor className="h-3 w-3" />,
 };
 
 const CATEGORY_COLORS: Record<ContextCategory, string> = {
@@ -36,6 +38,8 @@ const CATEGORY_COLORS: Record<ContextCategory, string> = {
     "border-transparent bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   metrics:
     "border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  page:
+    "border-transparent bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
 };
 
 export const ContextBadges: React.FC<ContextBadgesProps> = ({
@@ -49,8 +53,10 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
   onRenameActivePreset,
   className,
 }) => {
+  const pageWidgets = usePageWidgets();
+
   const allBadges: { category: ContextCategory; item: string }[] = [];
-  for (const category of ["countries", "platforms", "metrics"] as ContextCategory[]) {
+  for (const category of ["countries", "platforms", "metrics", "page"] as ContextCategory[]) {
     for (const item of selections[category]) {
       allBadges.push({ category, item });
     }
@@ -174,7 +180,9 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
               )}
             >
               {CATEGORY_ICON[category]}
-              {item}
+              {category === "page"
+                ? (pageWidgets.find((w) => w.id === item)?.title ?? item)
+                : item}
               {onRemove && (
                 <button
                   type="button"
