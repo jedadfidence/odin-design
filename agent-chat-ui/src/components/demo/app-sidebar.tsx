@@ -50,8 +50,8 @@ function SidebarLogo() {
   const { open } = useSidebar();
 
   return (
-    <div className={`flex items-center gap-2 ${open ? "px-2" : "justify-center"}`}>
-      <div className="h-8 w-8 shrink-0 rounded-lg bg-primary" />
+    <div className="flex items-center gap-2 px-2">
+      <div className="size-5 shrink-0 rounded bg-primary" />
       {open && (
         <span className="text-sm font-semibold truncate">Adfidence AI</span>
       )}
@@ -114,7 +114,7 @@ export function AppSidebar() {
       collapsible="icon"
       className="border-r-0 bg-[#EAECF5] dark:bg-[#0D0D14] [&>[data-sidebar=sidebar]]:bg-transparent"
     >
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="px-2 py-4">
         <SidebarLogo />
       </SidebarHeader>
 
