@@ -1,7 +1,7 @@
 "use client";
 
 import { v4 as uuidv4 } from "uuid";
-import { useState, useRef, useCallback, FormEvent } from "react";
+import { useState, useRef, useCallback, useEffect, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
@@ -18,7 +18,7 @@ import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "../thread/ContentBlocksPreview";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
-import { ContextSelections } from "@/lib/context-selectors";
+import { ContextCategory, ContextSelections } from "@/lib/context-selectors";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
 import { ContextBadges } from "../thread/context-badges";
 import { ContextPopover } from "../thread/context-popover";
@@ -115,6 +115,18 @@ export function MiniInput({
     clearQuotes,
     toMetadata: quotesToMetadata,
   } = useTextQuotes();
+
+  // --- Page context custom event listener ---
+  useEffect(() => {
+    const handler = ((e: CustomEvent<string>) => {
+      const widgetId = e.detail;
+      if (!contextSelections.page.includes(widgetId)) {
+        toggleItem("page" as ContextCategory, widgetId);
+      }
+    }) as EventListener;
+    window.addEventListener("odin:add-page-context", handler);
+    return () => window.removeEventListener("odin:add-page-context", handler);
+  }, [contextSelections.page, toggleItem]);
 
   // --- Refs ---
   const textareaRef = useRef<HTMLTextAreaElement>(null);
