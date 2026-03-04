@@ -37,6 +37,7 @@ export function duplicatePreset(preset: ContextPreset): ContextPreset {
       countries: [...preset.selections.countries],
       platforms: [...preset.selections.platforms],
       metrics: [...preset.selections.metrics],
+      page: [...(preset.selections.page ?? [])],
     },
   };
 }

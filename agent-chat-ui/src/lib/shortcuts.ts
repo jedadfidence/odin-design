@@ -99,6 +99,7 @@ export function duplicateShortcut(shortcut: Shortcut): Shortcut {
           countries: [...shortcut.context.countries],
           platforms: [...shortcut.context.platforms],
           metrics: [...shortcut.context.metrics],
+          page: [...(shortcut.context.page ?? [])],
         }
       : null,
     createdAt: now,

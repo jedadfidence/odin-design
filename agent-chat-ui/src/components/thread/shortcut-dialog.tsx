@@ -223,6 +223,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       countries: [...preset.selections.countries],
       platforms: [...preset.selections.platforms],
       metrics: [...preset.selections.metrics],
+      page: [...(preset.selections.page ?? [])],
     });
     const presetCats = getActiveCategories(preset.selections);
     const merged = [...new Set([...activeFilters, ...presetCats])];

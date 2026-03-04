@@ -621,6 +621,7 @@ export function Thread() {
           countries: context.countries ?? [],
           platforms: context.platforms ?? [],
           metrics: context.metrics ?? [],
+          page: [],
         });
         if (context.selected_text?.length) {
           setQuotesFromTexts(context.selected_text);
@@ -941,7 +942,7 @@ export function Thread() {
                         )}
                       </AnimatePresence>
                       <AnimatePresence initial={false}>
-                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.metrics.length > 0) && (
+                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.metrics.length > 0 || contextSelections.page.length > 0) && (
                           <motion.div
                             key="context-badges"
                             initial={{ height: 0, opacity: 0 }}
