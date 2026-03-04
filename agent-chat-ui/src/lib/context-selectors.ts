@@ -1,4 +1,4 @@
-export type ContextCategory = "countries" | "platforms" | "metrics";
+export type ContextCategory = "countries" | "platforms" | "metrics" | "page";
 
 export interface ContextCategoryConfig {
   id: ContextCategory;
@@ -79,4 +79,5 @@ export const EMPTY_SELECTIONS: ContextSelections = {
   countries: [],
   platforms: [],
   metrics: [],
+  page: [],
 };

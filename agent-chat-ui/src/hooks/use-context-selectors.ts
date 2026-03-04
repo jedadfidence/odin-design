@@ -44,14 +44,18 @@ export function useContextSelectors() {
   }, []);
 
   const hasSelections =
-    selections.countries.length > 0 || selections.platforms.length > 0 || selections.metrics.length > 0;
+    selections.countries.length > 0 ||
+    selections.platforms.length > 0 ||
+    selections.metrics.length > 0 ||
+    selections.page.length > 0;
 
-  const toMetadata = useCallback((): Record<string, string[]> | undefined => {
+  const toMetadata = useCallback((): Record<string, unknown> | undefined => {
     if (!hasSelections) return undefined;
-    const meta: Record<string, string[]> = {};
+    const meta: Record<string, unknown> = {};
     if (selections.countries.length > 0) meta.countries = selections.countries;
     if (selections.platforms.length > 0) meta.platforms = selections.platforms;
     if (selections.metrics.length > 0) meta.metrics = selections.metrics;
+    if (selections.page.length > 0) meta.page = selections.page;
     return meta;
   }, [selections, hasSelections]);
 
