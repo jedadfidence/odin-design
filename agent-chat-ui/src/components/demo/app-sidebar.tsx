@@ -110,7 +110,10 @@ function SidebarUser() {
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
+    <Sidebar
+      collapsible="icon"
+      className="border-r-0 [&>[data-sidebar=sidebar]]:bg-[rgba(255,255,255,0.08)] [&>[data-sidebar=sidebar]]:backdrop-blur-xl"
+    >
       <SidebarHeader className="p-4">
         <SidebarLogo />
       </SidebarHeader>
@@ -125,6 +128,7 @@ export function AppSidebar() {
                     asChild
                     isActive={"active" in item && item.active}
                     tooltip={item.title}
+                    className="data-[active=true]:bg-white/15"
                   >
                     <a href="#">
                       <item.icon />
