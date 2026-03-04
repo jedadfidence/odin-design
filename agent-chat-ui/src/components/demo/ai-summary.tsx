@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -138,6 +139,11 @@ function ShimmerSkeleton({ className }: { className?: string }) {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
           }
+          @keyframes ai-gradient-rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
         `}
       </style>
       <div className={cn("space-y-2", className)}>
@@ -210,6 +216,70 @@ function WordCascade({
 }
 
 // ---------------------------------------------------------------------------
+// Content Transition (smooth height animation between shimmer → text)
+// ---------------------------------------------------------------------------
+
+function ContentTransition({
+  phase,
+  text,
+  variant = "compact",
+}: {
+  phase: AnimationPhase;
+  text: string;
+  variant?: "full" | "compact";
+}) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(() => {
+      setHeight(el.scrollHeight);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const isCompact = variant === "compact";
+  const showShimmer = phase === "idle" || phase === "shimmer";
+
+  return (
+    <motion.div
+      animate={{ height: height ?? "auto" }}
+      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+      style={{ overflow: "hidden" }}
+    >
+      <div ref={contentRef}>
+        {showShimmer ? (
+          <motion.div
+            key="shimmer"
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <ShimmerSkeleton className={isCompact ? "space-y-1.5" : undefined} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="cascade"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.05 }}
+          >
+            <WordCascade
+              text={text}
+              className={isCompact ? "text-xs leading-relaxed" : undefined}
+            />
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // AI Summary Component
 // ---------------------------------------------------------------------------
 
@@ -272,61 +342,63 @@ export function AISummary({
         exit={{ opacity: 0, height: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         className={cn(
-          "relative rounded-lg border bg-card p-4 shadow-sm",
+          "relative overflow-hidden rounded-3xl p-6",
           className,
         )}
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(69, 134, 247, 0.12) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(69, 134, 247, 0.06) 50%, rgba(255, 255, 255, 0.10) 70%, rgba(69, 134, 247, 0.14) 100%)",
+          backgroundSize: "300% 300%",
+          animation: "ai-gradient-rotate 8s ease infinite",
+          boxShadow:
+            "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+        }}
       >
         <div className="absolute right-2 top-2 flex items-center gap-0.5">
           {(phase === "cascade" || phase === "done") && (
-            <button
-              onClick={handleCopy}
-              className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Copy summary"
-            >
-              {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleCopy}
+                  className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Copy to clipboard"
+                >
+                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{copied ? "Copied!" : "Copy to clipboard"}</TooltipContent>
+            </Tooltip>
           )}
           {onDismiss && (
-            <button
-              onClick={onDismiss}
-              className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Dismiss summary"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onDismiss}
+                  className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Close</TooltipContent>
+            </Tooltip>
           )}
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
-          <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-xs text-primary">AI</span>
-          </div>
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            AI Summary
+        <div className="mb-3">
+          <span
+            className="text-xs font-medium italic uppercase tracking-wide"
+            style={{
+              background: "linear-gradient(135deg, #4586F7, #7aaafb)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Adfidence AI Summary
           </span>
         </div>
 
-        <AnimatePresence mode="wait">
-          {(phase === "idle" || phase === "shimmer") && (
-            <motion.div
-              key="shimmer"
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ShimmerSkeleton />
-            </motion.div>
-          )}
-          {(phase === "cascade" || phase === "done") && (
-            <motion.div
-              key="cascade"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <WordCascade text={text} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <ContentTransition phase={phase} text={text} variant="full" />
       </motion.div>
     );
   }
@@ -337,62 +409,68 @@ export function AISummary({
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
       className={cn(
-        "mt-2 rounded-md bg-muted/50 px-3 py-2",
+        "overflow-hidden rounded-lg",
         className,
       )}
     >
+      <div
+        className="px-4 py-3"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(69, 134, 247, 0.12) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(69, 134, 247, 0.06) 50%, rgba(255, 255, 255, 0.10) 70%, rgba(69, 134, 247, 0.14) 100%)",
+          backgroundSize: "300% 300%",
+          animation: "ai-gradient-rotate 8s ease infinite",
+          boxShadow:
+            "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+        }}
+      >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-          AI Insight
+        <span
+          className="text-[10px] font-medium italic uppercase tracking-wide"
+          style={{
+            background: "linear-gradient(135deg, #4586F7, #7aaafb)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Adfidence AI Insight
         </span>
         <div className="flex items-center gap-0.5">
           {(phase === "cascade" || phase === "done") && (
-            <button
-              onClick={handleCopy}
-              className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Copy insight"
-            >
-              {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleCopy}
+                  className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Copy to clipboard"
+                >
+                  {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{copied ? "Copied!" : "Copy to clipboard"}</TooltipContent>
+            </Tooltip>
           )}
           {onDismiss && (
-            <button
-              onClick={onDismiss}
-              className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Dismiss insight"
-            >
-              <X className="h-3 w-3" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onDismiss}
+                  className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Close</TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {(phase === "idle" || phase === "shimmer") && (
-          <motion.div
-            key="shimmer"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          >
-            <ShimmerSkeleton className="space-y-1.5" />
-          </motion.div>
-        )}
-        {(phase === "cascade" || phase === "done") && (
-          <motion.div
-            key="cascade"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.15 }}
-          >
-            <WordCascade
-              text={text}
-              className="text-xs leading-relaxed"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ContentTransition phase={phase} text={text} />
+      </div>
     </motion.div>
   );
 }

@@ -55,7 +55,7 @@ function MockDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] dark:bg-[#0D0D14] text-foreground">
+    <div className="min-h-screen bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
       {/* Top nav bar */}
       <header className="flex h-14 items-center justify-between border-b border-border bg-background px-6">
         <div className="flex items-center gap-3">
@@ -93,8 +93,15 @@ function MockDashboard() {
         </AnimatePresence>
 
         {/* KPIs Section */}
-        <div className="group/section">
-          <div className="flex items-center justify-between mb-4">
+        <div
+          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6"
+          style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            boxShadow:
+              "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+          }}
+        >
+          <div className="w-full flex items-center justify-between">
             <h2 className="text-lg font-semibold">KPIs</h2>
             <WidgetMenu
               className="opacity-0 group-hover/section:opacity-100 transition-opacity"
@@ -111,24 +118,20 @@ function MockDashboard() {
                 variant="compact"
                 text={activeInlineSummary.text}
                 onDismiss={() => setActiveInlineSummary(null)}
-                className="mb-4"
               />
             )}
           </AnimatePresence>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="w-full mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* KPI: Total Revenue */}
-            <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
-              <AnimatePresence>
-                {activeInlineSummary?.id === "kpi-revenue" && (
-                  <AISummary
-                    key={activeInlineSummary.id}
-                    variant="compact"
-                    text={activeInlineSummary.text}
-                    onDismiss={() => setActiveInlineSummary(null)}
-                  />
-                )}
-              </AnimatePresence>
+            <div
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              style={{
+                background: "rgba(255, 255, 255, 0.20)",
+                boxShadow:
+                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              }}
+            >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
                 <WidgetMenu
@@ -139,16 +142,8 @@ function MockDashboard() {
                   onAddToContext={() => handleAddToContext("kpi-revenue")}
                 />
               </div>
-              <p className="mt-1 text-2xl font-semibold">$124,500</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                +12.5% vs last month
-              </p>
-            </div>
-
-            {/* KPI: Active Users */}
-            <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
-                {activeInlineSummary?.id === "kpi-users" && (
+                {activeInlineSummary?.id === "kpi-revenue" && (
                   <AISummary
                     key={activeInlineSummary.id}
                     variant="compact"
@@ -157,6 +152,21 @@ function MockDashboard() {
                   />
                 )}
               </AnimatePresence>
+              <p className="mt-1 text-2xl font-semibold">$124,500</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                +12.5% vs last month
+              </p>
+            </div>
+
+            {/* KPI: Active Users */}
+            <div
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              style={{
+                background: "rgba(255, 255, 255, 0.20)",
+                boxShadow:
+                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              }}
+            >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Active Users</p>
                 <WidgetMenu
@@ -167,16 +177,8 @@ function MockDashboard() {
                   onAddToContext={() => handleAddToContext("kpi-users")}
                 />
               </div>
-              <p className="mt-1 text-2xl font-semibold">8,420</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                +3.2% vs last month
-              </p>
-            </div>
-
-            {/* KPI: Conversion Rate */}
-            <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
-                {activeInlineSummary?.id === "kpi-conversion" && (
+                {activeInlineSummary?.id === "kpi-users" && (
                   <AISummary
                     key={activeInlineSummary.id}
                     variant="compact"
@@ -185,6 +187,21 @@ function MockDashboard() {
                   />
                 )}
               </AnimatePresence>
+              <p className="mt-1 text-2xl font-semibold">8,420</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                +3.2% vs last month
+              </p>
+            </div>
+
+            {/* KPI: Conversion Rate */}
+            <div
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              style={{
+                background: "rgba(255, 255, 255, 0.20)",
+                boxShadow:
+                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              }}
+            >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                   Conversion Rate
@@ -197,6 +214,16 @@ function MockDashboard() {
                   onAddToContext={() => handleAddToContext("kpi-conversion")}
                 />
               </div>
+              <AnimatePresence>
+                {activeInlineSummary?.id === "kpi-conversion" && (
+                  <AISummary
+                    key={activeInlineSummary.id}
+                    variant="compact"
+                    text={activeInlineSummary.text}
+                    onDismiss={() => setActiveInlineSummary(null)}
+                  />
+                )}
+              </AnimatePresence>
               <p className="mt-1 text-2xl font-semibold">4.8%</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 -0.3% vs last month
@@ -206,8 +233,15 @@ function MockDashboard() {
         </div>
 
         {/* Analytics Section */}
-        <div className="group/section mt-6">
-          <div className="flex items-center justify-between mb-4">
+        <div
+          className="group/section mt-6 flex flex-col items-stretch self-stretch rounded-3xl p-6"
+          style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            boxShadow:
+              "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+          }}
+        >
+          <div className="w-full flex items-center justify-between">
             <h2 className="text-lg font-semibold">Analytics</h2>
             <WidgetMenu
               className="opacity-0 group-hover/section:opacity-100 transition-opacity"
@@ -226,24 +260,20 @@ function MockDashboard() {
                 variant="compact"
                 text={activeInlineSummary.text}
                 onDismiss={() => setActiveInlineSummary(null)}
-                className="mb-4"
               />
             )}
           </AnimatePresence>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="w-full mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Revenue Over Time Chart */}
-            <div className="group relative flex h-64 flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
-              <AnimatePresence>
-                {activeInlineSummary?.id === "revenue-chart" && (
-                  <AISummary
-                    key={activeInlineSummary.id}
-                    variant="compact"
-                    text={activeInlineSummary.text}
-                    onDismiss={() => setActiveInlineSummary(null)}
-                  />
-                )}
-              </AnimatePresence>
+            <div
+              className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              style={{
+                background: "rgba(255, 255, 255, 0.20)",
+                boxShadow:
+                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              }}
+            >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
                   Revenue Over Time
@@ -256,6 +286,16 @@ function MockDashboard() {
                   onAddToContext={() => handleAddToContext("revenue-chart")}
                 />
               </div>
+              <AnimatePresence>
+                {activeInlineSummary?.id === "revenue-chart" && (
+                  <AISummary
+                    key={activeInlineSummary.id}
+                    variant="compact"
+                    text={activeInlineSummary.text}
+                    onDismiss={() => setActiveInlineSummary(null)}
+                  />
+                )}
+              </AnimatePresence>
               <div className="mt-4 flex h-40 items-end gap-2">
                 {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 100].map(
                   (h, i) => (
@@ -270,17 +310,14 @@ function MockDashboard() {
             </div>
 
             {/* User Activity Chart */}
-            <div className="group relative flex h-64 flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
-              <AnimatePresence>
-                {activeInlineSummary?.id === "user-activity" && (
-                  <AISummary
-                    key={activeInlineSummary.id}
-                    variant="compact"
-                    text={activeInlineSummary.text}
-                    onDismiss={() => setActiveInlineSummary(null)}
-                  />
-                )}
-              </AnimatePresence>
+            <div
+              className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              style={{
+                background: "rgba(255, 255, 255, 0.20)",
+                boxShadow:
+                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              }}
+            >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
                   User Activity
@@ -293,6 +330,16 @@ function MockDashboard() {
                   onAddToContext={() => handleAddToContext("user-activity")}
                 />
               </div>
+              <AnimatePresence>
+                {activeInlineSummary?.id === "user-activity" && (
+                  <AISummary
+                    key={activeInlineSummary.id}
+                    variant="compact"
+                    text={activeInlineSummary.text}
+                    onDismiss={() => setActiveInlineSummary(null)}
+                  />
+                )}
+              </AnimatePresence>
               <div className="mt-4 space-y-3">
                 {[
                   { region: "North America", pct: 72 },
@@ -316,8 +363,15 @@ function MockDashboard() {
         </div>
 
         {/* Transactions Section */}
-        <div className="group/section mt-6">
-          <div className="flex items-center justify-between mb-4">
+        <div
+          className="group/section mt-6 flex flex-col items-stretch self-stretch rounded-3xl p-6"
+          style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            boxShadow:
+              "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+          }}
+        >
+          <div className="w-full flex items-center justify-between">
             <h2 className="text-lg font-semibold">Transactions</h2>
             <WidgetMenu
               className="opacity-0 group-hover/section:opacity-100 transition-opacity"
@@ -338,12 +392,28 @@ function MockDashboard() {
                 variant="compact"
                 text={activeInlineSummary.text}
                 onDismiss={() => setActiveInlineSummary(null)}
-                className="mb-4"
               />
             )}
           </AnimatePresence>
 
-          <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background shadow-sm">
+          <div
+            className="w-full mt-4 group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF]"
+            style={{
+              background: "rgba(255, 255, 255, 0.20)",
+              boxShadow:
+                "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+            }}
+          >
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <p className="font-medium">Recent Transactions</p>
+              <WidgetMenu
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                onAIAction={(action) =>
+                  handleWidgetAction("transactions", action)
+                }
+                onAddToContext={() => handleAddToContext("transactions")}
+              />
+            </div>
             <AnimatePresence>
               {activeInlineSummary?.id === "transactions" && (
                 <AISummary
@@ -355,16 +425,6 @@ function MockDashboard() {
                 />
               )}
             </AnimatePresence>
-            <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <p className="font-medium">Recent Transactions</p>
-              <WidgetMenu
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                onAIAction={(action) =>
-                  handleWidgetAction("transactions", action)
-                }
-                onAddToContext={() => handleAddToContext("transactions")}
-              />
-            </div>
             <div className="divide-y divide-border">
               {[
                 {
