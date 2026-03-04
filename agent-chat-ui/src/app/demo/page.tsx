@@ -14,7 +14,7 @@ import {
   getSectionMockResponse,
 } from "@/components/demo/ai-summary";
 import { WidgetMenu, AIAction } from "@/components/demo/widget-menu";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/demo/app-sidebar";
 
 function MockDashboard() {
@@ -56,9 +56,9 @@ function MockDashboard() {
   };
 
   return (
-    <div className="flex-1 min-h-screen overflow-auto bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
+    <SidebarInset className="min-h-screen overflow-auto bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
       {/* Dashboard content */}
-      <main className="p-4 flex flex-col gap-4">
+      <div className="p-4 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
           <h1 className="text-2xl font-semibold">Dashboard Overview</h1>
@@ -447,8 +447,8 @@ function MockDashboard() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarInset>
   );
 }
 
