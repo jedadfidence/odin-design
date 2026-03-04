@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Globe, Megaphone, BarChart3, ChevronRight, ChevronLeft } from "lucide-react";
+import { Globe, Megaphone, BarChart3, ChevronRight, ChevronLeft, Monitor } from "lucide-react";
 import { Bookmark, MoreHorizontal, Pencil, Copy, Trash2, Type } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContextPreset, presetSummary } from "@/lib/context-presets";
+import { usePageWidgets } from "@/lib/dashboard-widgets";
 import {
   ContextCategory,
   ContextSelections,
@@ -90,6 +91,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   const [previewPos, setPreviewPos] = useState<{ top: number } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const dropdownActionRef = useRef(false);
+  const pageWidgets = usePageWidgets();
 
   const activeCategoryConfig = activeCategory
     ? CONTEXT_CATEGORIES.find((c) => c.id === activeCategory)
@@ -123,6 +125,9 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           if (value === "presets-drilldown") {
             e.preventDefault();
             setShowPresets(true);
+          } else if (value === "page" && pageWidgets.length > 0) {
+            e.preventDefault();
+            onCategorySelect("page" as ContextCategory);
           } else {
             const cat = CONTEXT_CATEGORIES.find((c) => c.id === value);
             if (cat) {
@@ -159,7 +164,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         }
       }
     },
-    [activeCategory, showPresets, search, getSelectedValue, onCategorySelect, onOpenChange],
+    [activeCategory, showPresets, search, getSelectedValue, onCategorySelect, onOpenChange, pageWidgets],
   );
 
   /** Root page: cross-category search results */
@@ -183,6 +188,24 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           })}
         </CommandGroup>
       ))}
+      {pageWidgets.length > 0 && (
+        <CommandGroup heading="On Current Page">
+          {pageWidgets.map((widget) => {
+            const checked = selections.page?.includes(widget.id) ?? false;
+            return (
+              <CommandItem
+                key={`page-${widget.id}`}
+                value={`page-${widget.id}-${widget.title}`}
+                onSelect={() => { onToggleItem("page" as ContextCategory, widget.id); setSearch(""); }}
+                className="flex items-center gap-2"
+              >
+                <Checkbox checked={checked} className="pointer-events-none" />
+                <span>{widget.title}</span>
+              </CommandItem>
+            );
+          })}
+        </CommandGroup>
+      )}
     </>
   );
 
@@ -211,6 +234,25 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           </CommandItem>
         );
       })}
+      {pageWidgets.length > 0 && (
+        <CommandItem
+          key="page"
+          value="page"
+          onSelect={() => onCategorySelect("page" as ContextCategory)}
+          className="flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Monitor className="h-4 w-4 text-muted-foreground" />
+            <span>On Current Page</span>
+            {selections.page?.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                ({selections.page.length})
+              </span>
+            )}
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </CommandItem>
+      )}
     </CommandGroup>
   );
 
@@ -249,6 +291,48 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
               >
                 <Checkbox checked={checked} className="pointer-events-none" />
                 <span>{item}</span>
+              </CommandItem>
+            );
+          })}
+        </CommandGroup>
+      </CommandList>
+    </>
+  );
+
+  /** Items page: page widgets with checkboxes */
+  const renderPageItemsList = () => (
+    <>
+      <div className="flex items-center gap-1 border-b px-2 py-1.5">
+        <button
+          type="button"
+          onClick={() => onCategorySelect(null)}
+          aria-label="Back to categories"
+          className="flex items-center gap-1 rounded px-1 py-0.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-sm font-medium">On Current Page</span>
+      </div>
+      <CommandInput
+        placeholder="Search visuals..."
+        value={search}
+        onValueChange={setSearch}
+      />
+      <CommandList>
+        <CommandEmpty>No visuals found.</CommandEmpty>
+        <CommandGroup>
+          {pageWidgets.map((widget) => {
+            const checked = selections.page?.includes(widget.id) ?? false;
+            return (
+              <CommandItem
+                key={widget.id}
+                value={`${widget.title} ${widget.type}`}
+                onSelect={() => { onToggleItem("page" as ContextCategory, widget.id); setSearch(""); }}
+                className="flex items-center gap-2"
+              >
+                <Checkbox checked={checked} className="pointer-events-none" />
+                <span>{widget.title}</span>
+                <span className="ml-auto text-[10px] text-muted-foreground uppercase">{widget.type}</span>
               </CommandItem>
             );
           })}
@@ -444,6 +528,8 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         <Command shouldFilter={true} className="bg-transparent">
           {showPresets ? (
             renderPresetsPage()
+          ) : activeCategory === "page" ? (
+            renderPageItemsList()
           ) : !activeCategory ? (
             <>
               <CommandInput
