@@ -50,7 +50,7 @@ function SidebarLogo() {
   const { open } = useSidebar();
 
   return (
-    <div className="flex items-center gap-2 px-2">
+    <div className={`flex items-center gap-2 ${open ? "px-2" : "justify-center"}`}>
       <div className="h-8 w-8 shrink-0 rounded-lg bg-primary" />
       {open && (
         <span className="text-sm font-semibold truncate">Adfidence AI</span>
