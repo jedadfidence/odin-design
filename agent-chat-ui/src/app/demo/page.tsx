@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Toaster, toast } from "sonner";
 import { MiniThread } from "@/components/mini-thread";
-import Link from "next/link";
 import {
   PageWidgetsContext,
   DEMO_WIDGETS,
@@ -15,6 +14,8 @@ import {
   getSectionMockResponse,
 } from "@/components/demo/ai-summary";
 import { WidgetMenu, AIAction } from "@/components/demo/widget-menu";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/demo/app-sidebar";
 
 function MockDashboard() {
   const [showExecSummary, setShowExecSummary] = useState(true);
@@ -55,29 +56,13 @@ function MockDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
-      {/* Top nav bar */}
-      <header className="flex h-14 items-center justify-between border-b border-border bg-background px-6">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-primary" />
-          <span className="text-lg font-semibold">Acme Analytics</span>
-        </div>
-        <nav className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="text-foreground font-medium">Dashboard</span>
-          <span>Reports</span>
-          <span>Settings</span>
-          <Link
-            href="/"
-            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors"
-          >
-            Switch to Full Page AI
-          </Link>
-        </nav>
-      </header>
-
+    <div className="flex-1 min-h-screen bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
       {/* Dashboard content */}
-      <main className="mx-auto max-w-6xl p-6">
-        <h1 className="mb-6 text-2xl font-semibold">Dashboard Overview</h1>
+      <main className="p-6">
+        <div className="mb-6 flex items-center gap-2">
+          <SidebarTrigger />
+          <h1 className="text-2xl font-semibold">Dashboard Overview</h1>
+        </div>
 
         {/* Executive AI Summary */}
         <AnimatePresence>
@@ -472,7 +457,10 @@ export default function DemoPage() {
     <React.Suspense fallback={null}>
       <PageWidgetsContext.Provider value={DEMO_WIDGETS}>
         <Toaster />
-        <MockDashboard />
+        <SidebarProvider>
+          <AppSidebar />
+          <MockDashboard />
+        </SidebarProvider>
         <MiniThread />
       </PageWidgetsContext.Provider>
     </React.Suspense>
