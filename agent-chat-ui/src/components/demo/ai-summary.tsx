@@ -411,7 +411,7 @@ export function AISummary({
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
       className={cn(
-        "overflow-hidden rounded-lg",
+        "overflow-hidden rounded-[24px]",
         className,
       )}
     >
