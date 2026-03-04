@@ -34,12 +34,14 @@ const CATEGORY_ICONS: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-4 w-4 text-muted-foreground" />,
   platforms: <Megaphone className="h-4 w-4 text-muted-foreground" />,
   metrics: <BarChart3 className="h-4 w-4 text-muted-foreground" />,
+  page: <Monitor className="h-4 w-4 text-muted-foreground" />,
 };
 
 const CATEGORY_TAG_COLORS: Record<ContextCategory, string> = {
   countries: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   platforms: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   metrics: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  page: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
 };
 
 interface ContextPopoverProps {
@@ -496,8 +498,8 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           const preset = presets.find((p) => p.id === hoveredPresetId);
           if (!preset) return null;
           const cats = (
-            ["countries", "platforms", "metrics"] as ContextCategory[]
-          ).filter((c) => preset.selections[c].length > 0);
+            ["countries", "platforms", "metrics", "page"] as ContextCategory[]
+          ).filter((c) => preset.selections[c]?.length > 0);
           if (cats.length === 0) return null;
           return (
             <div
