@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -222,6 +222,13 @@ export function AISummary({
   className,
 }: AISummaryProps) {
   const [phase, setPhase] = useState<AnimationPhase>("idle");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [text]);
 
   const startAnimation = useCallback(() => {
     setPhase("shimmer");
@@ -269,15 +276,26 @@ export function AISummary({
           className,
         )}
       >
-        {onDismiss && (
-          <button
-            onClick={onDismiss}
-            className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            aria-label="Dismiss summary"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+        <div className="absolute right-2 top-2 flex items-center gap-0.5">
+          {(phase === "cascade" || phase === "done") && (
+            <button
+              onClick={handleCopy}
+              className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Copy summary"
+            >
+              {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+            </button>
+          )}
+          {onDismiss && (
+            <button
+              onClick={onDismiss}
+              className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Dismiss summary"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-2 mb-3">
           <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
@@ -329,15 +347,26 @@ export function AISummary({
         <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
           AI Insight
         </span>
-        {onDismiss && (
-          <button
-            onClick={onDismiss}
-            className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            aria-label="Dismiss insight"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        )}
+        <div className="flex items-center gap-0.5">
+          {(phase === "cascade" || phase === "done") && (
+            <button
+              onClick={handleCopy}
+              className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Copy insight"
+            >
+              {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+            </button>
+          )}
+          {onDismiss && (
+            <button
+              onClick={onDismiss}
+              className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Dismiss insight"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence mode="wait">

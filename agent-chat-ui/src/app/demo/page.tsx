@@ -118,7 +118,7 @@ function MockDashboard() {
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* KPI: Total Revenue */}
-            <div className="group relative rounded-xl border border-border bg-background p-6 shadow-sm">
+            <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
                 {activeInlineSummary?.id === "kpi-revenue" && (
                   <AISummary
@@ -146,7 +146,7 @@ function MockDashboard() {
             </div>
 
             {/* KPI: Active Users */}
-            <div className="group relative rounded-xl border border-border bg-background p-6 shadow-sm">
+            <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
                 {activeInlineSummary?.id === "kpi-users" && (
                   <AISummary
@@ -174,7 +174,7 @@ function MockDashboard() {
             </div>
 
             {/* KPI: Conversion Rate */}
-            <div className="group relative rounded-xl border border-border bg-background p-6 shadow-sm">
+            <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
                 {activeInlineSummary?.id === "kpi-conversion" && (
                   <AISummary
@@ -233,7 +233,7 @@ function MockDashboard() {
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Revenue Over Time Chart */}
-            <div className="group relative h-64 rounded-xl border border-border bg-background p-6 shadow-sm">
+            <div className="group relative flex h-64 flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
                 {activeInlineSummary?.id === "revenue-chart" && (
                   <AISummary
@@ -270,7 +270,7 @@ function MockDashboard() {
             </div>
 
             {/* User Activity Chart */}
-            <div className="group relative h-64 rounded-xl border border-border bg-background p-6 shadow-sm">
+            <div className="group relative flex h-64 flex-col justify-center rounded-xl border border-border bg-background p-6 shadow-sm">
               <AnimatePresence>
                 {activeInlineSummary?.id === "user-activity" && (
                   <AISummary
@@ -343,7 +343,7 @@ function MockDashboard() {
             )}
           </AnimatePresence>
 
-          <div className="group relative rounded-xl border border-border bg-background shadow-sm">
+          <div className="group relative flex flex-col justify-center rounded-xl border border-border bg-background shadow-sm">
             <AnimatePresence>
               {activeInlineSummary?.id === "transactions" && (
                 <AISummary
