@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { X, Globe, Megaphone, MapPin, Tag, Building2, Save, Bookmark, Pencil, Monitor, LineChart, Table, Hash } from "lucide-react";
+import { CompactBadge } from "@/components/filters/compact-badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -174,42 +175,39 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
             </Badge>
           </motion.div>
         )}
-        {allBadges.map(({ category, item }) => (
-          <motion.div
-            key={`${category}-${item}`}
-            layout
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-          >
-            <Badge
-              variant="secondary"
-              className={cn(
-                "gap-1 rounded-full text-xs font-normal",
-                onRemove && "pr-1",
-                CATEGORY_COLORS[category],
-              )}
+        {(["countries", "platforms", "region", "category", "brand", "page"] as ContextCategory[]).map((cat) => {
+          const items = selections[cat] ?? [];
+          if (items.length === 0) return null;
+          const displayItems = cat === "page"
+            ? items.map((id) => pageWidgets.find((w) => w.id === id)?.title ?? id)
+            : items;
+          return (
+            <motion.div
+              key={cat}
+              layout
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
             >
-              {category === "page"
-                ? (WIDGET_TYPE_ICON[pageWidgets.find((w) => w.id === item)?.type ?? "kpi"] ?? CATEGORY_ICON[category])
-                : CATEGORY_ICON[category]}
-              {category === "page"
-                ? (pageWidgets.find((w) => w.id === item)?.title ?? item)
-                : item}
-              {onRemove && (
-                <button
-                  type="button"
-                  onClick={() => onRemove(category, item)}
-                  className="ml-0.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
-                >
-                  <X className="h-3 w-3" />
-                  <span className="sr-only">Remove {item}</span>
-                </button>
-              )}
-            </Badge>
-          </motion.div>
-        ))}
+              <CompactBadge
+                items={displayItems}
+                icon={CATEGORY_ICON[cat]}
+                colorClass={CATEGORY_COLORS[cat]}
+                onRemove={
+                  onRemove
+                    ? (item) => {
+                        const original = cat === "page"
+                          ? pageWidgets.find((w) => w.title === item)?.id ?? item
+                          : item;
+                        onRemove(cat, original);
+                      }
+                    : undefined
+                }
+              />
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
     </div>
   );
