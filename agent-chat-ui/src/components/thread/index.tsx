@@ -55,7 +55,10 @@ import {
 } from "./artifact";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
-import { ContextSelections } from "@/lib/context-selectors";
+import { ContextSelections, ContextCategory } from "@/lib/context-selectors";
+import { useFilters } from "@/hooks/use-filters";
+import { FilterCategory as FilterCategoryType } from "@/lib/filter-data";
+import { FilterSidebar } from "@/components/filters/filter-sidebar";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
 import { useTextSelection } from "@/hooks/use-text-selection";
 import { ContextBadges } from "./context-badges";
@@ -217,6 +220,22 @@ export function Thread() {
     openEditDialog: openShortcutEditDialog,
     closeDialog: closeShortcutDialog,
   } = useShortcuts();
+  const {
+    selections: filterSelections,
+    dateRange,
+    useAsContext,
+    setUseAsContext,
+    toggleItem: toggleFilterItem,
+    removeItem: removeFilterItem,
+    selectAll: selectAllFilter,
+    clearCategory: clearFilterCategory,
+    resetAll: resetAllFilters,
+    hasSelections: hasFilterSelections,
+    totalSelected: filterTotalSelected,
+    toMetadata: filterToMetadata,
+    setSelections: setFilterSelections,
+    setDateRange,
+  } = useFilters();
   const [presetNameDialogOpen, setPresetNameDialogOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
 
@@ -508,7 +527,8 @@ export function Thread() {
 
     const contextMeta = contextToMetadata();
     const quotesMeta = quotesToMetadata();
-    const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
+    const filterMeta = useAsContext ? filterToMetadata() : undefined;
+    const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}), ...(filterMeta ? { filters: filterMeta } : {}) };
     const newHumanMessage: Message = {
       id: uuidv4(),
       type: "human",
@@ -526,6 +546,7 @@ export function Thread() {
       ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
       ...(contextMeta ?? {}),
       ...(quotesMeta ?? {}),
+      ...(filterMeta ? { filters: filterMeta } : {}),
     };
     const context =
       Object.keys(mergedContext).length > 0 ? mergedContext : undefined;
@@ -943,6 +964,29 @@ export function Thread() {
                           </motion.div>
                         )}
                       </AnimatePresence>
+                      <div className="flex items-center gap-2 px-5 pt-2">
+                        <Switch
+                          id="use-filters"
+                          checked={useAsContext}
+                          onCheckedChange={(checked) => {
+                            setUseAsContext(checked);
+                            toast(
+                              checked
+                                ? "AI will now use your selected filters as context"
+                                : "AI will no longer use your filters",
+                            );
+                          }}
+                          className="h-4 w-7 [&>span]:h-3 [&>span]:w-3"
+                        />
+                        <Label htmlFor="use-filters" className="text-xs text-muted-foreground cursor-pointer">
+                          Ask AI using your filters
+                        </Label>
+                      </div>
+                      {useAsContext && !hasFilterSelections && (
+                        <p className="px-5 pt-1 text-[11px] text-muted-foreground">
+                          Select filters in the panel to give AI more context
+                        </p>
+                      )}
                       <AnimatePresence initial={false}>
                         {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.region.length > 0 || contextSelections.category.length > 0 || contextSelections.brand.length > 0 || contextSelections.page.length > 0) && (
                           <motion.div
@@ -1202,6 +1246,22 @@ export function Thread() {
           </div>
         </div>
       </div>
+      <FilterSidebar
+        selections={filterSelections}
+        dateRange={dateRange}
+        onToggleItem={toggleFilterItem}
+        onSelectAll={selectAllFilter}
+        onClearCategory={clearFilterCategory}
+        onDateRangeChange={setDateRange}
+        onResetAll={resetAllFilters}
+        hasSelections={hasFilterSelections}
+        totalSelected={filterTotalSelected}
+        presets={presets}
+        onApplyPreset={handleApplyPreset}
+        onSavePreset={() => setPresetNameDialogOpen(true)}
+        onDeletePreset={deletePreset}
+        activePresetName={presetEditing?.presetName ?? null}
+      />
       <ReportSheet open={reportSheetOpen} onOpenChange={setReportSheetOpen} />
       <PresetNameDialog
         open={presetNameDialogOpen}

@@ -1,4 +1,4 @@
-import { ContextSelections, EMPTY_SELECTIONS } from "./context-selectors";
+import { ContextSelections } from "./context-selectors";
 
 export interface ContextPreset {
   id: string;
