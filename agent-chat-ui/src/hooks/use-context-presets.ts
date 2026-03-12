@@ -7,6 +7,7 @@ import {
   duplicatePreset,
 } from "@/lib/context-presets";
 import { ContextSelections } from "@/lib/context-selectors";
+import { FilterSelections } from "@/lib/filter-data";
 
 interface EditingState {
   presetId: string;
@@ -23,8 +24,8 @@ export function useContextPresets() {
   }, [presets]);
 
   const addPreset = useCallback(
-    (name: string, selections: ContextSelections) => {
-      const preset = createPreset(name, selections);
+    (name: string, selections: ContextSelections, filters?: FilterSelections) => {
+      const preset = createPreset(name, selections, filters);
       setPresets((prev) => [...prev, preset]);
       return preset;
     },

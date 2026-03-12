@@ -252,9 +252,12 @@ export function Thread() {
 
   const handleApplyPreset = useCallback((preset: import("@/lib/context-presets").ContextPreset) => {
     setContextSelections(preset.selections);
+    if (preset.filters) {
+      setFilterSelections(preset.filters);
+    }
     startPresetEditing(preset);
     closeContextPopover();
-  }, [setContextSelections, startPresetEditing, closeContextPopover]);
+  }, [setContextSelections, setFilterSelections, startPresetEditing, closeContextPopover]);
 
   const handleEditPreset = useCallback((preset: import("@/lib/context-presets").ContextPreset) => {
     setContextSelections(preset.selections);
@@ -282,9 +285,9 @@ export function Thread() {
   }, []);
 
   const handleConfirmNewPreset = useCallback((name: string) => {
-    const preset = addPreset(name, contextSelections);
+    const preset = addPreset(name, contextSelections, filterSelections);
     startPresetEditing(preset);
-  }, [addPreset, contextSelections, startPresetEditing]);
+  }, [addPreset, contextSelections, filterSelections, startPresetEditing]);
 
   const handleDeactivatePreset = useCallback(() => {
     stopPresetEditing();

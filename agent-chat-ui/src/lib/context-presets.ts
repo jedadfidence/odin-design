@@ -1,9 +1,11 @@
 import { ContextSelections } from "./context-selectors";
+import { FilterSelections } from "./filter-data";
 
 export interface ContextPreset {
   id: string;
   name: string;
   selections: ContextSelections;
+  filters?: FilterSelections;
 }
 
 const STORAGE_KEY = "odin-context-presets";
@@ -25,8 +27,17 @@ function generateId(): string {
   return crypto.randomUUID();
 }
 
-export function createPreset(name: string, selections: ContextSelections): ContextPreset {
-  return { id: generateId(), name, selections: { ...selections } };
+export function createPreset(
+  name: string,
+  selections: ContextSelections,
+  filters?: FilterSelections,
+): ContextPreset {
+  return {
+    id: generateId(),
+    name,
+    selections: { ...selections },
+    filters: filters ? { ...filters } : undefined,
+  };
 }
 
 export function duplicatePreset(preset: ContextPreset): ContextPreset {
@@ -41,6 +52,11 @@ export function duplicatePreset(preset: ContextPreset): ContextPreset {
       brand: [...(preset.selections.brand ?? [])],
       page: [...(preset.selections.page ?? [])],
     },
+    filters: preset.filters
+      ? Object.fromEntries(
+          Object.entries(preset.filters).map(([k, v]) => [k, [...v]]),
+        ) as FilterSelections
+      : undefined,
   };
 }
 
@@ -57,5 +73,9 @@ export function presetSummary(preset: ContextPreset): string {
   if (r > 0) parts.push(`${r} ${r === 1 ? "region" : "regions"}`);
   if (cat > 0) parts.push(`${cat} ${cat === 1 ? "category" : "categories"}`);
   if (b > 0) parts.push(`${b} ${b === 1 ? "brand" : "brands"}`);
+  if (preset.filters) {
+    const filterCount = Object.values(preset.filters).reduce((sum, arr) => sum + arr.length, 0);
+    if (filterCount > 0) parts.push(`${filterCount} ${filterCount === 1 ? "filter" : "filters"}`);
+  }
   return parts.join(", ") || "Empty";
 }
