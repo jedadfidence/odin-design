@@ -298,6 +298,39 @@ export function Thread() {
     resetContextSelections();
   }, [stopPresetEditing, resetContextSelections]);
 
+  // Two-way sync between context popover and filter panel
+  const CONTEXT_TO_FILTER_MAP: Partial<Record<ContextCategory, FilterCategoryType>> = {
+    platforms: "platform",
+    countries: "country",
+    region: "region",
+    category: "category",
+    brand: "brand",
+  };
+
+  const handleToggleContextItem = useCallback(
+    (cat: ContextCategory, item: string) => {
+      toggleItem(cat, item);
+      if (useAsContext) {
+        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
+        if (filterCat) toggleFilterItem(filterCat, item);
+      }
+    },
+    [toggleItem, useAsContext, toggleFilterItem],
+  );
+
+  const handleToggleFilterItemSynced = useCallback(
+    (cat: FilterCategoryType, item: string) => {
+      toggleFilterItem(cat, item);
+      if (useAsContext) {
+        const contextCat = Object.entries(CONTEXT_TO_FILTER_MAP).find(
+          ([, v]) => v === cat,
+        )?.[0] as ContextCategory | undefined;
+        if (contextCat) toggleItem(contextCat, item);
+      }
+    },
+    [toggleFilterItem, useAsContext, toggleItem],
+  );
+
   const handleSelectShortcut = useCallback(
     (shortcut: Shortcut) => {
       setInput(shortcut.instructions);
@@ -1027,7 +1060,7 @@ export function Thread() {
                         activeCategory={activeCategory}
                         onCategorySelect={setActiveCategory}
                         selections={contextSelections}
-                        onToggleItem={toggleItem}
+                        onToggleItem={handleToggleContextItem}
                         anchorRef={inputBoxRef}
                         align="start"
                         side="top"
@@ -1145,7 +1178,7 @@ export function Thread() {
                           activeCategory={activeCategory}
                           onCategorySelect={setActiveCategory}
                           selections={contextSelections}
-                          onToggleItem={toggleItem}
+                          onToggleItem={handleToggleContextItem}
                           align="start"
                           side="top"
                           presets={presets}
@@ -1252,7 +1285,7 @@ export function Thread() {
       <FilterSidebar
         selections={filterSelections}
         dateRange={dateRange}
-        onToggleItem={toggleFilterItem}
+        onToggleItem={handleToggleFilterItemSynced}
         onSelectAll={selectAllFilter}
         onClearCategory={clearFilterCategory}
         onDateRangeChange={setDateRange}
