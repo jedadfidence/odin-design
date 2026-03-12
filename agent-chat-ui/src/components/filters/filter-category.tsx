@@ -48,8 +48,17 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
         : `${selected[0]} +${selected.length - 1}`;
 
   return (
-    <AccordionItem value={id} className="border-b-0">
-      <AccordionTrigger className="px-3 py-2.5 text-sm font-medium hover:no-underline">
+    <AccordionItem
+      value={id}
+      className="border-b-0 mx-3 my-2.5"
+      style={{
+        borderRadius: "24px",
+        background: "rgba(255, 255, 255, 0.05)",
+        boxShadow:
+          "0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset",
+      }}
+    >
+      <AccordionTrigger className="px-4 py-2.5 text-sm font-normal hover:no-underline">
         <div className="flex items-center gap-2">
           <span>{label}</span>
           {summaryText && (
@@ -62,7 +71,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
           )}
         </div>
       </AccordionTrigger>
-      <AccordionContent className="px-3 pb-3">
+      <AccordionContent className="px-4 pb-3">
         <div className="space-y-2">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -70,7 +79,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
               placeholder={`Search ${label.toLowerCase()}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-7 pl-7 text-xs"
+              className="h-7 pl-7 text-[11px] text-muted-foreground/70 placeholder:text-muted-foreground/40 rounded-full bg-white dark:bg-white/10 shadow-none"
             />
           </div>
           <div className="flex items-center justify-between text-[11px] text-muted-foreground">

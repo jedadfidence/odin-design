@@ -17,6 +17,8 @@ import {
 import { WidgetMenu, AIAction } from "@/components/demo/widget-menu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/demo/app-sidebar";
+import { FilterSidebar } from "@/components/filters/filter-sidebar";
+import { useFilterContext, FilterProvider } from "@/providers/Filters";
 
 function MockDashboard() {
   const [showExecSummary, setShowExecSummary] = useState(true);
@@ -109,7 +111,7 @@ function MockDashboard() {
   };
 
   return (
-    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-[#EAECF5] dark:bg-[#0D0D14] text-foreground">
+    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-[#EDF2F7] dark:bg-[#0D0D14] text-foreground">
       <div className="p-4 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
@@ -144,7 +146,7 @@ function MockDashboard() {
           style={{
             background: "rgba(255, 255, 255, 0.08)",
             boxShadow:
-              "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
           }}
         >
           <div className="w-full flex items-center justify-between">
@@ -292,7 +294,7 @@ function MockDashboard() {
           style={{
             background: "rgba(255, 255, 255, 0.08)",
             boxShadow:
-              "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
           }}
         >
           <div className="w-full flex items-center justify-between">
@@ -428,7 +430,7 @@ function MockDashboard() {
           style={{
             background: "rgba(255, 255, 255, 0.08)",
             boxShadow:
-              "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+              "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
           }}
         >
           <div className="w-full flex items-center justify-between">
@@ -531,16 +533,52 @@ function MockDashboard() {
   );
 }
 
+function DemoFilterSidebar() {
+  const {
+    selections,
+    dateRange,
+    toggleItem,
+    selectAll,
+    clearCategory,
+    setDateRange,
+    resetAll,
+    hasSelections,
+    totalSelected,
+  } = useFilterContext();
+
+  return (
+    <FilterSidebar
+      selections={selections}
+      dateRange={dateRange}
+      onToggleItem={toggleItem}
+      onSelectAll={selectAll}
+      onClearCategory={clearCategory}
+      onDateRangeChange={setDateRange}
+      onResetAll={resetAll}
+      hasSelections={hasSelections}
+      totalSelected={totalSelected}
+      presets={[]}
+      onApplyPreset={() => {}}
+      onSavePreset={() => {}}
+      onDeletePreset={() => {}}
+      activePresetName={null}
+    />
+  );
+}
+
 export default function DemoPage() {
   return (
     <React.Suspense fallback={null}>
       <PageWidgetsContext.Provider value={DEMO_WIDGETS}>
         <Toaster />
-        <SidebarProvider>
-          <AppSidebar />
-          <MockDashboard />
-        </SidebarProvider>
-        <MiniThread />
+        <FilterProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <MockDashboard />
+            <DemoFilterSidebar />
+          </SidebarProvider>
+          <MiniThread />
+        </FilterProvider>
       </PageWidgetsContext.Provider>
     </React.Suspense>
   );

@@ -30,6 +30,11 @@ import { useShortcuts } from "@/hooks/use-shortcuts";
 import { Shortcut } from "@/lib/shortcuts";
 import { ShortcutPopover } from "../thread/shortcut-popover";
 import { ShortcutDialog } from "../thread/shortcut-dialog";
+import { useFilterContext } from "@/providers/Filters";
+import { FilterCategory as FilterCategoryType } from "@/lib/filter-data";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
+import { toast } from "sonner";
 
 interface MiniInputProps {
   showSuggestions: boolean;
@@ -110,6 +115,49 @@ export function MiniInput({
     openEditDialog: openShortcutEditDialog,
     closeDialog: closeShortcutDialog,
   } = useShortcuts();
+
+  // --- Filters ---
+  const {
+    selections: filterSelections,
+    useAsContext,
+    setUseAsContext,
+    toggleItem: toggleFilterItem,
+    removeItem: removeFilterItem,
+    resetAll: resetAllFilters,
+    hasSelections: hasFilterSelections,
+    toMetadata: filterToMetadata,
+  } = useFilterContext();
+
+  // Two-way sync map between context and filter categories
+  const CONTEXT_TO_FILTER_MAP: Partial<Record<ContextCategory, FilterCategoryType>> = {
+    platforms: "platform",
+    countries: "country",
+    region: "region",
+    category: "category",
+    brand: "brand",
+  };
+
+  const handleToggleContextItemSynced = useCallback(
+    (cat: ContextCategory, item: string) => {
+      toggleItem(cat, item);
+      if (useAsContext) {
+        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
+        if (filterCat) toggleFilterItem(filterCat, item);
+      }
+    },
+    [toggleItem, useAsContext, toggleFilterItem],
+  );
+
+  const handleRemoveContextItemSynced = useCallback(
+    (cat: ContextCategory, item: string) => {
+      removeItem(cat, item);
+      if (useAsContext) {
+        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
+        if (filterCat) removeFilterItem(filterCat, item);
+      }
+    },
+    [removeItem, useAsContext, removeFilterItem],
+  );
 
   // --- Text quotes ---
   const {
@@ -238,7 +286,10 @@ export function MiniInput({
   const handleClearSelections = useCallback(() => {
     stopPresetEditing();
     resetContextSelections();
-  }, [stopPresetEditing, resetContextSelections]);
+    if (useAsContext) {
+      resetAllFilters();
+    }
+  }, [stopPresetEditing, resetContextSelections, useAsContext, resetAllFilters]);
 
   // --- Shortcut handlers ---
   const handleSelectShortcut = useCallback(
@@ -316,7 +367,8 @@ export function MiniInput({
 
     const contextMeta = contextToMetadata();
     const quotesMeta = quotesToMetadata();
-    const combinedMeta: Record<string, unknown> = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
+    const filterMeta = useAsContext ? filterToMetadata() : undefined;
+    const combinedMeta: Record<string, unknown> = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}), ...(filterMeta ? { filters: filterMeta } : {}) };
 
     // Resolve page widget IDs to full widget data
     if (combinedMeta.page && Array.isArray(combinedMeta.page)) {
@@ -372,6 +424,24 @@ export function MiniInput({
   return (
     <>
       <div className="shrink-0 border-t border-border px-3 py-2">
+        <div className="flex items-center gap-2 rounded-t-xl border border-b-0 border-border bg-background/60 backdrop-blur-sm px-3 py-1.5">
+          <Switch
+            id="mini-use-filters"
+            checked={useAsContext}
+            onCheckedChange={(checked) => {
+              setUseAsContext(checked);
+              toast(
+                checked
+                  ? "AI will now use your selected filters as context"
+                  : "AI will no longer use your filters",
+              );
+            }}
+            className="scale-[0.8]"
+          />
+          <Label htmlFor="mini-use-filters" className="text-[11px] text-muted-foreground cursor-pointer select-none">
+            Include filters with your conversation
+          </Label>
+        </div>
         <div
           ref={(el) => {
             (dropRef as React.MutableRefObject<HTMLDivElement | null>).current =
@@ -380,7 +450,7 @@ export function MiniInput({
               el;
           }}
           className={cn(
-            "relative rounded-xl bg-background/80 backdrop-blur-sm transition-all",
+            "relative rounded-b-xl rounded-t-none bg-background/80 backdrop-blur-sm transition-all",
             dragOver
               ? "border-primary border-2 border-dotted"
               : "border border-border",
@@ -425,12 +495,7 @@ export function MiniInput({
 
             {/* Context badges */}
             <AnimatePresence initial={false}>
-              {(contextSelections.countries.length > 0 ||
-                contextSelections.platforms.length > 0 ||
-                contextSelections.region.length > 0 ||
-                contextSelections.category.length > 0 ||
-                contextSelections.brand.length > 0 ||
-                contextSelections.page.length > 0) && (
+              {(hasContextSelections || (useAsContext && hasFilterSelections)) && (
                 <motion.div
                   key="context-badges"
                   initial={{ height: 0, opacity: 0 }}
@@ -444,15 +509,15 @@ export function MiniInput({
                 >
                   <ContextBadges
                     selections={contextSelections}
-                    onRemove={removeItem}
+                    onRemove={handleRemoveContextItemSynced}
                     onClearAll={handleClearSelections}
                     onSave={
-                      presetEditing && hasContextSelections
+                      presetEditing && (hasContextSelections || hasFilterSelections)
                         ? handleSavePreset
                         : undefined
                     }
                     onSaveAsNew={
-                      hasContextSelections
+                      (hasContextSelections || hasFilterSelections)
                         ? handleSaveAsNewPreset
                         : undefined
                     }
@@ -467,6 +532,8 @@ export function MiniInput({
                             )
                         : undefined
                     }
+                    filterSelections={useAsContext ? filterSelections : undefined}
+                    onRemoveFilter={useAsContext ? removeFilterItem : undefined}
                     className="px-3 pt-2 pb-0"
                   />
                 </motion.div>
@@ -485,7 +552,7 @@ export function MiniInput({
               activeCategory={activeCategory}
               onCategorySelect={setActiveCategory}
               selections={contextSelections}
-              onToggleItem={toggleItem}
+              onToggleItem={handleToggleContextItemSynced}
               anchorRef={inputBoxRef}
               align="start"
               side="top"
@@ -614,7 +681,7 @@ export function MiniInput({
                 activeCategory={activeCategory}
                 onCategorySelect={setActiveCategory}
                 selections={contextSelections}
-                onToggleItem={toggleItem}
+                onToggleItem={handleToggleContextItemSynced}
                 align="start"
                 side="top"
                 presets={presets}

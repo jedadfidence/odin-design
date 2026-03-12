@@ -28,7 +28,7 @@ export const CompactBadge: React.FC<CompactBadgeProps> = ({
 
   if (items.length <= maxVisible) {
     return (
-      <>
+      <div className="flex flex-wrap items-center gap-0.5">
         {items.map((item) => (
           <Badge
             key={item}
@@ -48,7 +48,7 @@ export const CompactBadge: React.FC<CompactBadgeProps> = ({
             )}
           </Badge>
         ))}
-      </>
+      </div>
     );
   }
 

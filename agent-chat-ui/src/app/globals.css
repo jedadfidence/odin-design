@@ -20,7 +20,18 @@
   100% { background-position: -100% 0; }
 }
 
+@keyframes accordion-down {
+  from { height: 0; }
+  to   { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to   { height: 0; }
+}
+
 @theme inline {
+  --animate-accordion-down: accordion-down 0.25s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
   --font-sans: "Google Sans Flex", system-ui, sans-serif;
   --font-mono: "Google Sans Code", ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -40,7 +51,7 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
 }
 
 :root {
-  --background: #FFFFFF;
+  --background: #EDF2F7;
   --foreground: #20356F;
   --card: #FFFFFF;
   --card-foreground: #20356F;
@@ -50,9 +61,9 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --primary-foreground: #FFFFFF;
   --primary-hover: #1F356F;
   --primary-light: #D3E4FD;
-  --secondary: #F0F0FF;
+  --secondary: #EDF2F7;
   --secondary-foreground: #20356F;
-  --muted: #F0F0FF;
+  --muted: #EDF2F7;
   --muted-foreground: #6B7280;
   --accent: #E4EFFE;
   --accent-foreground: #20356F;
@@ -61,7 +72,7 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --border: #E5E7EB;
   --input: #E5E7EB;
   --ring: #214DA5;
-  --surface: #F0F0FF;
+  --surface: #EDF2F7;
   --surface-alt: #E4EFFE;
   --chart-1: #214DA5;
   --chart-2: #4586F7;
@@ -69,7 +80,7 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --chart-4: #D3E4FD;
   --chart-5: #E4EFFE;
   --radius: 0.625rem;
-  --sidebar: #F0F0FF;
+  --sidebar: #EDF2F7;
   --sidebar-foreground: #20356F;
   --sidebar-primary: #214DA5;
   --sidebar-primary-foreground: #FFFFFF;

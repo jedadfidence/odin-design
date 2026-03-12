@@ -90,10 +90,22 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
   }
 
   // Count filter badges that aren't already shown via context (avoid duplicates for synced categories)
-  const syncedFilterCategories = new Set(["platform", "country", "region", "category", "brand"]);
+  const FILTER_TO_CONTEXT_MAP: Partial<Record<FilterCategory, ContextCategory>> = {
+    platform: "platforms",
+    country: "countries",
+    region: "region",
+    category: "category",
+    brand: "brand",
+  };
   const filterBadgeCategories = filterSelections
     ? (Object.entries(filterSelections) as [FilterCategory, string[]][]).filter(
-        ([cat, items]) => items.length > 0 && !syncedFilterCategories.has(cat),
+        ([cat, items]) => {
+          if (items.length === 0) return false;
+          // Only hide if the corresponding context category already has selections
+          const contextCat = FILTER_TO_CONTEXT_MAP[cat];
+          if (contextCat && (selections[contextCat] ?? []).length > 0) return false;
+          return true;
+        },
       )
     : [];
   const hasFilterBadges = filterBadgeCategories.length > 0;
@@ -103,7 +115,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
   return (
     <div
       className={cn(
-        "flex max-h-[80px] flex-wrap items-center gap-1.5 overflow-y-auto px-5 pt-3 pb-0",
+        "flex max-h-[80px] flex-wrap items-center gap-3 overflow-y-auto px-5 pt-3 pb-0",
         className,
       )}
     >
@@ -148,7 +160,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
             )}
           </motion.div>
         )}
-        {onClearAll && allBadges.length > 1 && (
+        {onClearAll && (allBadges.length > 0 || hasFilterBadges) && (
           <motion.button
             key="clear-all"
             layout

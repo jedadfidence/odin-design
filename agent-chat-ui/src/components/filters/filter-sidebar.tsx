@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -73,7 +72,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex h-full shrink-0 flex-col border-l !bg-[#EAECF5] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
+        "flex h-full shrink-0 flex-col border-0 !bg-[#EDF2F7] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
         expanded ? "w-64" : "w-[50px]",
       )}
     >
@@ -125,7 +124,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
 
           {/* Expanded content */}
-          <Separator />
           <ScrollArea className="flex-1">
             <div className="px-3 py-2">
               <FilterDateRange
@@ -133,8 +131,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 onDateRangeChange={onDateRangeChange}
               />
             </div>
-            <Separator />
-            <Accordion type="multiple" className="px-0">
+            <Accordion type="multiple" className="py-1">
               {filteredCategories.map((cat) => (
                 <FilterCategory
                   key={cat.id}

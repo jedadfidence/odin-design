@@ -56,7 +56,7 @@ import {
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
 import { ContextSelections, ContextCategory } from "@/lib/context-selectors";
-import { useFilters } from "@/hooks/use-filters";
+import { useFilterContext } from "@/providers/Filters";
 import { FilterCategory as FilterCategoryType } from "@/lib/filter-data";
 import { FilterSidebar } from "@/components/filters/filter-sidebar";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
@@ -235,7 +235,7 @@ export function Thread() {
     toMetadata: filterToMetadata,
     setSelections: setFilterSelections,
     setDateRange,
-  } = useFilters();
+  } = useFilterContext();
   const [presetNameDialogOpen, setPresetNameDialogOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
 
@@ -296,7 +296,10 @@ export function Thread() {
   const handleClearSelections = useCallback(() => {
     stopPresetEditing();
     resetContextSelections();
-  }, [stopPresetEditing, resetContextSelections]);
+    if (useAsContext) {
+      resetAllFilters();
+    }
+  }, [stopPresetEditing, resetContextSelections, useAsContext, resetAllFilters]);
 
   // Two-way sync between context popover and filter panel
   const CONTEXT_TO_FILTER_MAP: Partial<Record<ContextCategory, FilterCategoryType>> = {
@@ -318,6 +321,17 @@ export function Thread() {
     [toggleItem, useAsContext, toggleFilterItem],
   );
 
+  const handleRemoveContextItemSynced = useCallback(
+    (cat: ContextCategory, item: string) => {
+      removeItem(cat, item);
+      if (useAsContext) {
+        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
+        if (filterCat) removeFilterItem(filterCat, item);
+      }
+    },
+    [removeItem, useAsContext, removeFilterItem],
+  );
+
   const handleToggleFilterItemSynced = useCallback(
     (cat: FilterCategoryType, item: string) => {
       toggleFilterItem(cat, item);
@@ -329,6 +343,43 @@ export function Thread() {
       }
     },
     [toggleFilterItem, useAsContext, toggleItem],
+  );
+
+  const handleResetAllFiltersSynced = useCallback(() => {
+    resetAllFilters();
+    if (useAsContext) {
+      resetContextSelections();
+    }
+  }, [resetAllFilters, useAsContext, resetContextSelections]);
+
+  const handleClearFilterCategorySynced = useCallback(
+    (cat: FilterCategoryType) => {
+      clearFilterCategory(cat);
+      if (useAsContext) {
+        const contextCat = Object.entries(CONTEXT_TO_FILTER_MAP).find(
+          ([, v]) => v === cat,
+        )?.[0] as ContextCategory | undefined;
+        if (contextCat) {
+          setContextSelections((prev) => ({ ...prev, [contextCat]: [] }));
+        }
+      }
+    },
+    [clearFilterCategory, useAsContext, setContextSelections],
+  );
+
+  const handleSelectAllFilterSynced = useCallback(
+    (cat: FilterCategoryType, items: string[]) => {
+      selectAllFilter(cat, items);
+      if (useAsContext) {
+        const contextCat = Object.entries(CONTEXT_TO_FILTER_MAP).find(
+          ([, v]) => v === cat,
+        )?.[0] as ContextCategory | undefined;
+        if (contextCat) {
+          setContextSelections((prev) => ({ ...prev, [contextCat]: [...items] }));
+        }
+      }
+    },
+    [selectAllFilter, useAsContext, setContextSelections],
   );
 
   const handleSelectShortcut = useCallback(
@@ -957,13 +1008,36 @@ export function Thread() {
                       !chatStarted && "input-glow-wrapper",
                     )}
                   >
+                  <div className="flex items-center gap-2.5 rounded-t-2xl border border-b-0 border-border bg-background/60 backdrop-blur-sm px-4 py-2">
+                    <Switch
+                      id="use-filters"
+                      checked={useAsContext}
+                      onCheckedChange={(checked) => {
+                        setUseAsContext(checked);
+                        toast(
+                          checked
+                            ? "AI will now use your selected filters as context"
+                            : "AI will no longer use your filters",
+                        );
+                      }}
+                      className="scale-[0.85]"
+                    />
+                    <Label htmlFor="use-filters" className="text-xs text-muted-foreground cursor-pointer select-none">
+                      Include filters with your conversation
+                    </Label>
+                    {useAsContext && !hasFilterSelections && (
+                      <span className="text-[11px] text-muted-foreground/60">
+                        — select filters in the panel
+                      </span>
+                    )}
+                  </div>
                   <div
                     ref={(el) => {
                       dropRef.current = el;
                       inputBoxRef.current = el;
                     }}
                     className={cn(
-                      "bg-background/80 backdrop-blur-sm relative z-10 w-full rounded-2xl transition-all",
+                      "bg-background/80 backdrop-blur-sm relative z-10 w-full rounded-b-2xl rounded-t-none transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-border",
@@ -1000,29 +1074,6 @@ export function Thread() {
                           </motion.div>
                         )}
                       </AnimatePresence>
-                      <div className="flex items-center gap-2 px-5 pt-2">
-                        <Switch
-                          id="use-filters"
-                          checked={useAsContext}
-                          onCheckedChange={(checked) => {
-                            setUseAsContext(checked);
-                            toast(
-                              checked
-                                ? "AI will now use your selected filters as context"
-                                : "AI will no longer use your filters",
-                            );
-                          }}
-                          className="h-4 w-7 [&>span]:h-3 [&>span]:w-3"
-                        />
-                        <Label htmlFor="use-filters" className="text-xs text-muted-foreground cursor-pointer">
-                          Ask AI using your filters
-                        </Label>
-                      </div>
-                      {useAsContext && !hasFilterSelections && (
-                        <p className="px-5 pt-1 text-[11px] text-muted-foreground">
-                          Select filters in the panel to give AI more context
-                        </p>
-                      )}
                       <AnimatePresence initial={false}>
                         {(hasContextSelections || (useAsContext && hasFilterSelections)) && (
                           <motion.div
@@ -1038,10 +1089,10 @@ export function Thread() {
                           >
                             <ContextBadges
                               selections={contextSelections}
-                              onRemove={removeItem}
+                              onRemove={handleRemoveContextItemSynced}
                               onClearAll={handleClearSelections}
-                              onSave={presetEditing && hasContextSelections ? handleSavePreset : undefined}
-                              onSaveAsNew={hasContextSelections ? handleSaveAsNewPreset : undefined}
+                              onSave={presetEditing && (hasContextSelections || hasFilterSelections) ? handleSavePreset : undefined}
+                              onSaveAsNew={(hasContextSelections || hasFilterSelections) ? handleSaveAsNewPreset : undefined}
                               activePresetName={presetEditing?.presetName ?? null}
                               onDeactivatePreset={handleDeactivatePreset}
                               onRenameActivePreset={presetEditing ? () => handleRenamePreset(presetEditing.presetId, presetEditing.presetName) : undefined}
@@ -1269,7 +1320,7 @@ export function Thread() {
             />
           </StickToBottom>
         </div>
-        <div className="relative flex flex-col border-l border-border">
+        <div className="relative flex flex-col overflow-hidden border-l border-border">
           <div className="absolute inset-0 flex min-w-[30vw] flex-col">
             <div className="grid grid-cols-[1fr_auto] border-b border-border p-4">
               <ArtifactTitle className="truncate overflow-hidden" />
@@ -1288,10 +1339,10 @@ export function Thread() {
         selections={filterSelections}
         dateRange={dateRange}
         onToggleItem={handleToggleFilterItemSynced}
-        onSelectAll={selectAllFilter}
-        onClearCategory={clearFilterCategory}
+        onSelectAll={handleSelectAllFilterSynced}
+        onClearCategory={handleClearFilterCategorySynced}
         onDateRangeChange={setDateRange}
-        onResetAll={resetAllFilters}
+        onResetAll={handleResetAllFiltersSynced}
         hasSelections={hasFilterSelections}
         totalSelected={filterTotalSelected}
         presets={presets}

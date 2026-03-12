@@ -15,7 +15,7 @@ export const FilterSearch: React.FC<FilterSearchProps> = ({ value, onChange }) =
         placeholder="Search filters..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-8 pl-8 text-sm"
+        className="h-8 pl-8 text-xs text-muted-foreground/70 placeholder:text-muted-foreground/40 rounded-full bg-white dark:bg-white/10 shadow-none"
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   FilterCategory,
   FilterSelections,
@@ -44,20 +44,37 @@ function loadToggleState(): boolean {
 }
 
 export function useFilters() {
-  const [selections, setSelections] = useState<FilterSelections>(loadFilterSelections);
-  const [dateRange, setDateRange] = useState<DateRange>(loadDateRange);
-  const [useAsContext, setUseAsContext] = useState<boolean>(loadToggleState);
+  // SSR-safe defaults; hydrate from localStorage after mount
+  const [selections, setSelections] = useState<FilterSelections>(EMPTY_FILTER_SELECTIONS);
+  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
+  const [useAsContext, setUseAsContext] = useState<boolean>(false);
+  const hydrated = useRef(false);
 
+  // Hydrate from localStorage on mount
   useEffect(() => {
-    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(selections));
+    setSelections(loadFilterSelections());
+    setDateRange(loadDateRange());
+    setUseAsContext(loadToggleState());
+    hydrated.current = true;
+  }, []);
+
+  // Persist to localStorage on changes (skip initial hydration write)
+  useEffect(() => {
+    if (hydrated.current) {
+      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(selections));
+    }
   }, [selections]);
 
   useEffect(() => {
-    localStorage.setItem(DATE_RANGE_STORAGE_KEY, JSON.stringify(dateRange));
+    if (hydrated.current) {
+      localStorage.setItem(DATE_RANGE_STORAGE_KEY, JSON.stringify(dateRange));
+    }
   }, [dateRange]);
 
   useEffect(() => {
-    localStorage.setItem(TOGGLE_STORAGE_KEY, String(useAsContext));
+    if (hydrated.current) {
+      localStorage.setItem(TOGGLE_STORAGE_KEY, String(useAsContext));
+    }
   }, [useAsContext]);
 
   const toggleItem = useCallback((category: FilterCategory, item: string) => {
