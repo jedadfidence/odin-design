@@ -47,7 +47,7 @@ export const SelectionPopup: React.FC<SelectionPopupProps> = ({
       style={{ top, left }}
     >
       <Plus className="h-3.5 w-3.5" />
-      Add to context
+      Send to AI chat
     </button>,
     container,
   );

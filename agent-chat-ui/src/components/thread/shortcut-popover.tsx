@@ -90,12 +90,12 @@ export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
       >
         <Command shouldFilter={true} className="bg-transparent">
           <CommandInput
-            placeholder="Search shortcuts..."
+            placeholder="Search quick prompts..."
             value={search}
             onValueChange={setSearch}
           />
           <CommandList>
-            <CommandEmpty>No shortcuts found.</CommandEmpty>
+            <CommandEmpty>No quick prompts found.</CommandEmpty>
             <CommandGroup>
               {shortcuts.map((shortcut) => (
                 <CommandItem
@@ -128,7 +128,7 @@ export const ShortcutPopover: React.FC<ShortcutPopoverProps> = ({
                 className="flex items-center gap-2 text-muted-foreground"
               >
                 <Plus className="h-4 w-4" />
-                <span>Create new shortcut</span>
+                <span>Create quick prompt</span>
               </CommandItem>
             </CommandGroup>
           </CommandList>

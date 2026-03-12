@@ -255,7 +255,7 @@ function MiniThreadContent({
             !chatStarted && "flex flex-col items-stretch",
             chatStarted && "grid grid-rows-[1fr_auto]",
           )}
-          contentClassName="pt-4 pb-4 px-3 flex flex-col gap-4 w-full"
+          contentClassName="pt-4 pb-4 px-3 flex flex-col gap-4 w-full min-w-0"
           content={
             <div ref={messagesContainerRef}>
               {!chatStarted && (
@@ -386,6 +386,8 @@ export function MiniThread() {
 
   // Auto-open mini thread when page context is added, queue events for after mount
   const pendingContextRef = useRef<string[]>([]);
+  const pendingQuotesRef = useRef<string[]>([]);
+  const pendingPromptRef = useRef<string | null>(null);
   useEffect(() => {
     const handler = ((e: CustomEvent<string>) => {
       if (!isOpen) {
@@ -393,22 +395,66 @@ export function MiniThread() {
         setIsOpen(true);
       }
     }) as EventListener;
+    const quoteHandler = ((e: CustomEvent<string>) => {
+      if (!isOpen) {
+        pendingQuotesRef.current.push(e.detail);
+        setIsOpen(true);
+      }
+    }) as EventListener;
+    const askInChatHandler = ((e: CustomEvent<{ widgetId: string; prompt: string }>) => {
+      pendingContextRef.current.push(e.detail.widgetId);
+      pendingPromptRef.current = e.detail.prompt;
+      if (!isOpen) {
+        setIsOpen(true);
+      } else {
+        requestAnimationFrame(() => {
+          window.dispatchEvent(
+            new CustomEvent("odin:add-page-context", { detail: e.detail.widgetId }),
+          );
+          window.dispatchEvent(
+            new CustomEvent("odin:prefill-input", { detail: e.detail.prompt }),
+          );
+        });
+        pendingContextRef.current = [];
+        pendingPromptRef.current = null;
+      }
+    }) as EventListener;
     window.addEventListener("odin:add-page-context", handler);
-    return () => window.removeEventListener("odin:add-page-context", handler);
+    window.addEventListener("odin:add-quote", quoteHandler);
+    window.addEventListener("odin:ask-in-chat", askInChatHandler);
+    return () => {
+      window.removeEventListener("odin:add-page-context", handler);
+      window.removeEventListener("odin:add-quote", quoteHandler);
+      window.removeEventListener("odin:ask-in-chat", askInChatHandler);
+    };
   }, [isOpen]);
 
-  // Re-dispatch queued context events after mini thread opens
+  // Re-dispatch queued context/quote/prompt events after mini thread opens
   useEffect(() => {
-    if (isOpen && pendingContextRef.current.length > 0) {
-      const pending = [...pendingContextRef.current];
+    if (isOpen && (pendingContextRef.current.length > 0 || pendingQuotesRef.current.length > 0 || pendingPromptRef.current)) {
+      const pendingContext = [...pendingContextRef.current];
+      const pendingQuotes = [...pendingQuotesRef.current];
+      const pendingPrompt = pendingPromptRef.current;
       pendingContextRef.current = [];
+      pendingQuotesRef.current = [];
+      pendingPromptRef.current = null;
       // Delay to ensure MiniInput is mounted and listening
       requestAnimationFrame(() => {
-        pending.forEach((id) => {
+        pendingContext.forEach((id) => {
           window.dispatchEvent(
             new CustomEvent("odin:add-page-context", { detail: id }),
           );
         });
+        pendingQuotes.forEach((text) => {
+          window.dispatchEvent(
+            new CustomEvent("odin:add-quote", { detail: text }),
+          );
+        });
+        if (pendingPrompt) {
+          window.dispatchEvent(
+            new CustomEvent("odin:prefill-input", { detail: pendingPrompt }),
+          );
+        }
       });
     }
   }, [isOpen]);

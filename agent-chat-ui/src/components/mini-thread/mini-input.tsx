@@ -114,6 +114,7 @@ export function MiniInput({
   // --- Text quotes ---
   const {
     quotes,
+    addQuote,
     updateQuote,
     removeQuote,
     clearQuotes,
@@ -132,9 +133,30 @@ export function MiniInput({
     return () => window.removeEventListener("odin:add-page-context", handler);
   }, [contextSelections.page, toggleItem]);
 
+  // --- Quote from insight event listener ---
+  useEffect(() => {
+    const handler = ((e: CustomEvent<string>) => {
+      addQuote(e.detail, "insight", "ai");
+    }) as EventListener;
+    window.addEventListener("odin:add-quote", handler);
+    return () => window.removeEventListener("odin:add-quote", handler);
+  }, [addQuote]);
+
   // --- Refs ---
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputBoxRef = useRef<HTMLDivElement>(null);
+
+  // --- Prefill input from chat action ---
+  useEffect(() => {
+    const handler = ((e: CustomEvent<string>) => {
+      setInput(e.detail);
+      requestAnimationFrame(() => {
+        textareaRef.current?.focus();
+      });
+    }) as EventListener;
+    window.addEventListener("odin:prefill-input", handler);
+    return () => window.removeEventListener("odin:prefill-input", handler);
+  }, []);
 
   // --- Preset dialogs ---
   const [presetNameDialogOpen, setPresetNameDialogOpen] = useState(false);
@@ -547,7 +569,7 @@ export function MiniInput({
               {/* Save as shortcut (only when there's text) */}
               {input.trim().length > 0 && (
                 <TooltipIconButton
-                  tooltip="Save as shortcut"
+                  tooltip="Save as quick prompt"
                   variant="ghost"
                   size="sm"
                   onClick={handleSaveAsShortcutFromToolbar}
@@ -571,7 +593,7 @@ export function MiniInput({
                 textareaRef={textareaRef}
               >
                 <TooltipIconButton
-                  tooltip="Shortcuts"
+                  tooltip="Quick prompts"
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 text-muted-foreground"
@@ -604,7 +626,7 @@ export function MiniInput({
                 isEditing={!!presetEditing}
               >
                 <TooltipIconButton
-                  tooltip="Add context"
+                  tooltip="Attach data"
                   variant="ghost"
                   size="sm"
                   className={cn(
@@ -694,7 +716,7 @@ export function MiniInput({
         }}
         onConfirm={handleConfirmRename}
         defaultName={renameTarget?.name ?? ""}
-        title="Rename preset"
+        title="Rename favorite"
       />
     </>
   );

@@ -151,7 +151,7 @@ export function Thread() {
   const [threadId, _setThreadId] = useQueryState("threadId");
   const [sidebarCollapsed, setSidebarCollapsed] = useQueryState(
     "sidebarCollapsed",
-    parseAsBoolean.withDefault(false),
+    parseAsBoolean.withDefault(true),
   );
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
@@ -665,7 +665,7 @@ export function Thread() {
     getContentString(lastAiMessage.content).trim().length > 0;
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background">
+    <div className="flex h-screen w-full min-w-0 overflow-hidden bg-background">
       {/* Collapsible sidebar — desktop only */}
       <div
         className={cn(
@@ -759,7 +759,7 @@ export function Thread() {
                 </>
               )}
               <TooltipIconButton
-                tooltip={hideToolCalls ? "Show tool calls" : "Hide tool calls"}
+                tooltip={hideToolCalls ? "Show details" : "Hide details"}
                 variant="ghost"
                 onClick={() => setHideToolCalls(!(hideToolCalls ?? true))}
                 className={cn(
@@ -769,7 +769,7 @@ export function Thread() {
                 <Wrench />
               </TooltipIconButton>
               <Link href={`/demo${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}>
-                <TooltipIconButton tooltip="Try Mini Mode" variant="ghost" className="h-8 w-8">
+                <TooltipIconButton tooltip="Minimize chat" variant="ghost" className="h-8 w-8">
                   <PanelBottomClose className="h-4 w-4" />
                 </TooltipIconButton>
               </Link>
@@ -1083,7 +1083,7 @@ export function Thread() {
                             className="flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted"
                           >
                             <span className="font-medium">/</span>
-                            <span>Shortcuts</span>
+                            <span>Quick prompts</span>
                           </button>
                         </ShortcutPopover>
 

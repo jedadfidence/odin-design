@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Globe, Megaphone, BarChart3, ChevronRight, ChevronLeft, Monitor } from "lucide-react";
+import { Globe, Megaphone, BarChart3, ChevronRight, ChevronLeft, Monitor, LineChart, Table, Hash } from "lucide-react";
 import { Bookmark, MoreHorizontal, Pencil, Copy, Trash2, Type } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,7 +23,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContextPreset, presetSummary } from "@/lib/context-presets";
-import { usePageWidgets } from "@/lib/dashboard-widgets";
+import { usePageWidgets, DashboardWidget } from "@/lib/dashboard-widgets";
+
+const WIDGET_TYPE_ICONS: Record<DashboardWidget["type"], React.ReactNode> = {
+  kpi: <Hash className="h-3.5 w-3.5 text-muted-foreground" />,
+  chart: <LineChart className="h-3.5 w-3.5 text-muted-foreground" />,
+  table: <Table className="h-3.5 w-3.5 text-muted-foreground" />,
+};
 import {
   ContextCategory,
   ContextSelections,
@@ -191,7 +197,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         </CommandGroup>
       ))}
       {pageWidgets.length > 0 && (
-        <CommandGroup heading="On Current Page">
+        <CommandGroup heading="From this page">
           {pageWidgets.map((widget) => {
             const checked = selections.page?.includes(widget.id) ?? false;
             return (
@@ -245,7 +251,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         >
           <div className="flex items-center gap-2">
             <Monitor className="h-4 w-4 text-muted-foreground" />
-            <span>On Current Page</span>
+            <span>From this page</span>
             {selections.page?.length > 0 && (
               <span className="text-xs text-muted-foreground">
                 ({selections.page.length})
@@ -313,7 +319,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="text-sm font-medium">On Current Page</span>
+        <span className="text-sm font-medium">From this page</span>
       </div>
       <CommandInput
         placeholder="Search visuals..."
@@ -334,7 +340,9 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
               >
                 <Checkbox checked={checked} className="pointer-events-none" />
                 <span>{widget.title}</span>
-                <span className="ml-auto text-[10px] text-muted-foreground uppercase">{widget.type}</span>
+                <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground uppercase">
+                  {WIDGET_TYPE_ICONS[widget.type]}
+                </span>
               </CommandItem>
             );
           })}
@@ -355,7 +363,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         >
           <div className="flex items-center gap-2">
             <Bookmark className="h-4 w-4 text-muted-foreground" />
-            <span>Presets</span>
+            <span>Favorites</span>
             {presets.length > 0 && (
               <span className="text-xs text-muted-foreground">
                 ({presets.length})
@@ -399,15 +407,15 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="text-sm font-medium">Presets</span>
+        <span className="text-sm font-medium">Favorites</span>
       </div>
       <CommandInput
-        placeholder="Search presets..."
+        placeholder="Search favorites..."
         value={search}
         onValueChange={setSearch}
       />
       <CommandList>
-        <CommandEmpty>No presets found.</CommandEmpty>
+        <CommandEmpty>No favorites found.</CommandEmpty>
         <CommandGroup>
           {presets.map((preset) => (
             <CommandItem
@@ -464,7 +472,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
               className="flex items-center gap-2 text-muted-foreground"
             >
               <Bookmark className="h-4 w-4" />
-              <span>Save current as preset</span>
+              <span>Save as favorite</span>
             </CommandItem>
           )}
         </CommandGroup>
@@ -535,7 +543,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           ) : !activeCategory ? (
             <>
               <CommandInput
-                placeholder="Search context..."
+                placeholder="Search data to include..."
                 value={search}
                 onValueChange={setSearch}
               />

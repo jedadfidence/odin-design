@@ -257,7 +257,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
       <DialogContent ref={dialogContentRef} className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Edit Shortcut" : "Create Shortcut"}
+            {isEditing ? "Edit Quick Prompt" : "Create Quick Prompt"}
           </DialogTitle>
         </DialogHeader>
 
@@ -268,7 +268,7 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Shortcut name"
+              placeholder="Quick prompt name"
               autoFocus
               className="mt-1"
             />
@@ -421,16 +421,16 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleSave}>
-                    Save current shortcut
+                    Save current quick prompt
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSaveAsNew}>
-                    Save as new shortcut
+                    Save as new quick prompt
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button onClick={handleSave} disabled={!name.trim()}>
-                Save Shortcut
+                Save Quick Prompt
               </Button>
             )}
           </div>

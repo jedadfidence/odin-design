@@ -2,9 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Copy, Check } from "lucide-react";
+import { X, Copy, Check, Plus, Quote, BarChart3, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -18,6 +24,8 @@ export interface AISummaryProps {
   shimmerDuration?: number;
   initialDelay?: number;
   onDismiss?: () => void;
+  onAddToContext?: () => void;
+  onQuoteToContext?: () => void;
   className?: string;
 }
 
@@ -289,10 +297,13 @@ export function AISummary({
   shimmerDuration = 1500,
   initialDelay = 0,
   onDismiss,
+  onAddToContext,
+  onQuoteToContext,
   className,
 }: AISummaryProps) {
   const [phase, setPhase] = useState<AnimationPhase>("idle");
   const [copied, setCopied] = useState(false);
+  const hasMultipleContextOptions = !!(onAddToContext && onQuoteToContext);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(text);
@@ -356,18 +367,60 @@ export function AISummary({
       >
         <div className="absolute right-2 top-2 flex items-center gap-0.5">
           {(phase === "cascade" || phase === "done") && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleCopy}
-                  className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  aria-label="Copy to clipboard"
-                >
-                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{copied ? "Copied!" : "Copy to clipboard"}</TooltipContent>
-            </Tooltip>
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleCopy}
+                    className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    aria-label="Copy to clipboard"
+                  >
+                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{copied ? "Copied!" : "Copy to clipboard"}</TooltipContent>
+              </Tooltip>
+              {onAddToContext && !hasMultipleContextOptions && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={onAddToContext}
+                      className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      aria-label="Send to AI chat"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Send to AI chat</TooltipContent>
+                </Tooltip>
+              )}
+              {hasMultipleContextOptions && (
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors flex items-center"
+                          aria-label="Send to AI chat"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <ChevronDown className="h-3 w-3 -ml-0.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Send to AI chat</TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end" side="bottom" className="w-48">
+                    <DropdownMenuItem onClick={onQuoteToContext}>
+                      <Quote className="mr-2 h-4 w-4" /> Ask AI about this
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onAddToContext}>
+                      <BarChart3 className="mr-2 h-4 w-4" /> Include chart data
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </>
           )}
           {onDismiss && (
             <Tooltip>
@@ -439,18 +492,60 @@ export function AISummary({
         </span>
         <div className="flex items-center gap-0.5">
           {(phase === "cascade" || phase === "done") && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleCopy}
-                  className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  aria-label="Copy to clipboard"
-                >
-                  {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{copied ? "Copied!" : "Copy to clipboard"}</TooltipContent>
-            </Tooltip>
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleCopy}
+                    className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    aria-label="Copy to clipboard"
+                  >
+                    {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{copied ? "Copied!" : "Copy to clipboard"}</TooltipContent>
+              </Tooltip>
+              {onAddToContext && !hasMultipleContextOptions && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={onAddToContext}
+                      className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      aria-label="Send to AI chat"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Send to AI chat</TooltipContent>
+                </Tooltip>
+              )}
+              {hasMultipleContextOptions && (
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors flex items-center"
+                          aria-label="Send to AI chat"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <ChevronDown className="h-2.5 w-2.5 -ml-0.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Send to AI chat</TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="end" side="bottom" className="w-48">
+                    <DropdownMenuItem onClick={onQuoteToContext}>
+                      <Quote className="mr-2 h-3.5 w-3.5" /> Ask AI about this
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onAddToContext}>
+                      <BarChart3 className="mr-2 h-3.5 w-3.5" /> Include chart data
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </>
           )}
           {onDismiss && (
             <Tooltip>

@@ -22,7 +22,7 @@ export const PresetNameDialog: React.FC<PresetNameDialogProps> = ({
   onOpenChange,
   onConfirm,
   defaultName = "",
-  title = "Save preset",
+  title = "Save favorite",
 }) => {
   const [name, setName] = useState(defaultName);
 
@@ -49,7 +49,7 @@ export const PresetNameDialog: React.FC<PresetNameDialogProps> = ({
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Preset name"
+            placeholder="Favorite name"
             autoFocus
             className="mb-4"
           />

@@ -166,7 +166,7 @@ export function AssistantMessage({
       data-message-id={message?.id}
       data-message-type="ai"
     >
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full min-w-0 flex-col gap-2">
         {isToolResult ? (
           <>
             <ToolResult message={message} />
@@ -237,9 +237,9 @@ export function AssistantMessage({
 
 const ALL_STATUSES = [
   "Analysing your request",
-  "Running tool",
-  "Reasoning",
-  "Fetching data",
+  "Looking up your data",
+  "Preparing your answer",
+  "Loading your data",
 ];
 
 function FlippingText({ text, suffix }: { text: string; suffix?: string }) {
@@ -319,7 +319,7 @@ export function AssistantMessageLoading() {
         if ("tool_calls" in message && Array.isArray(message.tool_calls)) {
           for (const toolCall of message.tool_calls) {
             if (!toolCall) continue;
-            latestStatus = "Running tool";
+            latestStatus = "Looking up your data";
           }
         }
 
@@ -327,7 +327,7 @@ export function AssistantMessageLoading() {
           for (const item of message.content) {
             const itemType = item.type as string;
             if (itemType === "tool_use" && "name" in item) {
-              latestStatus = "Running tool";
+              latestStatus = "Looking up your data";
             }
 
             if (
@@ -335,14 +335,14 @@ export function AssistantMessageLoading() {
               itemType === "thinking" ||
               itemType === "reasoning_content"
             ) {
-              latestStatus = "Reasoning";
+              latestStatus = "Preparing your answer";
             }
           }
         }
       }
 
       if (message.type === "tool") {
-        latestStatus = "Fetching data";
+        latestStatus = "Loading your data";
       }
     }
 

@@ -51,7 +51,7 @@ export function MiniHeader({ onClose, onToggleSidebar }: MiniHeaderProps) {
           <SquarePen className="h-3.5 w-3.5" />
         </TooltipIconButton>
         <TooltipIconButton
-          tooltip="Full screen"
+          tooltip="Expand chat"
           variant="ghost"
           className="h-7 w-7"
           onClick={handleExpand}

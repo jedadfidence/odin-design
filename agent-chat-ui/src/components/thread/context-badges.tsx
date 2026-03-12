@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { X, Globe, Megaphone, BarChart3, Save, Bookmark, Pencil, Monitor } from "lucide-react";
+import { X, Globe, Megaphone, BarChart3, Save, Bookmark, Pencil, Monitor, LineChart, Table, Hash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContextCategory, ContextSelections } from "@/lib/context-selectors";
-import { usePageWidgets } from "@/lib/dashboard-widgets";
+import { usePageWidgets, DashboardWidget } from "@/lib/dashboard-widgets";
 import { cn } from "@/lib/utils";
 
 interface ContextBadgesProps {
@@ -29,6 +29,12 @@ const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
   platforms: <Megaphone className="h-3 w-3" />,
   metrics: <BarChart3 className="h-3 w-3" />,
   page: <Monitor className="h-3 w-3" />,
+};
+
+const WIDGET_TYPE_ICON: Record<DashboardWidget["type"], React.ReactNode> = {
+  kpi: <Hash className="h-3 w-3" />,
+  chart: <LineChart className="h-3 w-3" />,
+  table: <Table className="h-3 w-3" />,
 };
 
 const CATEGORY_COLORS: Record<ContextCategory, string> = {
@@ -57,7 +63,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
 
   const allBadges: { category: ContextCategory; item: string }[] = [];
   for (const category of ["countries", "platforms", "metrics", "page"] as ContextCategory[]) {
-    for (const item of selections[category]) {
+    for (const item of (selections[category] ?? [])) {
       allBadges.push({ category, item });
     }
   }
@@ -93,10 +99,10 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" side="top" className="w-auto whitespace-nowrap">
                   <DropdownMenuItem onClick={onSave}>
-                    <Save className="mr-2 h-3.5 w-3.5" /> Save current preset
+                    <Save className="mr-2 h-3.5 w-3.5" /> Save current favorite
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={onSaveAsNew}>
-                    <Bookmark className="mr-2 h-3.5 w-3.5" /> Save as new
+                    <Bookmark className="mr-2 h-3.5 w-3.5" /> Save as new favorite
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -107,7 +113,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
                 className="rounded-md px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <Save className="h-3.5 w-3.5" />
-                <span className="sr-only">Save as preset</span>
+                <span className="sr-only">Save as favorite</span>
               </button>
             )}
           </motion.div>
@@ -149,7 +155,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
                 className="ml-0.5 rounded-full p-0.5 hover:bg-amber-200 dark:hover:bg-amber-800/40"
               >
                 <Pencil className="h-2.5 w-2.5" />
-                <span className="sr-only">Rename preset</span>
+                <span className="sr-only">Rename favorite</span>
               </button>
               <button
                 type="button"
@@ -157,7 +163,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
                 className="ml-0.5 rounded-full p-0.5 hover:bg-amber-200 dark:hover:bg-amber-800/40"
               >
                 <X className="h-3 w-3" />
-                <span className="sr-only">Deactivate preset</span>
+                <span className="sr-only">Remove favorite</span>
               </button>
             </Badge>
           </motion.div>
@@ -179,7 +185,9 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
                 CATEGORY_COLORS[category],
               )}
             >
-              {CATEGORY_ICON[category]}
+              {category === "page"
+                ? (WIDGET_TYPE_ICON[pageWidgets.find((w) => w.id === item)?.type ?? "kpi"] ?? CATEGORY_ICON[category])
+                : CATEGORY_ICON[category]}
               {category === "page"
                 ? (pageWidgets.find((w) => w.id === item)?.title ?? item)
                 : item}

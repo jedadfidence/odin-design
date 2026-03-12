@@ -35,7 +35,7 @@ function QuoteCard({ quote, onUpdate, onRemove, onScrollToSource }: QuoteCardPro
               {truncateText(quote.text)}
             </p>
             <p className="text-muted-foreground text-[10px] leading-tight">
-              Selected Text
+              Your selection
             </p>
           </div>
           <button
@@ -47,7 +47,7 @@ function QuoteCard({ quote, onUpdate, onRemove, onScrollToSource }: QuoteCardPro
             className="flex-shrink-0 rounded-full p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-muted-foreground/20 hover:text-foreground group-hover/card:opacity-100"
           >
             <X className="h-3.5 w-3.5" />
-            <span className="sr-only">Remove quote</span>
+            <span className="sr-only">Remove selection</span>
           </button>
         </div>
       </PopoverTrigger>
@@ -60,7 +60,7 @@ function QuoteCard({ quote, onUpdate, onRemove, onScrollToSource }: QuoteCardPro
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-medium text-muted-foreground">
-              Edit quoted text
+              Edit selection
             </label>
             {onScrollToSource && quote.sourceMessageId && (
               <button
@@ -127,7 +127,7 @@ export const QuoteCards: React.FC<QuoteCardsProps> = ({
             className="rounded-md px-1.5 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
-            <span className="sr-only">Clear all quotes</span>
+            <span className="sr-only">Clear all selections</span>
           </motion.button>
         )}
         {quotes.map((quote) => (

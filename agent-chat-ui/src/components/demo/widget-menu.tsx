@@ -1,11 +1,13 @@
 "use client";
 
 import React from "react";
-import { MoreVertical, Sparkles, FileText, Search, Plus } from "lucide-react";
+import { MoreVertical, Sparkles, FileText, Search, MessageCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -18,7 +20,7 @@ export type AIAction = "explain" | "summarize" | "analyze";
 
 export interface WidgetMenuProps {
   onAIAction: (action: AIAction) => void;
-  onAddToContext: () => void;
+  onChatAction: (action: AIAction) => void;
   className?: string;
 }
 
@@ -28,7 +30,7 @@ export interface WidgetMenuProps {
 
 export function WidgetMenu({
   onAIAction,
-  onAddToContext,
+  onChatAction,
   className,
 }: WidgetMenuProps) {
   return (
@@ -44,7 +46,8 @@ export function WidgetMenu({
           <MoreVertical className="h-4 w-4" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-44">
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel>Quick insight</DropdownMenuLabel>
         <DropdownMenuItem onClick={() => onAIAction("explain")}>
           <Sparkles className="h-4 w-4" />
           Explain
@@ -58,11 +61,20 @@ export function WidgetMenu({
           Analyze
         </DropdownMenuItem>
 
-        <div className="-mx-1 my-1 h-px bg-border" />
+        <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={onAddToContext}>
-          <Plus className="h-4 w-4" />
-          Add to context
+        <DropdownMenuLabel>Ask AI in chat</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => onChatAction("explain")}>
+          <MessageCircle className="h-4 w-4" />
+          Explain in chat
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onChatAction("summarize")}>
+          <MessageCircle className="h-4 w-4" />
+          Summarize in chat
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onChatAction("analyze")}>
+          <MessageCircle className="h-4 w-4" />
+          Analyze in chat
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

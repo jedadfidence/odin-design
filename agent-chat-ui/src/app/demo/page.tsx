@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { MiniThread } from "@/components/mini-thread";
 import {
   PageWidgetsContext,
@@ -42,7 +43,33 @@ function MockDashboard() {
     window.dispatchEvent(
       new CustomEvent("odin:add-page-context", { detail: widgetId }),
     );
-    toast.success(`Added ${widget?.title ?? widgetId} to context`);
+    toast.success(`Sent ${widget?.title ?? widgetId} to AI chat`);
+  };
+
+  const handleInsightAddToContext = () => {
+    if (!activeInlineSummary) return;
+    const id = activeInlineSummary.id;
+    if (id.startsWith("section-")) {
+      const section = id.replace("section-", "");
+      handleSectionAddToContext(section);
+    } else {
+      handleAddToContext(id);
+    }
+  };
+
+  const handleInsightQuoteToContext = () => {
+    if (!activeInlineSummary) return;
+    window.dispatchEvent(
+      new CustomEvent("odin:add-quote", { detail: activeInlineSummary.text }),
+    );
+    toast.success("Insight added to chat");
+  };
+
+  const handleExecQuoteToContext = (text: string) => {
+    window.dispatchEvent(
+      new CustomEvent("odin:add-quote", { detail: text }),
+    );
+    toast.success("Summary added to chat");
   };
 
   const handleSectionAddToContext = (section: string) => {
@@ -52,7 +79,33 @@ function MockDashboard() {
         new CustomEvent("odin:add-page-context", { detail: w.id }),
       );
     });
-    toast.success(`Added all ${section} visuals to context`);
+    toast.success(`Sent all ${section} visuals to AI chat`);
+  };
+
+  const handleWidgetChatAction = (widgetId: string, action: AIAction) => {
+    const widget = DEMO_WIDGETS.find((w) => w.id === widgetId);
+    const title = widget?.title ?? widgetId;
+    const verb = action.charAt(0).toUpperCase() + action.slice(1);
+    const prompt = `${verb} the ${title}`;
+    window.dispatchEvent(
+      new CustomEvent("odin:ask-in-chat", {
+        detail: { widgetId, prompt },
+      }),
+    );
+  };
+
+  const handleSectionChatAction = (section: string, action: AIAction) => {
+    const sectionWidgets = DEMO_WIDGETS.filter((w) => w.section === section);
+    const verb = action.charAt(0).toUpperCase() + action.slice(1);
+    const prompt = `${verb} the ${section} section`;
+    sectionWidgets.forEach((w) => {
+      window.dispatchEvent(
+        new CustomEvent("odin:add-page-context", { detail: w.id }),
+      );
+    });
+    window.dispatchEvent(
+      new CustomEvent("odin:prefill-input", { detail: prompt }),
+    );
   };
 
   return (
@@ -71,6 +124,15 @@ function MockDashboard() {
               text="Revenue has grown 12.5% to $124,500 this month, driven primarily by enterprise subscription renewals. Active users are up 3.2% to 8,420, with Asia Pacific showing the strongest engagement at 88%. Conversion rate has dipped slightly by 0.3 percentage points to 4.8%, suggesting potential optimization opportunities in the checkout flow."
               initialDelay={500}
               onDismiss={() => setShowExecSummary(false)}
+              onAddToContext={() => {
+                DEMO_WIDGETS.forEach((w) => {
+                  window.dispatchEvent(
+                    new CustomEvent("odin:add-page-context", { detail: w.id }),
+                  );
+                });
+                toast.success("Sent all widgets to AI chat");
+              }}
+              onQuoteToContext={() => handleExecQuoteToContext("Revenue has grown 12.5% to $124,500 this month, driven primarily by enterprise subscription renewals. Active users are up 3.2% to 8,420, with Asia Pacific showing the strongest engagement at 88%. Conversion rate has dipped slightly by 0.3 percentage points to 4.8%, suggesting potential optimization opportunities in the checkout flow.")}
               className=""
             />
           )}
@@ -90,7 +152,7 @@ function MockDashboard() {
             <WidgetMenu
               className="opacity-0 group-hover/section:opacity-100 transition-opacity"
               onAIAction={(action) => handleSectionAction("KPIs", action)}
-              onAddToContext={() => handleSectionAddToContext("KPIs")}
+              onChatAction={(action) => handleSectionChatAction("KPIs", action)}
             />
           </div>
 
@@ -102,6 +164,8 @@ function MockDashboard() {
                 variant="compact"
                 text={activeInlineSummary.text}
                 onDismiss={() => setActiveInlineSummary(null)}
+                onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
               />
             )}
           </AnimatePresence>
@@ -123,7 +187,7 @@ function MockDashboard() {
                   onAIAction={(action) =>
                     handleWidgetAction("kpi-revenue", action)
                   }
-                  onAddToContext={() => handleAddToContext("kpi-revenue")}
+                  onChatAction={(action) => handleWidgetChatAction("kpi-revenue", action)}
                 />
               </div>
               <AnimatePresence>
@@ -133,6 +197,8 @@ function MockDashboard() {
                     variant="compact"
                     text={activeInlineSummary.text}
                     onDismiss={() => setActiveInlineSummary(null)}
+                    onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
                   />
                 )}
               </AnimatePresence>
@@ -158,7 +224,7 @@ function MockDashboard() {
                   onAIAction={(action) =>
                     handleWidgetAction("kpi-users", action)
                   }
-                  onAddToContext={() => handleAddToContext("kpi-users")}
+                  onChatAction={(action) => handleWidgetChatAction("kpi-users", action)}
                 />
               </div>
               <AnimatePresence>
@@ -168,6 +234,8 @@ function MockDashboard() {
                     variant="compact"
                     text={activeInlineSummary.text}
                     onDismiss={() => setActiveInlineSummary(null)}
+                    onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
                   />
                 )}
               </AnimatePresence>
@@ -195,7 +263,7 @@ function MockDashboard() {
                   onAIAction={(action) =>
                     handleWidgetAction("kpi-conversion", action)
                   }
-                  onAddToContext={() => handleAddToContext("kpi-conversion")}
+                  onChatAction={(action) => handleWidgetChatAction("kpi-conversion", action)}
                 />
               </div>
               <AnimatePresence>
@@ -205,6 +273,8 @@ function MockDashboard() {
                     variant="compact"
                     text={activeInlineSummary.text}
                     onDismiss={() => setActiveInlineSummary(null)}
+                    onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
                   />
                 )}
               </AnimatePresence>
@@ -232,7 +302,7 @@ function MockDashboard() {
               onAIAction={(action) =>
                 handleSectionAction("Analytics", action)
               }
-              onAddToContext={() => handleSectionAddToContext("Analytics")}
+              onChatAction={(action) => handleSectionChatAction("Analytics", action)}
             />
           </div>
 
@@ -244,6 +314,8 @@ function MockDashboard() {
                 variant="compact"
                 text={activeInlineSummary.text}
                 onDismiss={() => setActiveInlineSummary(null)}
+                onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
               />
             )}
           </AnimatePresence>
@@ -267,7 +339,7 @@ function MockDashboard() {
                   onAIAction={(action) =>
                     handleWidgetAction("revenue-chart", action)
                   }
-                  onAddToContext={() => handleAddToContext("revenue-chart")}
+                  onChatAction={(action) => handleWidgetChatAction("revenue-chart", action)}
                 />
               </div>
               <AnimatePresence>
@@ -277,6 +349,8 @@ function MockDashboard() {
                     variant="compact"
                     text={activeInlineSummary.text}
                     onDismiss={() => setActiveInlineSummary(null)}
+                    onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
                   />
                 )}
               </AnimatePresence>
@@ -311,7 +385,7 @@ function MockDashboard() {
                   onAIAction={(action) =>
                     handleWidgetAction("user-activity", action)
                   }
-                  onAddToContext={() => handleAddToContext("user-activity")}
+                  onChatAction={(action) => handleWidgetChatAction("user-activity", action)}
                 />
               </div>
               <AnimatePresence>
@@ -321,6 +395,8 @@ function MockDashboard() {
                     variant="compact"
                     text={activeInlineSummary.text}
                     onDismiss={() => setActiveInlineSummary(null)}
+                    onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
                   />
                 )}
               </AnimatePresence>
@@ -362,8 +438,8 @@ function MockDashboard() {
               onAIAction={(action) =>
                 handleSectionAction("Transactions", action)
               }
-              onAddToContext={() =>
-                handleSectionAddToContext("Transactions")
+              onChatAction={(action) =>
+                handleSectionChatAction("Transactions", action)
               }
             />
           </div>
@@ -376,6 +452,8 @@ function MockDashboard() {
                 variant="compact"
                 text={activeInlineSummary.text}
                 onDismiss={() => setActiveInlineSummary(null)}
+                onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
               />
             )}
           </AnimatePresence>
@@ -395,7 +473,7 @@ function MockDashboard() {
                 onAIAction={(action) =>
                   handleWidgetAction("transactions", action)
                 }
-                onAddToContext={() => handleAddToContext("transactions")}
+                onChatAction={(action) => handleWidgetChatAction("transactions", action)}
               />
             </div>
             <AnimatePresence>
@@ -405,6 +483,8 @@ function MockDashboard() {
                   variant="compact"
                   text={activeInlineSummary.text}
                   onDismiss={() => setActiveInlineSummary(null)}
+                  onAddToContext={handleInsightAddToContext}
+                onQuoteToContext={handleInsightQuoteToContext}
                   className="mx-6 mt-4"
                 />
               )}
