@@ -73,7 +73,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex h-full shrink-0 flex-col border-l bg-sidebar transition-[width] duration-200 ease-in-out",
+        "flex h-full shrink-0 flex-col border-l !bg-[#EAECF5] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
         expanded ? "w-64" : "w-[50px]",
       )}
     >

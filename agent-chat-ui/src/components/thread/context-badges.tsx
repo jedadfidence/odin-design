@@ -10,8 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContextCategory, ContextSelections } from "@/lib/context-selectors";
+import { FilterCategory, FilterSelections, FILTER_CATEGORIES } from "@/lib/filter-data";
 import { usePageWidgets, DashboardWidget } from "@/lib/dashboard-widgets";
 import { cn } from "@/lib/utils";
+import { SlidersHorizontal } from "lucide-react";
 
 interface ContextBadgesProps {
   selections: ContextSelections;
@@ -23,6 +25,9 @@ interface ContextBadgesProps {
   onDeactivatePreset?: () => void;
   onRenameActivePreset?: () => void;
   className?: string;
+  // Filter badges (shown when toggle is ON)
+  filterSelections?: FilterSelections;
+  onRemoveFilter?: (category: FilterCategory, item: string) => void;
 }
 
 const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
@@ -55,6 +60,13 @@ const CATEGORY_COLORS: Record<ContextCategory, string> = {
     "border-transparent bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
 };
 
+const FILTER_BADGE_COLOR = "border-transparent bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300";
+
+// Map filter category IDs to display labels
+const FILTER_LABEL: Record<FilterCategory, string> = Object.fromEntries(
+  FILTER_CATEGORIES.map((c) => [c.id, c.label]),
+) as Record<FilterCategory, string>;
+
 export const ContextBadges: React.FC<ContextBadgesProps> = ({
   selections,
   onRemove,
@@ -65,6 +77,8 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
   onDeactivatePreset,
   onRenameActivePreset,
   className,
+  filterSelections,
+  onRemoveFilter,
 }) => {
   const pageWidgets = usePageWidgets();
 
@@ -75,7 +89,16 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
     }
   }
 
-  if (allBadges.length === 0) return null;
+  // Count filter badges that aren't already shown via context (avoid duplicates for synced categories)
+  const syncedFilterCategories = new Set(["platform", "country", "region", "category", "brand"]);
+  const filterBadgeCategories = filterSelections
+    ? (Object.entries(filterSelections) as [FilterCategory, string[]][]).filter(
+        ([cat, items]) => items.length > 0 && !syncedFilterCategories.has(cat),
+      )
+    : [];
+  const hasFilterBadges = filterBadgeCategories.length > 0;
+
+  if (allBadges.length === 0 && !hasFilterBadges) return null;
 
   return (
     <div
@@ -208,6 +231,28 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
             </motion.div>
           );
         })}
+        {/* Filter-only badges (not synced with context) */}
+        {filterBadgeCategories.map(([cat, items]) => (
+          <motion.div
+            key={`filter-${cat}`}
+            layout
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+          >
+            <CompactBadge
+              items={items}
+              icon={<SlidersHorizontal className="h-3 w-3" />}
+              colorClass={FILTER_BADGE_COLOR}
+              onRemove={
+                onRemoveFilter
+                  ? (item) => onRemoveFilter(cat, item)
+                  : undefined
+              }
+            />
+          </motion.div>
+        ))}
       </AnimatePresence>
     </div>
   );

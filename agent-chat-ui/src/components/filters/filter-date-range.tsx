@@ -30,7 +30,7 @@ export const FilterDateRange: React.FC<FilterDateRangeProps> = ({
   const hasRange = dateRange.from !== undefined;
 
   return (
-    <div className="rounded-lg border bg-card p-3 space-y-2">
+    <div className="rounded-lg border border-border/50 bg-transparent p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium">
           <CalendarIcon className="h-4 w-4 text-muted-foreground" />

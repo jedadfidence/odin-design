@@ -1024,7 +1024,7 @@ export function Thread() {
                         </p>
                       )}
                       <AnimatePresence initial={false}>
-                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.region.length > 0 || contextSelections.category.length > 0 || contextSelections.brand.length > 0 || contextSelections.page.length > 0) && (
+                        {(hasContextSelections || (useAsContext && hasFilterSelections)) && (
                           <motion.div
                             key="context-badges"
                             initial={{ height: 0, opacity: 0 }}
@@ -1045,6 +1045,8 @@ export function Thread() {
                               activePresetName={presetEditing?.presetName ?? null}
                               onDeactivatePreset={handleDeactivatePreset}
                               onRenameActivePreset={presetEditing ? () => handleRenamePreset(presetEditing.presetId, presetEditing.presetName) : undefined}
+                              filterSelections={useAsContext ? filterSelections : undefined}
+                              onRemoveFilter={useAsContext ? removeFilterItem : undefined}
                             />
                           </motion.div>
                         )}
