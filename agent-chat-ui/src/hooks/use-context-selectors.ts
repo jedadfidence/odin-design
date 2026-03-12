@@ -46,7 +46,9 @@ export function useContextSelectors() {
   const hasSelections =
     selections.countries.length > 0 ||
     selections.platforms.length > 0 ||
-    selections.metrics.length > 0 ||
+    selections.region.length > 0 ||
+    selections.category.length > 0 ||
+    selections.brand.length > 0 ||
     selections.page.length > 0;
 
   const toMetadata = useCallback((): Record<string, unknown> | undefined => {
@@ -54,7 +56,9 @@ export function useContextSelectors() {
     const meta: Record<string, unknown> = {};
     if (selections.countries.length > 0) meta.countries = selections.countries;
     if (selections.platforms.length > 0) meta.platforms = selections.platforms;
-    if (selections.metrics.length > 0) meta.metrics = selections.metrics;
+    if (selections.region.length > 0) meta.region = selections.region;
+    if (selections.category.length > 0) meta.category = selections.category;
+    if (selections.brand.length > 0) meta.brand = selections.brand;
     if (selections.page.length > 0) meta.page = selections.page;
     return meta;
   }, [selections, hasSelections]);

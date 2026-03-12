@@ -620,7 +620,9 @@ export function Thread() {
         setContextSelections({
           countries: context.countries ?? [],
           platforms: context.platforms ?? [],
-          metrics: context.metrics ?? [],
+          region: context.region ?? [],
+          category: context.category ?? [],
+          brand: context.brand ?? [],
           page: [],
         });
         if (context.selected_text?.length) {
@@ -942,7 +944,7 @@ export function Thread() {
                         )}
                       </AnimatePresence>
                       <AnimatePresence initial={false}>
-                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.metrics.length > 0 || contextSelections.page.length > 0) && (
+                        {(contextSelections.countries.length > 0 || contextSelections.platforms.length > 0 || contextSelections.region.length > 0 || contextSelections.category.length > 0 || contextSelections.brand.length > 0 || contextSelections.page.length > 0) && (
                           <motion.div
                             key="context-badges"
                             initial={{ height: 0, opacity: 0 }}

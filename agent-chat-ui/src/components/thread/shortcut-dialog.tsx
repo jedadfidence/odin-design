@@ -142,7 +142,7 @@ interface ShortcutDialogProps {
 
 function getActiveCategories(selections: ContextSelections | null): ContextCategory[] {
   if (!selections) return [];
-  return (["countries", "platforms", "metrics"] as ContextCategory[]).filter(
+  return (["countries", "platforms", "region", "category", "brand"] as ContextCategory[]).filter(
     (c) => selections[c].length > 0,
   );
 }
@@ -222,7 +222,9 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
     setContext({
       countries: [...preset.selections.countries],
       platforms: [...preset.selections.platforms],
-      metrics: [...preset.selections.metrics],
+      region: [...(preset.selections.region ?? [])],
+      category: [...(preset.selections.category ?? [])],
+      brand: [...(preset.selections.brand ?? [])],
       page: [...(preset.selections.page ?? [])],
     });
     const presetCats = getActiveCategories(preset.selections);
@@ -234,7 +236,9 @@ export const ShortcutDialog: React.FC<ShortcutDialogProps> = ({
     const hasAny =
       context.countries.length > 0 ||
       context.platforms.length > 0 ||
-      context.metrics.length > 0;
+      context.region.length > 0 ||
+      context.category.length > 0 ||
+      context.brand.length > 0;
     return hasAny ? context : null;
   };
 

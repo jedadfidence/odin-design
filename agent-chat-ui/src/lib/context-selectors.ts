@@ -1,4 +1,4 @@
-export type ContextCategory = "countries" | "platforms" | "metrics" | "page";
+export type ContextCategory = "countries" | "platforms" | "region" | "category" | "brand" | "page";
 
 export interface ContextCategoryConfig {
   id: ContextCategory;
@@ -7,6 +7,22 @@ export interface ContextCategoryConfig {
 }
 
 export const CONTEXT_CATEGORIES: ContextCategoryConfig[] = [
+  {
+    id: "platforms",
+    label: "Platforms",
+    items: [
+      "Meta",
+      "Google Ads",
+      "DV360",
+      "TikTok",
+      "Snapchat",
+      "Pinterest",
+      "LinkedIn",
+      "Twitter/X",
+      "Amazon DSP",
+      "Programmatic (Other)",
+    ],
+  },
   {
     id: "countries",
     label: "Countries",
@@ -30,46 +46,19 @@ export const CONTEXT_CATEGORIES: ContextCategoryConfig[] = [
     ],
   },
   {
-    id: "platforms",
-    label: "Platforms",
-    items: [
-      "Meta",
-      "Google Ads",
-      "DV360",
-      "TikTok",
-      "Snapchat",
-      "Pinterest",
-      "LinkedIn",
-      "Twitter/X",
-      "Amazon DSP",
-      "Programmatic (Other)",
-    ],
+    id: "region",
+    label: "Region",
+    items: ["EMEA", "APAC", "Americas", "LATAM"],
   },
   {
-    id: "metrics",
-    label: "Metrics",
-    items: [
-      "Impressions",
-      "Clicks",
-      "CTR (Click-Through Rate)",
-      "CPC (Cost Per Click)",
-      "CPM (Cost Per Mille)",
-      "Spend",
-      "Conversions",
-      "Conversion Rate",
-      "CPA (Cost Per Acquisition)",
-      "ROAS (Return on Ad Spend)",
-      "Revenue",
-      "Reach",
-      "Frequency",
-      "Video Views",
-      "VTR (View-Through Rate)",
-      "Engagement Rate",
-      "Bounce Rate",
-      "Add to Cart",
-      "CPV (Cost Per View)",
-      "ACOS (Ad Cost of Sales)",
-    ],
+    id: "category",
+    label: "Category",
+    items: ["Beauty", "Food", "Beverages", "Household", "Healthcare"],
+  },
+  {
+    id: "brand",
+    label: "Brand",
+    items: ["Brand A", "Brand B", "Brand C", "Brand D", "Brand E"],
   },
 ];
 
@@ -78,6 +67,8 @@ export type ContextSelections = Record<ContextCategory, string[]>;
 export const EMPTY_SELECTIONS: ContextSelections = {
   countries: [],
   platforms: [],
-  metrics: [],
+  region: [],
+  category: [],
+  brand: [],
   page: [],
 };

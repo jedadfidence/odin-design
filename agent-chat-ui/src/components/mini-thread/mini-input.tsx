@@ -427,7 +427,9 @@ export function MiniInput({
             <AnimatePresence initial={false}>
               {(contextSelections.countries.length > 0 ||
                 contextSelections.platforms.length > 0 ||
-                contextSelections.metrics.length > 0 ||
+                contextSelections.region.length > 0 ||
+                contextSelections.category.length > 0 ||
+                contextSelections.brand.length > 0 ||
                 contextSelections.page.length > 0) && (
                 <motion.div
                   key="context-badges"

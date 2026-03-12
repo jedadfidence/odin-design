@@ -14,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Globe, Megaphone, BarChart3, ChevronRight, ChevronLeft, Monitor, LineChart, Table, Hash } from "lucide-react";
+import { Globe, Megaphone, MapPin, Tag, Building2, ChevronRight, ChevronLeft, Monitor, LineChart, Table, Hash } from "lucide-react";
 import { Bookmark, MoreHorizontal, Pencil, Copy, Trash2, Type } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,14 +39,18 @@ import {
 const CATEGORY_ICONS: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-4 w-4 text-muted-foreground" />,
   platforms: <Megaphone className="h-4 w-4 text-muted-foreground" />,
-  metrics: <BarChart3 className="h-4 w-4 text-muted-foreground" />,
+  region: <MapPin className="h-4 w-4 text-muted-foreground" />,
+  category: <Tag className="h-4 w-4 text-muted-foreground" />,
+  brand: <Building2 className="h-4 w-4 text-muted-foreground" />,
   page: <Monitor className="h-4 w-4 text-muted-foreground" />,
 };
 
 const CATEGORY_TAG_COLORS: Record<ContextCategory, string> = {
   countries: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   platforms: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  metrics: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  region: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300",
+  category: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  brand: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
   page: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
 };
 
@@ -506,7 +510,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
           const preset = presets.find((p) => p.id === hoveredPresetId);
           if (!preset) return null;
           const cats = (
-            ["countries", "platforms", "metrics", "page"] as ContextCategory[]
+            ["countries", "platforms", "region", "category", "brand", "page"] as ContextCategory[]
           ).filter((c) => preset.selections[c]?.length > 0);
           if (cats.length === 0) return null;
           return (

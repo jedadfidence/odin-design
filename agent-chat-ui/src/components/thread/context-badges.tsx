@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { X, Globe, Megaphone, BarChart3, Save, Bookmark, Pencil, Monitor, LineChart, Table, Hash } from "lucide-react";
+import { X, Globe, Megaphone, MapPin, Tag, Building2, Save, Bookmark, Pencil, Monitor, LineChart, Table, Hash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +27,9 @@ interface ContextBadgesProps {
 const CATEGORY_ICON: Record<ContextCategory, React.ReactNode> = {
   countries: <Globe className="h-3 w-3" />,
   platforms: <Megaphone className="h-3 w-3" />,
-  metrics: <BarChart3 className="h-3 w-3" />,
+  region: <MapPin className="h-3 w-3" />,
+  category: <Tag className="h-3 w-3" />,
+  brand: <Building2 className="h-3 w-3" />,
   page: <Monitor className="h-3 w-3" />,
 };
 
@@ -42,8 +44,12 @@ const CATEGORY_COLORS: Record<ContextCategory, string> = {
     "border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   platforms:
     "border-transparent bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  metrics:
-    "border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  region:
+    "border-transparent bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300",
+  category:
+    "border-transparent bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  brand:
+    "border-transparent bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
   page:
     "border-transparent bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
 };
@@ -62,7 +68,7 @@ export const ContextBadges: React.FC<ContextBadgesProps> = ({
   const pageWidgets = usePageWidgets();
 
   const allBadges: { category: ContextCategory; item: string }[] = [];
-  for (const category of ["countries", "platforms", "metrics", "page"] as ContextCategory[]) {
+  for (const category of ["countries", "platforms", "region", "category", "brand", "page"] as ContextCategory[]) {
     for (const item of (selections[category] ?? [])) {
       allBadges.push({ category, item });
     }
