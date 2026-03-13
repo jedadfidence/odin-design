@@ -3,12 +3,18 @@ import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SlidersHorizontal, RotateCcw, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { SlidersHorizontal, RotateCcw, PanelRightClose, PanelRightOpen, Save, ChevronDown } from "lucide-react";
 import { FilterCategory } from "./filter-category";
 import { FilterDateRange } from "./filter-date-range";
 import { FilterSearch } from "./filter-search";
@@ -36,6 +42,7 @@ interface FilterSidebarProps {
   presets: ContextPreset[];
   onApplyPreset: (preset: ContextPreset) => void;
   onSavePreset: () => void;
+  onSaveAsNewPreset: () => void;
   onDeletePreset: (id: string) => void;
   activePresetName?: string | null;
 }
@@ -53,6 +60,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   presets,
   onApplyPreset,
   onSavePreset,
+  onSaveAsNewPreset,
   onDeletePreset,
   activePresetName,
 }) => {
@@ -62,18 +70,24 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const filteredCategories = useMemo(() => {
     if (!search) return FILTER_CATEGORIES;
     const lower = search.toLowerCase();
-    return FILTER_CATEGORIES.filter(
-      (cat) =>
-        cat.label.toLowerCase().includes(lower) ||
-        cat.items.some((item) => item.toLowerCase().includes(lower)),
-    );
+    return FILTER_CATEGORIES.map((cat) => {
+      const matchingItems = cat.items.filter((item) =>
+        item.toLowerCase().includes(lower),
+      );
+      const labelMatches = cat.label.toLowerCase().includes(lower);
+      // If the category label matches, show all items; otherwise show only matching items
+      return {
+        ...cat,
+        items: labelMatches ? cat.items : matchingItems,
+      };
+    }).filter((cat) => cat.items.length > 0);
   }, [search]);
 
   return (
     <div
       className={cn(
         "flex h-full shrink-0 flex-col border-0 !bg-[#EDF2F7] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
-        expanded ? "w-64" : "w-[50px]",
+        expanded ? "w-[var(--sidebar-width,16rem)]" : "w-[50px]",
       )}
     >
       {expanded ? (
@@ -117,21 +131,55 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             <FilterPresets
               presets={presets}
               onApply={onApplyPreset}
-              onSave={onSavePreset}
               onDelete={onDeletePreset}
               activePresetName={activePresetName}
             />
+            {hasSelections && (
+              activePresetName ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="h-[40px] text-sm gap-1.5 w-full justify-center"
+                      style={{ borderRadius: "24px", backgroundColor: "#4586F7", color: "#fff", boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset" }}
+                    >
+                      <Save className="h-4 w-4" />
+                      Save preset
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[200px]">
+                    <DropdownMenuItem onClick={onSavePreset} className="text-xs">
+                      Save to &ldquo;{activePresetName}&rdquo;
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onSaveAsNewPreset} className="text-xs">
+                      Save as new preset
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="h-[40px] text-sm gap-1.5 w-full justify-center"
+                  style={{ borderRadius: "24px", backgroundColor: "#4586F7", color: "#fff", boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset" }}
+                  onClick={onSaveAsNewPreset}
+                >
+                  <Save className="h-4 w-4" />
+                  Save preset
+                </Button>
+              )
+            )}
           </div>
 
           {/* Expanded content */}
           <ScrollArea className="flex-1">
-            <div className="px-3 py-2">
-              <FilterDateRange
-                dateRange={dateRange}
-                onDateRangeChange={onDateRangeChange}
-              />
-            </div>
             <Accordion type="multiple" className="py-1">
+              <div className="mx-3 my-4">
+                <FilterDateRange
+                  dateRange={dateRange}
+                  onDateRangeChange={onDateRangeChange}
+                />
+              </div>
               {filteredCategories.map((cat) => (
                 <FilterCategory
                   key={cat.id}

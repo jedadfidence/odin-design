@@ -560,6 +560,7 @@ function DemoFilterSidebar() {
       presets={[]}
       onApplyPreset={() => {}}
       onSavePreset={() => {}}
+      onSaveAsNewPreset={() => {}}
       onDeletePreset={() => {}}
       activePresetName={null}
     />

@@ -276,9 +276,9 @@ export function Thread() {
 
   const handleSavePreset = useCallback(() => {
     if (presetEditing) {
-      savePresetEditing(contextSelections);
+      savePresetEditing(contextSelections, filterSelections);
     }
-  }, [presetEditing, savePresetEditing, contextSelections]);
+  }, [presetEditing, savePresetEditing, contextSelections, filterSelections]);
 
   const handleSaveAsNewPreset = useCallback(() => {
     setPresetNameDialogOpen(true);
@@ -832,21 +832,6 @@ export function Thread() {
               >
                 <Menu />
               </Button>
-              {chatStarted && (
-                <button
-                  onClick={() => setThreadId(null)}
-                  className="flex cursor-pointer items-end gap-2"
-                >
-                  <img
-                    src="/adfidence-logo.svg"
-                    alt="Adfidence"
-                    className="h-5 w-auto object-contain flex-shrink-0 dark:brightness-0 dark:invert"
-                  />
-                  <span className="text-2xl font-semibold italic tracking-tight leading-none translate-y-[0.12em] text-[#4586F7] dark:text-foreground">
-                    AI
-                  </span>
-                </button>
-              )}
             </div>
             <div className="flex items-center gap-1">
               {chatStarted && (
@@ -1347,7 +1332,8 @@ export function Thread() {
         totalSelected={filterTotalSelected}
         presets={presets}
         onApplyPreset={handleApplyPreset}
-        onSavePreset={() => setPresetNameDialogOpen(true)}
+        onSavePreset={handleSavePreset}
+        onSaveAsNewPreset={() => setPresetNameDialogOpen(true)}
         onDeletePreset={deletePreset}
         activePresetName={presetEditing?.presetName ?? null}
       />

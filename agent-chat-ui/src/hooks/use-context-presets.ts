@@ -47,9 +47,13 @@ export function useContextPresets() {
   }, []);
 
   const updatePresetSelections = useCallback(
-    (id: string, selections: ContextSelections) => {
+    (id: string, selections: ContextSelections, filters?: FilterSelections) => {
       setPresets((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, selections: { ...selections } } : p)),
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, selections: { ...selections }, filters: filters ? { ...filters } : p.filters }
+            : p,
+        ),
       );
     },
     [],
@@ -75,9 +79,9 @@ export function useContextPresets() {
   }, []);
 
   const saveEditing = useCallback(
-    (selections: ContextSelections) => {
+    (selections: ContextSelections, filters?: FilterSelections) => {
       if (!editing) return;
-      updatePresetSelections(editing.presetId, selections);
+      updatePresetSelections(editing.presetId, selections, filters);
     },
     [editing, updatePresetSelections],
   );

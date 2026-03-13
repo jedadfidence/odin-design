@@ -30,7 +30,14 @@ export const FilterDateRange: React.FC<FilterDateRangeProps> = ({
   const hasRange = dateRange.from !== undefined;
 
   return (
-    <div className="rounded-lg border border-border/50 bg-transparent p-3 space-y-2">
+    <div
+      className="border-0 p-3 space-y-2"
+      style={{
+        borderRadius: "24px",
+        background: "rgba(255, 255, 255, 0.05)",
+        boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset",
+      }}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium">
           <CalendarIcon className="h-4 w-4 text-muted-foreground" />
@@ -52,7 +59,7 @@ export const FilterDateRange: React.FC<FilterDateRangeProps> = ({
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left text-xs font-normal h-8",
+              "w-full justify-start text-left text-xs font-normal h-8 rounded-full shadow-none",
               !hasRange && "text-muted-foreground",
             )}
           >
@@ -61,8 +68,9 @@ export const FilterDateRange: React.FC<FilterDateRangeProps> = ({
               : "Select date range"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0" side="left" align="start" sideOffset={12}>
           <Calendar
+            className="[--cell-size:2.5rem] p-5 text-base"
             mode="range"
             selected={
               dateRange.from
