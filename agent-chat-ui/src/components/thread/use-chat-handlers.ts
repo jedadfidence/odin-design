@@ -57,7 +57,6 @@ export interface ChatHandlersDeps {
   quotesToMetadata: () => { selected_text: string[] } | undefined;
 
   // Stream — use ReturnType of useStreamContext for exact type compatibility
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stream: any;
 
   // Suggestions

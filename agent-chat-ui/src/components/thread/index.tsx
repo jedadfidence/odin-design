@@ -24,7 +24,6 @@ import { StickToBottom } from "use-stick-to-bottom";
 import { ScrollToBottomBridge, StickyToBottomContent, ScrollToBottom } from "./scroll-helpers";
 import { toast } from "sonner";
 import { ChatSidebar } from "./chat-sidebar";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { getContentString } from "./utils";
 import {
@@ -74,7 +73,6 @@ export function Thread() {
   const {
     contentBlocks,
     setContentBlocks,
-    handleFileUpload,
     dropRef,
     removeBlock,
     resetBlocks: _resetBlocks,
@@ -171,8 +169,6 @@ export function Thread() {
     clearFilterCategory,
     resetAllFilters,
   });
-
-  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
   const messages = stream.messages;
