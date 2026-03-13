@@ -9,11 +9,16 @@ import {
   PageWidgetsContext,
   DEMO_WIDGETS,
 } from "@/lib/dashboard-widgets";
+import dynamic from "next/dynamic";
 import {
-  AISummary,
   getMockResponse,
   getSectionMockResponse,
 } from "@/components/demo/ai-summary";
+
+const AISummary = dynamic(
+  () => import("@/components/demo/ai-summary").then((mod) => ({ default: mod.AISummary })),
+  { ssr: false },
+);
 import { WidgetMenu, AIAction } from "@/components/demo/widget-menu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/demo/app-sidebar";
@@ -111,7 +116,7 @@ function MockDashboard() {
   };
 
   return (
-    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-[#F0F4FF] dark:bg-[#0D0D14] text-foreground">
+    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-surface-deep text-foreground">
       <div className="p-4 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
