@@ -31,7 +31,7 @@ import { Shortcut } from "@/lib/shortcuts";
 import { ShortcutPopover } from "../thread/shortcut-popover";
 import { ShortcutDialog } from "../thread/shortcut-dialog";
 import { useFilterContext } from "@/providers/Filters";
-import { FilterCategory as FilterCategoryType } from "@/lib/filter-data";
+import { useFilterSync } from "@/hooks/use-filter-sync";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { toast } from "sonner";
@@ -128,36 +128,18 @@ export function MiniInput({
     toMetadata: filterToMetadata,
   } = useFilterContext();
 
-  // Two-way sync map between context and filter categories
-  const CONTEXT_TO_FILTER_MAP: Partial<Record<ContextCategory, FilterCategoryType>> = {
-    platforms: "platform",
-    countries: "country",
-    region: "region",
-    category: "category",
-    brand: "brand",
-  };
-
-  const handleToggleContextItemSynced = useCallback(
-    (cat: ContextCategory, item: string) => {
-      toggleItem(cat, item);
-      if (useAsContext) {
-        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
-        if (filterCat) toggleFilterItem(filterCat, item);
-      }
-    },
-    [toggleItem, useAsContext, toggleFilterItem],
-  );
-
-  const handleRemoveContextItemSynced = useCallback(
-    (cat: ContextCategory, item: string) => {
-      removeItem(cat, item);
-      if (useAsContext) {
-        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
-        if (filterCat) removeFilterItem(filterCat, item);
-      }
-    },
-    [removeItem, useAsContext, removeFilterItem],
-  );
+  const filterSync = useFilterSync({
+    useAsContext,
+    toggleItem,
+    removeItem,
+    resetSelections: resetContextSelections,
+    setSelections: setContextSelections,
+    toggleFilterItem,
+    removeFilterItem,
+    selectAllFilter: () => {},
+    clearFilterCategory: () => {},
+    resetAllFilters,
+  });
 
   // --- Text quotes ---
   const {
@@ -509,7 +491,7 @@ export function MiniInput({
                 >
                   <ContextBadges
                     selections={contextSelections}
-                    onRemove={handleRemoveContextItemSynced}
+                    onRemove={filterSync.handleRemoveContextItem}
                     onClearAll={handleClearSelections}
                     onSave={
                       presetEditing && (hasContextSelections || hasFilterSelections)
@@ -552,7 +534,7 @@ export function MiniInput({
               activeCategory={activeCategory}
               onCategorySelect={setActiveCategory}
               selections={contextSelections}
-              onToggleItem={handleToggleContextItemSynced}
+              onToggleItem={filterSync.handleToggleContextItem}
               anchorRef={inputBoxRef}
               align="start"
               side="top"
@@ -681,7 +663,7 @@ export function MiniInput({
                 activeCategory={activeCategory}
                 onCategorySelect={setActiveCategory}
                 selections={contextSelections}
-                onToggleItem={handleToggleContextItemSynced}
+                onToggleItem={filterSync.handleToggleContextItem}
                 align="start"
                 side="top"
                 presets={presets}
@@ -724,7 +706,7 @@ export function MiniInput({
                 <Button
                   type="submit"
                   size="icon"
-                  className="ml-auto h-7 w-7 rounded-full bg-[#4586F7] text-white hover:bg-[#3a75e0] shadow-md transition-all"
+                  className="ml-auto h-7 w-7 rounded-full bg-brand-accent text-white hover:bg-brand-accent-hover shadow-md transition-all"
                   disabled={
                     isLoading ||
                     (!input.trim() && contentBlocks.length === 0)
