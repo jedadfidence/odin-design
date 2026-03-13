@@ -1,11 +1,9 @@
-import { v4 as uuidv4 } from "uuid";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
-import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { SuggestionCards } from "./suggestion-cards";
 import {
   useSuggestions,
@@ -13,16 +11,12 @@ import {
 } from "@/hooks/use-suggestions";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
-import {
-  DO_NOT_RENDER_ID_PREFIX,
-  ensureToolCallsHaveResponses,
-} from "@/lib/ensure-tool-responses";
+import { DO_NOT_RENDER_ID_PREFIX } from "@/lib/ensure-tool-responses";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   LoaderCircle,
   SendHorizontal,
   XIcon,
-  Plus,
   Lightbulb,
   Bookmark,
 } from "lucide-react";
@@ -46,10 +40,9 @@ import {
 } from "./artifact";
 import { ChatHeader } from "./chat-header";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
-import { ContextSelections, ContextCategory } from "@/lib/context-selectors";
 import { useFilterContext } from "@/providers/Filters";
-import { FilterCategory as FilterCategoryType } from "@/lib/filter-data";
 import { FilterSidebar } from "@/components/filters/filter-sidebar";
+import { useFilterSync } from "@/hooks/use-filter-sync";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
 import { useTextSelection } from "@/hooks/use-text-selection";
 import { ContextBadges } from "./context-badges";
@@ -59,9 +52,9 @@ import { QuoteCards } from "./quote-cards";
 import { useContextPresets } from "@/hooks/use-context-presets";
 import { PresetNameDialog } from "./preset-name-dialog";
 import { useShortcuts } from "@/hooks/use-shortcuts";
-import { Shortcut } from "@/lib/shortcuts";
 import { ShortcutPopover } from "./shortcut-popover";
 import { ShortcutDialog } from "./shortcut-dialog";
+import { useChatHandlers } from "./use-chat-handlers";
 
 export function Thread() {
   const [artifactContext, setArtifactContext] = useArtifactContext();
@@ -155,211 +148,6 @@ export function Thread() {
   const [presetNameDialogOpen, setPresetNameDialogOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
 
-  const handleRenamePreset = useCallback((id: string, currentName: string) => {
-    setRenameTarget({ id, name: currentName });
-  }, []);
-
-  const handleConfirmRename = useCallback((newName: string) => {
-    if (renameTarget) {
-      renamePreset(renameTarget.id, newName);
-      setRenameTarget(null);
-    }
-  }, [renameTarget, renamePreset]);
-
-  const handleApplyPreset = useCallback((preset: import("@/lib/context-presets").ContextPreset) => {
-    setContextSelections(preset.selections);
-    if (preset.filters) {
-      setFilterSelections(preset.filters);
-    }
-    startPresetEditing(preset);
-    closeContextPopover();
-  }, [setContextSelections, setFilterSelections, startPresetEditing, closeContextPopover]);
-
-  const handleEditPreset = useCallback((preset: import("@/lib/context-presets").ContextPreset) => {
-    setContextSelections(preset.selections);
-    startPresetEditing(preset);
-    closeContextPopover();
-  }, [setContextSelections, startPresetEditing, closeContextPopover]);
-
-  const handleDuplicatePreset = useCallback((presetId: string) => {
-    const newPreset = duplicatePreset(presetId);
-    if (newPreset) {
-      setContextSelections(newPreset.selections);
-      startPresetEditing(newPreset);
-      closeContextPopover();
-    }
-  }, [duplicatePreset, setContextSelections, startPresetEditing, closeContextPopover]);
-
-  const handleSavePreset = useCallback(() => {
-    if (presetEditing) {
-      savePresetEditing(contextSelections, filterSelections);
-    }
-  }, [presetEditing, savePresetEditing, contextSelections, filterSelections]);
-
-  const handleSaveAsNewPreset = useCallback(() => {
-    setPresetNameDialogOpen(true);
-  }, []);
-
-  const handleConfirmNewPreset = useCallback((name: string) => {
-    const preset = addPreset(name, contextSelections, filterSelections);
-    startPresetEditing(preset);
-  }, [addPreset, contextSelections, filterSelections, startPresetEditing]);
-
-  const handleDeactivatePreset = useCallback(() => {
-    stopPresetEditing();
-  }, [stopPresetEditing]);
-
-  const handleClearSelections = useCallback(() => {
-    stopPresetEditing();
-    resetContextSelections();
-    if (useAsContext) {
-      resetAllFilters();
-    }
-  }, [stopPresetEditing, resetContextSelections, useAsContext, resetAllFilters]);
-
-  // Two-way sync between context popover and filter panel
-  const CONTEXT_TO_FILTER_MAP: Partial<Record<ContextCategory, FilterCategoryType>> = {
-    platforms: "platform",
-    countries: "country",
-    region: "region",
-    category: "category",
-    brand: "brand",
-  };
-
-  const handleToggleContextItem = useCallback(
-    (cat: ContextCategory, item: string) => {
-      toggleItem(cat, item);
-      if (useAsContext) {
-        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
-        if (filterCat) toggleFilterItem(filterCat, item);
-      }
-    },
-    [toggleItem, useAsContext, toggleFilterItem],
-  );
-
-  const handleRemoveContextItemSynced = useCallback(
-    (cat: ContextCategory, item: string) => {
-      removeItem(cat, item);
-      if (useAsContext) {
-        const filterCat = CONTEXT_TO_FILTER_MAP[cat];
-        if (filterCat) removeFilterItem(filterCat, item);
-      }
-    },
-    [removeItem, useAsContext, removeFilterItem],
-  );
-
-  const handleToggleFilterItemSynced = useCallback(
-    (cat: FilterCategoryType, item: string) => {
-      toggleFilterItem(cat, item);
-      if (useAsContext) {
-        const contextCat = Object.entries(CONTEXT_TO_FILTER_MAP).find(
-          ([, v]) => v === cat,
-        )?.[0] as ContextCategory | undefined;
-        if (contextCat) toggleItem(contextCat, item);
-      }
-    },
-    [toggleFilterItem, useAsContext, toggleItem],
-  );
-
-  const handleResetAllFiltersSynced = useCallback(() => {
-    resetAllFilters();
-    if (useAsContext) {
-      resetContextSelections();
-    }
-  }, [resetAllFilters, useAsContext, resetContextSelections]);
-
-  const handleClearFilterCategorySynced = useCallback(
-    (cat: FilterCategoryType) => {
-      clearFilterCategory(cat);
-      if (useAsContext) {
-        const contextCat = Object.entries(CONTEXT_TO_FILTER_MAP).find(
-          ([, v]) => v === cat,
-        )?.[0] as ContextCategory | undefined;
-        if (contextCat) {
-          setContextSelections((prev) => ({ ...prev, [contextCat]: [] }));
-        }
-      }
-    },
-    [clearFilterCategory, useAsContext, setContextSelections],
-  );
-
-  const handleSelectAllFilterSynced = useCallback(
-    (cat: FilterCategoryType, items: string[]) => {
-      selectAllFilter(cat, items);
-      if (useAsContext) {
-        const contextCat = Object.entries(CONTEXT_TO_FILTER_MAP).find(
-          ([, v]) => v === cat,
-        )?.[0] as ContextCategory | undefined;
-        if (contextCat) {
-          setContextSelections((prev) => ({ ...prev, [contextCat]: [...items] }));
-        }
-      }
-    },
-    [selectAllFilter, useAsContext, setContextSelections],
-  );
-
-  const handleSelectShortcut = useCallback(
-    (shortcut: Shortcut) => {
-      setInput(shortcut.instructions);
-      if (shortcut.context) {
-        setContextSelections(shortcut.context);
-      }
-      closeShortcutPopover();
-      requestAnimationFrame(() => textareaRef.current?.focus());
-    },
-    [setContextSelections, closeShortcutPopover],
-  );
-
-  const handleEditShortcutFromPopover = useCallback(
-    (shortcut: Shortcut) => {
-      closeShortcutPopover();
-      openShortcutEditDialog(shortcut);
-    },
-    [closeShortcutPopover, openShortcutEditDialog],
-  );
-
-  const handleCreateShortcutFromPopover = useCallback(() => {
-    closeShortcutPopover();
-    openShortcutCreateDialog();
-  }, [closeShortcutPopover, openShortcutCreateDialog]);
-
-  const handleSaveShortcut = useCallback(
-    (
-      name: string,
-      instructions: string,
-      context: ContextSelections | null,
-      presetId: string | null,
-    ) => {
-      if (editingShortcut) {
-        updateShortcut(editingShortcut.id, { name, instructions, context, presetId });
-      } else {
-        addShortcut(name, instructions, context, presetId);
-      }
-      closeShortcutDialog();
-    },
-    [editingShortcut, updateShortcut, addShortcut, closeShortcutDialog],
-  );
-
-  const handleSaveShortcutAsNew = useCallback(
-    (
-      name: string,
-      instructions: string,
-      context: ContextSelections | null,
-      presetId: string | null,
-    ) => {
-      addShortcut(name, instructions, context, presetId);
-      closeShortcutDialog();
-    },
-    [addShortcut, closeShortcutDialog],
-  );
-
-  const handleSaveAsShortcutFromToolbar = useCallback(() => {
-    openShortcutCreateDialog({
-      instructions: input,
-      context: hasContextSelections ? contextSelections : null,
-    });
-  }, [openShortcutCreateDialog, input, hasContextSelections, contextSelections]);
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputBoxRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -376,96 +164,18 @@ export function Thread() {
   } = useTextQuotes();
   const { selection, clearSelection } = useTextSelection(messagesContainerRef);
 
-  const handleAddQuote = useCallback(
-    (text: string, messageId: string, sourceType: "ai" | "human") => {
-      addQuote(text, messageId, sourceType);
-      clearSelection();
-    },
-    [addQuote, clearSelection],
-  );
-
-  const handleScrollToQuoteSource = useCallback(
-    (quote: { sourceMessageId: string; text: string }) => {
-      const messageEl = messagesContainerRef.current?.querySelector<HTMLElement>(
-        `[data-message-id="${quote.sourceMessageId}"]`,
-      );
-      if (!messageEl) return;
-
-      // Collect all text nodes in the message
-      const walker = document.createTreeWalker(
-        messageEl,
-        NodeFilter.SHOW_TEXT,
-      );
-      const textNodes: Text[] = [];
-      let node: Node | null;
-      while ((node = walker.nextNode())) textNodes.push(node as Text);
-
-      // Build concatenated text with segment positions
-      let fullText = "";
-      const segments: { node: Text; start: number; len: number }[] = [];
-      for (const tn of textNodes) {
-        const len = tn.textContent?.length ?? 0;
-        segments.push({ node: tn, start: fullText.length, len });
-        fullText += tn.textContent ?? "";
-      }
-
-      const matchStart = fullText.indexOf(quote.text);
-      if (matchStart === -1) {
-        // Fallback: highlight entire message
-        messageEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        messageEl.classList.add("quote-source-highlight");
-        setTimeout(() => {
-          document.addEventListener(
-            "pointerdown",
-            () => messageEl.classList.remove("quote-source-highlight"),
-            { once: true },
-          );
-        }, 0);
-        return;
-      }
-
-      const matchEnd = matchStart + quote.text.length;
-
-      // Find overlapping text nodes, process in reverse to avoid index shift
-      const marks: HTMLElement[] = [];
-      const affected = segments
-        .filter((s) => s.start < matchEnd && s.start + s.len > matchStart)
-        .reverse();
-
-      for (const seg of affected) {
-        const hlStart = Math.max(0, matchStart - seg.start);
-        const hlEnd = Math.min(seg.len, matchEnd - seg.start);
-        const range = document.createRange();
-        range.setStart(seg.node, hlStart);
-        range.setEnd(seg.node, hlEnd);
-        const mark = document.createElement("mark");
-        mark.className = "quote-source-highlight-text";
-        range.surroundContents(mark);
-        marks.push(mark);
-      }
-
-      // Scroll to the first mark
-      const scrollTarget = marks[marks.length - 1] ?? messageEl;
-      scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      // Remove marks on next click anywhere
-      const removeMarks = () => {
-        for (const m of marks) {
-          const parent = m.parentNode;
-          if (!parent) continue;
-          while (m.firstChild) parent.insertBefore(m.firstChild, m);
-          parent.removeChild(m);
-          parent.normalize();
-        }
-        document.removeEventListener("pointerdown", removeMarks);
-      };
-      // Use setTimeout so the current click doesn't immediately dismiss
-      setTimeout(() => {
-        document.addEventListener("pointerdown", removeMarks, { once: true });
-      }, 0);
-    },
-    [],
-  );
+  const filterSync = useFilterSync({
+    useAsContext,
+    toggleItem,
+    removeItem,
+    resetSelections: resetContextSelections,
+    setSelections: setContextSelections,
+    toggleFilterItem,
+    removeFilterItem,
+    selectAllFilter,
+    clearFilterCategory,
+    resetAllFilters,
+  });
 
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
@@ -523,147 +233,75 @@ export function Thread() {
     }
   }, [stream.error]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
-      return;
-
-    const contextMeta = contextToMetadata();
-    const quotesMeta = quotesToMetadata();
-    const filterMeta = useAsContext ? filterToMetadata() : undefined;
-    const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}), ...(filterMeta ? { filters: filterMeta } : {}) };
-    const newHumanMessage: Message = {
-      id: uuidv4(),
-      type: "human",
-      content: [
-        ...(input.trim().length > 0 ? [{ type: "text", text: input }] : []),
-        ...contentBlocks,
-      ] as Message["content"],
-      additional_kwargs: Object.keys(combinedMeta).length > 0
-        ? { context: combinedMeta }
-        : {},
-    };
-
-    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-    const mergedContext = {
-      ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
-      ...(contextMeta ?? {}),
-      ...(quotesMeta ?? {}),
-      ...(filterMeta ? { filters: filterMeta } : {}),
-    };
-    const context =
-      Object.keys(mergedContext).length > 0 ? mergedContext : undefined;
-
-    stream.submit(
-      { messages: [...toolMessages, newHumanMessage], context },
-      {
-        streamMode: ["values"],
-        streamSubgraphs: true,
-        streamResumable: true,
-        optimisticValues: (prev) => ({
-          ...prev,
-          context,
-          messages: [
-            ...(prev.messages ?? []),
-            ...toolMessages,
-            newHumanMessage,
-          ],
-        }),
-      },
-    );
-
-    clearSuggestions();
-    setInput("");
-    setContentBlocks([]);
-    clearQuotes();
-    scrollToBottomRef.current?.();
-  };
-
-  const handleRegenerate = (
-    parentCheckpoint: Checkpoint | null | undefined,
-  ) => {
-    stream.submit(undefined, {
-      checkpoint: parentCheckpoint,
-      streamMode: ["values"],
-      streamSubgraphs: true,
-      streamResumable: true,
-    });
-  };
-
-  const handleSuggestionSelect = useCallback(
-    (text: string) => {
-      const contextMeta = contextToMetadata();
-      const quotesMeta = quotesToMetadata();
-      const combinedMeta = { ...(contextMeta ?? {}), ...(quotesMeta ?? {}) };
-      const newHumanMessage: Message = {
-        id: uuidv4(),
-        type: "human",
-        content: [{ type: "text", text }] as Message["content"],
-        additional_kwargs: Object.keys(combinedMeta).length > 0
-          ? { context: combinedMeta }
-          : {},
-      };
-      const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-      const suggestionContext = {
-        ...(Object.keys(artifactContext).length > 0 ? artifactContext : {}),
-        ...(contextMeta ?? {}),
-        ...(quotesMeta ?? {}),
-      };
-      const context =
-        Object.keys(suggestionContext).length > 0
-          ? suggestionContext
-          : undefined;
-      stream.submit(
-        { messages: [...toolMessages, newHumanMessage], context },
-        {
-          streamMode: ["values"],
-          streamSubgraphs: true,
-          streamResumable: true,
-          optimisticValues: (prev) => ({
-            ...prev,
-            context,
-            messages: [
-              ...(prev.messages ?? []),
-              ...toolMessages,
-              newHumanMessage,
-            ],
-          }),
-        },
-      );
-      clearSuggestions();
-      clearQuotes();
-      scrollToBottomRef.current?.();
-    },
-    [clearSuggestions, clearQuotes, stream, contextToMetadata, quotesToMetadata, artifactContext],
-  );
-
-  const handleReuse = useCallback(
-    (text: string, context?: Record<string, string[]>) => {
-      setInput(text);
-      if (context) {
-        setContextSelections({
-          countries: context.countries ?? [],
-          platforms: context.platforms ?? [],
-          region: context.region ?? [],
-          category: context.category ?? [],
-          brand: context.brand ?? [],
-          page: [],
-        });
-        if (context.selected_text?.length) {
-          setQuotesFromTexts(context.selected_text);
-        } else {
-          clearQuotes();
-        }
-      } else {
-        resetContextSelections();
-        clearQuotes();
-      }
-      requestAnimationFrame(() => {
-        textareaRef.current?.focus();
-      });
-    },
-    [setContextSelections, resetContextSelections, setQuotesFromTexts, clearQuotes],
-  );
+  const {
+    handleRenamePreset,
+    handleConfirmRename,
+    handleApplyPreset,
+    handleEditPreset,
+    handleDuplicatePreset,
+    handleSavePreset,
+    handleSaveAsNewPreset,
+    handleConfirmNewPreset,
+    handleDeactivatePreset,
+    handleClearSelections,
+    handleSelectShortcut,
+    handleEditShortcutFromPopover,
+    handleCreateShortcutFromPopover,
+    handleSaveShortcut,
+    handleSaveShortcutAsNew,
+    handleSaveAsShortcutFromToolbar,
+    handleAddQuote,
+    handleScrollToQuoteSource,
+    handleSubmit,
+    handleRegenerate,
+    handleSuggestionSelect,
+    handleReuse,
+  } = useChatHandlers({
+    input,
+    setInput,
+    contentBlocks,
+    setContentBlocks,
+    contextSelections,
+    setContextSelections,
+    resetContextSelections,
+    hasContextSelections,
+    contextToMetadata,
+    presetEditing,
+    addPreset,
+    renamePreset,
+    duplicatePreset,
+    startPresetEditing,
+    stopPresetEditing,
+    savePresetEditing,
+    closeContextPopover,
+    filterSelections,
+    setFilterSelections,
+    useAsContext,
+    resetAllFilters,
+    hasFilterSelections,
+    filterToMetadata,
+    editingShortcut,
+    addShortcut,
+    updateShortcut,
+    closeShortcutPopover,
+    openShortcutCreateDialog,
+    openShortcutEditDialog,
+    closeShortcutDialog,
+    addQuote,
+    clearSelection,
+    clearQuotes,
+    setQuotesFromTexts,
+    quotesToMetadata,
+    stream,
+    clearSuggestions,
+    artifactContext,
+    textareaRef,
+    messagesContainerRef,
+    scrollToBottomRef,
+    setPresetNameDialogOpen,
+    setRenameTarget,
+    renameTarget,
+  });
 
   const chatStarted = !!threadId || !!messages.length;
 
@@ -920,7 +558,7 @@ export function Thread() {
                           >
                             <ContextBadges
                               selections={contextSelections}
-                              onRemove={handleRemoveContextItemSynced}
+                              onRemove={filterSync.handleRemoveContextItem}
                               onClearAll={handleClearSelections}
                               onSave={presetEditing && (hasContextSelections || hasFilterSelections) ? handleSavePreset : undefined}
                               onSaveAsNew={(hasContextSelections || hasFilterSelections) ? handleSaveAsNewPreset : undefined}
@@ -944,7 +582,7 @@ export function Thread() {
                         activeCategory={activeCategory}
                         onCategorySelect={setActiveCategory}
                         selections={contextSelections}
-                        onToggleItem={handleToggleContextItem}
+                        onToggleItem={filterSync.handleToggleContextItem}
                         anchorRef={inputBoxRef}
                         align="start"
                         side="top"
@@ -1062,7 +700,7 @@ export function Thread() {
                           activeCategory={activeCategory}
                           onCategorySelect={setActiveCategory}
                           selections={contextSelections}
-                          onToggleItem={handleToggleContextItem}
+                          onToggleItem={filterSync.handleToggleContextItem}
                           align="start"
                           side="top"
                           presets={presets}
@@ -1169,11 +807,11 @@ export function Thread() {
       <FilterSidebar
         selections={filterSelections}
         dateRange={dateRange}
-        onToggleItem={handleToggleFilterItemSynced}
-        onSelectAll={handleSelectAllFilterSynced}
-        onClearCategory={handleClearFilterCategorySynced}
+        onToggleItem={filterSync.handleToggleFilterItem}
+        onSelectAll={filterSync.handleSelectAllFilter}
+        onClearCategory={filterSync.handleClearFilterCategory}
         onDateRangeChange={setDateRange}
-        onResetAll={handleResetAllFiltersSynced}
+        onResetAll={filterSync.handleResetAllFilters}
         hasSelections={hasFilterSelections}
         totalSelected={filterTotalSelected}
         presets={presets}
