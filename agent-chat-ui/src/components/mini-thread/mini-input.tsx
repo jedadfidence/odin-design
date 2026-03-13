@@ -29,7 +29,11 @@ import { PresetNameDialog } from "../thread/preset-name-dialog";
 import { useShortcuts } from "@/hooks/use-shortcuts";
 import { Shortcut } from "@/lib/shortcuts";
 import { ShortcutPopover } from "../thread/shortcut-popover";
-import { ShortcutDialog } from "../thread/shortcut-dialog";
+import dynamic from "next/dynamic";
+const ShortcutDialog = dynamic(
+  () => import("../thread/shortcut-dialog").then((mod) => ({ default: mod.ShortcutDialog })),
+  { ssr: false },
+);
 import { useFilterContext } from "@/providers/Filters";
 import { useFilterSync } from "@/hooks/use-filter-sync";
 import { Switch } from "../ui/switch";

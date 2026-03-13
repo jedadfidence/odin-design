@@ -14,7 +14,11 @@ import { DO_NOT_RENDER_ID_PREFIX } from "@/lib/ensure-tool-responses";
 import {
   XIcon,
 } from "lucide-react";
-import { ReportSheet } from "./report-sheet";
+import dynamic from "next/dynamic";
+const ReportSheet = dynamic(
+  () => import("./report-sheet").then((mod) => ({ default: mod.ReportSheet })),
+  { ssr: false },
+);
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom } from "use-stick-to-bottom";
 import { ScrollToBottomBridge, StickyToBottomContent, ScrollToBottom } from "./scroll-helpers";
@@ -40,7 +44,10 @@ import { SelectionPopup } from "./selection-popup";
 import { useContextPresets } from "@/hooks/use-context-presets";
 import { PresetNameDialog } from "./preset-name-dialog";
 import { useShortcuts } from "@/hooks/use-shortcuts";
-import { ShortcutDialog } from "./shortcut-dialog";
+const ShortcutDialog = dynamic(
+  () => import("./shortcut-dialog").then((mod) => ({ default: mod.ShortcutDialog })),
+  { ssr: false },
+);
 import { useChatHandlers } from "./use-chat-handlers";
 import { ChatInput } from "./chat-input";
 
