@@ -20,8 +20,7 @@ const AISummary = dynamic(
   { ssr: false },
 );
 import { WidgetMenu, AIAction } from "@/components/demo/widget-menu";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/demo/app-sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { FilterSidebar } from "@/components/filters/filter-sidebar";
 import { useFilterContext, FilterProvider } from "@/providers/Filters";
 
@@ -116,7 +115,7 @@ function MockDashboard() {
   };
 
   return (
-    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-surface-deep text-foreground">
+    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-transparent text-foreground">
       <div className="p-4 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
@@ -175,7 +174,7 @@ function MockDashboard() {
           <div className="w-full mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* KPI: Total Revenue */}
             <div
-              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6 glass-panel"
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] dark:border-white/[0.06] p-6 glass-panel"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
@@ -207,7 +206,7 @@ function MockDashboard() {
 
             {/* KPI: Active Users */}
             <div
-              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6 glass-panel"
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] dark:border-white/[0.06] p-6 glass-panel"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Active Users</p>
@@ -239,7 +238,7 @@ function MockDashboard() {
 
             {/* KPI: Conversion Rate */}
             <div
-              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6 glass-panel"
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] dark:border-white/[0.06] p-6 glass-panel"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
@@ -305,7 +304,7 @@ function MockDashboard() {
           <div className="w-full mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Revenue Over Time Chart */}
             <div
-              className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] dark:border-white/[0.06] p-6"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
@@ -346,7 +345,7 @@ function MockDashboard() {
 
             {/* User Activity Chart */}
             <div
-              className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
+              className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] dark:border-white/[0.06] p-6"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
@@ -426,7 +425,7 @@ function MockDashboard() {
           </AnimatePresence>
 
           <div
-            className="w-full mt-4 group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] glass-panel"
+            className="w-full mt-4 group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] dark:border-white/[0.06] glass-panel"
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <p className="font-medium">Recent Transactions</p>
@@ -533,11 +532,8 @@ export default function DemoPage() {
       <PageWidgetsContext.Provider value={DEMO_WIDGETS}>
         <Toaster />
         <FilterProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <MockDashboard />
-            <DemoFilterSidebar />
-          </SidebarProvider>
+          <MockDashboard />
+          <DemoFilterSidebar />
           <MiniThread />
         </FilterProvider>
       </PageWidgetsContext.Provider>

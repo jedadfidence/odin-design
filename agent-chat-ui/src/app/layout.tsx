@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import React from "react";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { ThemeProvider } from "next-themes";
+import { ClientProviders } from "./client-providers";
 
 export const metadata: Metadata = {
   title: "Agent Chat",
@@ -23,9 +22,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <NuqsAdapter>{children}</NuqsAdapter>
-        </ThemeProvider>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   );

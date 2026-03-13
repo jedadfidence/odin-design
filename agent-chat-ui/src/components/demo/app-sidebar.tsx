@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { useSettings } from "@/providers/Settings";
 
 const NAV_ITEMS = [
   { title: "Home", icon: Home },
@@ -100,6 +101,7 @@ function SidebarLogo() {
 
 function SidebarUser() {
   const { open } = useSidebar();
+  const { openSettings } = useSettings();
 
   return (
     <DropdownMenu>
@@ -134,7 +136,7 @@ function SidebarUser() {
           <User className="mr-2 size-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={openSettings}>
           <Settings className="mr-2 size-4" />
           Settings
         </DropdownMenuItem>
@@ -155,7 +157,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r-0 bg-surface-deep [&>[data-sidebar=sidebar]]:bg-transparent"
+      className="border-r-0 bg-transparent [&>[data-sidebar=sidebar]]:bg-transparent"
     >
       <SidebarHeader className="px-2 py-4">
         <SidebarLogo />
