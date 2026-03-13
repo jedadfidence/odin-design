@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/providers/Settings";
 import { Settings as SettingsIcon, Zap, Bookmark } from "lucide-react";
@@ -27,6 +29,7 @@ export function SettingsModal() {
   return (
     <Dialog open={settingsOpen} onOpenChange={(open) => { if (!open) closeSettings(); }}>
       <DialogContent className="max-w-[700px] h-[500px] p-0 gap-0 flex overflow-hidden">
+        <VisuallyHidden><DialogTitle>Settings</DialogTitle></VisuallyHidden>
         {/* Left sidebar */}
         <nav className="w-[180px] shrink-0 border-r border-border bg-surface-deep p-3 flex flex-col gap-1">
           <h2 className="px-2 pb-2 text-sm font-semibold text-foreground">Settings</h2>
