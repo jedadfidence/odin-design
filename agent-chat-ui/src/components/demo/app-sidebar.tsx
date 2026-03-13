@@ -155,7 +155,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r-0 bg-[#F0F4FF] dark:bg-[#0D0D14] [&>[data-sidebar=sidebar]]:bg-transparent"
+      className="border-r-0 bg-surface-deep [&>[data-sidebar=sidebar]]:bg-transparent"
     >
       <SidebarHeader className="px-2 py-4">
         <SidebarLogo />

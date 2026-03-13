@@ -86,7 +86,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex h-full shrink-0 flex-col border-0 !bg-[#F0F4FF] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
+        "flex h-full shrink-0 flex-col border-0 !bg-surface-deep transition-[width] duration-200 ease-in-out",
         expanded ? "w-[var(--sidebar-width,16rem)]" : "w-[50px]",
       )}
     >
@@ -134,41 +134,47 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               onDelete={onDeletePreset}
               activePresetName={activePresetName}
             />
-            {hasSelections && (
-              activePresetName ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel"
-                      style={{ backgroundColor: "#4586F7", color: "#fff" }}
-                    >
-                      <Save className="h-4 w-4" />
-                      Save preset
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[200px]">
-                    <DropdownMenuItem onClick={onSavePreset} className="text-xs">
-                      Save to &ldquo;{activePresetName}&rdquo;
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onSaveAsNewPreset} className="text-xs">
-                      Save as new preset
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  variant="ghost"
-                  className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel"
-                  style={{ backgroundColor: "#4586F7", color: "#fff" }}
-                  onClick={onSaveAsNewPreset}
-                >
-                  <Save className="h-4 w-4" />
-                  Save preset
-                </Button>
-              )
-            )}
+            <div
+              className="grid transition-all duration-300 ease-in-out"
+              style={{
+                gridTemplateRows: hasSelections ? "1fr" : "0fr",
+                opacity: hasSelections ? 1 : 0,
+              }}
+            >
+              <div className="overflow-hidden">
+                {activePresetName ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel bg-brand-accent text-white hover:bg-brand-accent-hover"
+                      >
+                        <Save className="h-4 w-4" />
+                        Save preset
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-[200px]">
+                      <DropdownMenuItem onClick={onSavePreset} className="text-xs">
+                        Save to &ldquo;{activePresetName}&rdquo;
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onSaveAsNewPreset} className="text-xs">
+                        Save as new preset
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel bg-brand-accent text-white hover:bg-brand-accent-hover"
+                    onClick={onSaveAsNewPreset}
+                  >
+                    <Save className="h-4 w-4" />
+                    Save preset
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Expanded content */}
