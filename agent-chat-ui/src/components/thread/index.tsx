@@ -60,7 +60,7 @@ export function Thread() {
     "sidebarCollapsed",
     parseAsBoolean.withDefault(true),
   );
-  const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
+  const [_chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
