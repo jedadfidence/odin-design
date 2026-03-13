@@ -12,7 +12,7 @@ export function ChatSidebar({ collapsed, onToggle }: ChatSidebarProps) {
   return (
     <div
       className={cn(
-        "hidden lg:flex flex-col border-r border-border bg-background transition-all duration-300 ease-in-out",
+        "hidden lg:flex flex-col bg-transparent transition-all duration-300 ease-in-out",
         collapsed ? "w-14" : "w-60",
       )}
     >

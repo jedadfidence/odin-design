@@ -50,7 +50,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
   return (
     <AccordionItem
       value={id}
-      className="border-b-0 mx-3 my-4 glass-panel"
+      className={cn("border-b-0 mx-3 my-2 glass-panel-when-open", selected.length > 0 && "glass-panel")}
     >
       <AccordionTrigger className="px-4 py-2.5 text-sm font-normal hover:no-underline">
         <div className="flex items-center gap-2">
@@ -58,8 +58,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
           {summaryText && (
             <Badge
               variant="secondary"
-              className="rounded-full text-[10px] font-normal px-1.5 py-0"
-              style={{ backgroundColor: "#DBEAFE" }}
+              className="rounded-full text-[10px] font-normal px-1.5 py-0 bg-[#DBEAFE] text-[#1e40af] dark:bg-primary/20 dark:text-primary"
             >
               {summaryText}
             </Badge>

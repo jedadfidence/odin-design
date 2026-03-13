@@ -86,7 +86,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex h-full shrink-0 flex-col border-0 !bg-surface-deep transition-[width] duration-200 ease-in-out",
+        "flex h-full shrink-0 flex-col !border-none !shadow-none bg-transparent transition-[width] duration-200 ease-in-out",
         expanded ? "w-[var(--sidebar-width,16rem)]" : "w-[50px]",
       )}
     >
@@ -147,7 +147,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel bg-brand-accent text-white hover:bg-brand-accent-hover"
+                        className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel text-white"
+                        style={{ background: "#4586F7" }}
                       >
                         <Save className="h-4 w-4" />
                         Save preset
@@ -166,7 +167,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 ) : (
                   <Button
                     variant="ghost"
-                    className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel bg-brand-accent text-white hover:bg-brand-accent-hover"
+                    className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel text-white"
+                    style={{ background: "#4586F7" }}
                     onClick={onSaveAsNewPreset}
                   >
                     <Save className="h-4 w-4" />

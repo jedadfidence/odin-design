@@ -353,17 +353,9 @@ export function AISummary({
         exit={{ opacity: 0, height: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         className={cn(
-          "relative overflow-hidden rounded-3xl p-6",
+          "relative overflow-hidden rounded-3xl p-6 glass-ai-summary",
           className,
         )}
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(69, 134, 247, 0.12) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(69, 134, 247, 0.06) 50%, rgba(255, 255, 255, 0.10) 70%, rgba(69, 134, 247, 0.14) 100%)",
-          backgroundSize: "300% 300%",
-          animation: "ai-gradient-rotate 8s ease infinite",
-          boxShadow:
-            "0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.50) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.60) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset",
-        }}
       >
         <div className="absolute right-2 top-2 flex items-center gap-0.5">
           {(phase === "cascade" || phase === "done") && (
@@ -468,17 +460,7 @@ export function AISummary({
         className,
       )}
     >
-      <div
-        className="px-4 py-3"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(69, 134, 247, 0.12) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(69, 134, 247, 0.06) 50%, rgba(255, 255, 255, 0.10) 70%, rgba(69, 134, 247, 0.14) 100%)",
-          backgroundSize: "300% 300%",
-          animation: "ai-gradient-rotate 8s ease infinite",
-          boxShadow:
-            "0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.50) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.60) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset",
-        }}
-      >
+      <div className="px-4 py-3 glass-ai-summary">
       <div className="flex items-center justify-between mb-1">
         <span
           className="text-[10px] font-medium italic uppercase tracking-wide"

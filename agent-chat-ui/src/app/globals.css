@@ -203,6 +203,17 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
     -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset;
 }
 
+.glass-panel-when-open[data-state="open"] {
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 24px;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    0 10px 20px 0 rgba(255, 255, 255, 0.50) inset,
+    0 0 0 0.5px rgba(255, 255, 255, 0.60) inset,
+    0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset,
+    -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset;
+}
+
 .nav-glass-active[data-active="true"] {
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.10);
@@ -212,6 +223,63 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
     0 0 0 0.5px rgba(255, 255, 255, 0.60) inset,
     0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset,
     -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset;
+}
+
+/* Dark mode glass overrides */
+.dark .glass-panel {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.20),
+    0 10px 20px 0 rgba(255, 255, 255, 0.03) inset,
+    0 0 0 0.5px rgba(255, 255, 255, 0.08) inset,
+    0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.05) inset,
+    -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+.dark .glass-panel-when-open[data-state="open"] {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.20),
+    0 10px 20px 0 rgba(255, 255, 255, 0.03) inset,
+    0 0 0 0.5px rgba(255, 255, 255, 0.08) inset,
+    0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.05) inset,
+    -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+.dark .nav-glass-active[data-active="true"] {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.20),
+    0 10px 20px 0 rgba(255, 255, 255, 0.03) inset,
+    0 0 0 0.5px rgba(255, 255, 255, 0.08) inset,
+    0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.05) inset,
+    -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+.glass-ai-summary {
+  background:
+    linear-gradient(135deg, rgba(69, 134, 247, 0.12) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(69, 134, 247, 0.06) 50%, rgba(255, 255, 255, 0.10) 70%, rgba(69, 134, 247, 0.14) 100%);
+  background-size: 300% 300%;
+  animation: ai-gradient-rotate 8s ease infinite;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    0 10px 20px 0 rgba(255, 255, 255, 0.50) inset,
+    0 0 0 0.5px rgba(255, 255, 255, 0.60) inset,
+    0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset,
+    -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset;
+}
+
+.dark .glass-ai-summary {
+  background:
+    linear-gradient(135deg, rgba(69, 134, 247, 0.10) 0%, rgba(255, 255, 255, 0.02) 30%, rgba(69, 134, 247, 0.05) 50%, rgba(255, 255, 255, 0.02) 70%, rgba(69, 134, 247, 0.10) 100%);
+  background-size: 300% 300%;
+  animation: ai-gradient-rotate 8s ease infinite;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.20),
+    0 10px 20px 0 rgba(255, 255, 255, 0.03) inset,
+    0 0 0 0.5px rgba(255, 255, 255, 0.08) inset,
+    0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.05) inset,
+    -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.05) inset;
 }
 
 .quote-source-highlight-text {
