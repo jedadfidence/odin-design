@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
@@ -303,25 +303,35 @@ export function Thread() {
   const isComposingMessage = input.trim().length > 0 || contentBlocks.length > 0 || hasContextSelections || hasQuotes;
   const showSuggestionPlaceholders =
     chatStarted && !isComposingMessage && !isLoading && isFetchingSuggestions;
-  const visibleSuggestions = isComposingMessage
-    ? []
-    : !chatStarted
-    ? INITIAL_SUGGESTIONS
-    : isLoading
-      ? []
-      : suggestions;
+  const filteredMessages = useMemo(
+    () => messages.filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX)),
+    [messages],
+  );
+  const visibleSuggestions = useMemo(
+    () =>
+      isComposingMessage
+        ? []
+        : !chatStarted
+          ? INITIAL_SUGGESTIONS
+          : isLoading
+            ? []
+            : suggestions,
+    [isComposingMessage, chatStarted, isLoading, suggestions],
+  );
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
   );
-  const lastAiMessage = [...messages]
-    .reverse()
-    .find(
-      (m) =>
-        m.type === "ai" && !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX),
-    );
-  const hasFirstAiToken =
-    !!lastAiMessage &&
-    getContentString(lastAiMessage.content).trim().length > 0;
+  const lastAiMessage = useMemo(
+    () =>
+      [...messages].reverse().find(
+        (m) => m.type === "ai" && !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX),
+      ),
+    [messages],
+  );
+  const hasFirstAiToken = useMemo(
+    () => !!lastAiMessage && getContentString(lastAiMessage.content).trim().length > 0,
+    [lastAiMessage],
+  );
 
   return (
     <div className="flex h-screen w-full min-w-0 overflow-hidden bg-background">
@@ -389,8 +399,7 @@ export function Thread() {
                     </div>
                   )}
 
-                  {messages
-                    .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
+                  {filteredMessages
                     .map((message, index) =>
                       message.type === "human" ? (
                         <HumanMessage
