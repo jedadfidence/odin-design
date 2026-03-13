@@ -1,6 +1,6 @@
 import { useStreamContext } from "@/providers/Stream";
 import { Message } from "@langchain/langgraph-sdk";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { getContentString } from "../utils";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -95,7 +95,7 @@ function EditableContent({
   );
 }
 
-export function HumanMessage({
+export const HumanMessage = memo(function HumanMessage({
   message,
   isLoading,
   onReuse,
@@ -179,7 +179,7 @@ export function HumanMessage({
             )}
             {/* Render text if present, otherwise fallback to file/image name */}
             {contentString ? (
-              <p className="bg-[#E4EFFE] dark:bg-[#1F356F] text-foreground w-fit max-w-[80%] rounded-2xl rounded-br-sm px-4 py-2.5 text-left whitespace-pre-wrap">
+              <p className="bg-accent text-foreground w-fit max-w-[80%] rounded-2xl rounded-br-sm px-4 py-2.5 text-left whitespace-pre-wrap">
                 {contentString}
               </p>
             ) : null}
@@ -219,4 +219,4 @@ export function HumanMessage({
       </div>
     </div>
   );
-}
+});
