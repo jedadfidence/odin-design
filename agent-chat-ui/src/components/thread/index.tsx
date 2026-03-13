@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { ReactNode, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
@@ -21,7 +21,6 @@ import {
 } from "@/lib/ensure-tool-responses";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import {
-  ArrowDown,
   LoaderCircle,
   SendHorizontal,
   ChevronsLeft,
@@ -38,7 +37,8 @@ import {
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
-import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
+import { StickToBottom } from "use-stick-to-bottom";
+import { ScrollToBottomBridge, StickyToBottomContent, ScrollToBottom } from "./scroll-helpers";
 import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -71,80 +71,6 @@ import { useShortcuts } from "@/hooks/use-shortcuts";
 import { Shortcut } from "@/lib/shortcuts";
 import { ShortcutPopover } from "./shortcut-popover";
 import { ShortcutDialog } from "./shortcut-dialog";
-
-function ScrollToBottomBridge({ scrollRef }: { scrollRef: React.MutableRefObject<(() => void) | null> }) {
-  const { scrollToBottom } = useStickToBottomContext();
-  useEffect(() => {
-    scrollRef.current = scrollToBottom;
-  }, [scrollToBottom, scrollRef]);
-  return null;
-}
-
-function StickyToBottomContent(props: {
-  content: ReactNode;
-  footer?: ReactNode;
-  className?: string;
-  contentClassName?: string;
-}) {
-  const context = useStickToBottomContext();
-  return (
-    <div
-      ref={context.scrollRef}
-      style={{ width: "100%", height: "100%" }}
-      className={props.className}
-    >
-      <div
-        ref={context.contentRef}
-        className={props.contentClassName}
-      >
-        {props.content}
-      </div>
-
-      {props.footer}
-    </div>
-  );
-}
-
-function ScrollToBottom(props: { className?: string }) {
-  const { isAtBottom, scrollToBottom } = useStickToBottomContext();
-  const [hovered, setHovered] = useState(false);
-
-  if (isAtBottom) return null;
-  return (
-    <Button
-      variant="outline"
-      className={cn(
-        "rounded-full bg-background/80 backdrop-blur-sm",
-        props.className,
-      )}
-      onClick={() => scrollToBottom()}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <span className="relative h-4 w-4 overflow-hidden">
-        {/* Visible arrow — exits downward on hover, enters from top on unhover */}
-        <ArrowDown
-          className="h-4 w-4"
-          style={{
-            animation: hovered
-              ? "arrow-exit-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
-              : "arrow-reset-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
-          }}
-        />
-        {/* Second arrow — enters from top on hover, exits downward on unhover */}
-        <ArrowDown
-          className="absolute inset-0 h-4 w-4"
-          style={{
-            animation: hovered
-              ? "arrow-enter-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
-              : "arrow-exit-down 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
-          }}
-        />
-      </span>
-      <span>Scroll to bottom</span>
-    </Button>
-  );
-}
 
 export function Thread() {
   const searchParams = useSearchParams();
