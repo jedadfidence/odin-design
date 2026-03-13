@@ -21,8 +21,6 @@ import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   LoaderCircle,
   SendHorizontal,
-  ChevronsLeft,
-  ChevronsRight,
   XIcon,
   Plus,
   Lightbulb,
@@ -32,8 +30,8 @@ import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom } from "use-stick-to-bottom";
 import { ScrollToBottomBridge, StickyToBottomContent, ScrollToBottom } from "./scroll-helpers";
-import ThreadHistory from "./history";
 import { toast } from "sonner";
+import { ChatSidebar } from "./chat-sidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
@@ -695,36 +693,7 @@ export function Thread() {
   return (
     <div className="flex h-screen w-full min-w-0 overflow-hidden bg-background">
       {/* Collapsible sidebar — desktop only */}
-      <div
-        className={cn(
-          "hidden lg:flex flex-col border-r border-border bg-background transition-all duration-300 ease-in-out",
-          sidebarCollapsed ? "w-14" : "w-60",
-        )}
-      >
-        <div className={cn(
-          "flex items-center p-2",
-          sidebarCollapsed ? "justify-center" : "justify-between",
-        )}>
-          {!sidebarCollapsed && (
-            <span className="text-sm font-medium text-sidebar-foreground pl-2">History</span>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setSidebarCollapsed((p) => !p)}
-          >
-            {sidebarCollapsed ? (
-              <ChevronsRight className="h-4 w-4" />
-            ) : (
-              <ChevronsLeft className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <ThreadHistory collapsed={sidebarCollapsed ?? false} />
-        </div>
-      </div>
+      <ChatSidebar collapsed={sidebarCollapsed ?? true} onToggle={() => setSidebarCollapsed((p) => !p)} />
 
       {/* Main content area */}
       <div
