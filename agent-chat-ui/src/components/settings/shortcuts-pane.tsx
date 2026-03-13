@@ -2,11 +2,55 @@
 
 import React, { useState } from "react";
 import { useShortcuts } from "@/hooks/use-shortcuts";
+import { useContextPresets } from "@/hooks/use-context-presets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 import { Shortcut } from "@/lib/shortcuts";
+import { ContextSelections, CONTEXT_CATEGORIES } from "@/lib/context-selectors";
+
+/** Render context selections as compact badge groups */
+function ContextBadgeList({ context }: { context: ContextSelections | null }) {
+  if (!context) return null;
+  const entries = CONTEXT_CATEGORIES.filter(
+    (cat) => context[cat.id] && context[cat.id].length > 0,
+  );
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="space-y-1.5 mt-2">
+      {entries.map((cat) => (
+        <div key={cat.id} className="flex flex-wrap items-center gap-1">
+          <span className="text-[11px] font-medium text-muted-foreground w-16 shrink-0">
+            {cat.label}
+          </span>
+          {context[cat.id].map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-[11px] text-accent-foreground"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Show linked preset name */
+function PresetTag({ presetId }: { presetId: string | null }) {
+  const { presets } = useContextPresets();
+  if (!presetId) return null;
+  const preset = presets.find((p) => p.id === presetId);
+  if (!preset) return null;
+  return (
+    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary mt-1">
+      Preset: {preset.name}
+    </span>
+  );
+}
 
 interface EditingState {
   id: string | "new";
@@ -109,6 +153,9 @@ export function ShortcutsPane() {
                   rows={3}
                   className="resize-none"
                 />
+                {/* Show context (read-only while inline editing — full editing via shortcut dialog) */}
+                <ContextBadgeList context={shortcut.context} />
+                <PresetTag presetId={shortcut.presetId} />
                 <div className="flex justify-end gap-2">
                   <Button variant="ghost" size="sm" onClick={handleCancel}>
                     <X className="h-3.5 w-3.5 mr-1" />
@@ -121,31 +168,36 @@ export function ShortcutsPane() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-start justify-between gap-3 p-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium truncate">{shortcut.name}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                    {shortcut.instructions}
-                  </p>
+              <div className="p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">{shortcut.name}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                      {shortcut.instructions}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => handleStartEdit(shortcut)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:text-destructive"
+                      onClick={() => deleteShortcut(shortcut.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex shrink-0 gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => handleStartEdit(shortcut)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                    onClick={() => deleteShortcut(shortcut.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                {/* Show context and preset below the shortcut description */}
+                <ContextBadgeList context={shortcut.context} />
+                <PresetTag presetId={shortcut.presetId} />
               </div>
             )}
           </div>
