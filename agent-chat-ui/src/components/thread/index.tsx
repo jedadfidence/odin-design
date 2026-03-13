@@ -4,8 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { SuggestionCards } from "./suggestion-cards";
@@ -25,15 +23,10 @@ import {
   SendHorizontal,
   ChevronsLeft,
   ChevronsRight,
-  SquarePen,
   XIcon,
   Plus,
-  FileBarChart,
-  Menu,
   Lightbulb,
-  Wrench,
   Bookmark,
-  PanelBottomClose,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -53,7 +46,7 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
-import { ThemeToggle } from "../ui/theme-toggle";
+import { ChatHeader } from "./chat-header";
 import { useContextSelectors } from "@/hooks/use-context-selectors";
 import { ContextSelections, ContextCategory } from "@/lib/context-selectors";
 import { useFilterContext } from "@/providers/Filters";
@@ -73,7 +66,6 @@ import { ShortcutPopover } from "./shortcut-popover";
 import { ShortcutDialog } from "./shortcut-dialog";
 
 export function Thread() {
-  const searchParams = useSearchParams();
   const [artifactContext, setArtifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
@@ -748,55 +740,14 @@ export function Thread() {
           )}
         >
           {/* Header */}
-          <header className="flex h-12 items-center justify-between px-3">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setChatHistoryOpen((p) => !p)}
-              >
-                <Menu />
-              </Button>
-            </div>
-            <div className="flex items-center gap-1">
-              {chatStarted && (
-                <>
-                  <TooltipIconButton
-                    tooltip="Generate report"
-                    variant="ghost"
-                    onClick={() => setReportSheetOpen(true)}
-                    data-testid="report-btn"
-                  >
-                    <FileBarChart />
-                  </TooltipIconButton>
-                  <TooltipIconButton
-                    tooltip="New thread"
-                    variant="ghost"
-                    onClick={() => setThreadId(null)}
-                  >
-                    <SquarePen />
-                  </TooltipIconButton>
-                </>
-              )}
-              <TooltipIconButton
-                tooltip={hideToolCalls ? "Show details" : "Hide details"}
-                variant="ghost"
-                onClick={() => setHideToolCalls(!(hideToolCalls ?? true))}
-                className={cn(
-                  hideToolCalls === false && "text-primary",
-                )}
-              >
-                <Wrench />
-              </TooltipIconButton>
-              <Link href={`/demo${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}>
-                <TooltipIconButton tooltip="Minimize chat" variant="ghost" className="h-8 w-8">
-                  <PanelBottomClose className="h-4 w-4" />
-                </TooltipIconButton>
-              </Link>
-              <ThemeToggle />
-            </div>
-          </header>
+          <ChatHeader
+            chatStarted={chatStarted}
+            hideToolCalls={hideToolCalls}
+            onToggleToolCalls={() => setHideToolCalls(!(hideToolCalls ?? true))}
+            onNewThread={() => setThreadId(null)}
+            onOpenReport={() => setReportSheetOpen(true)}
+            onToggleChatHistory={() => setChatHistoryOpen((p) => !p)}
+          />
 
           <StickToBottom className="relative flex-1 overflow-hidden">
             <ScrollToBottomBridge scrollRef={scrollToBottomRef} />
