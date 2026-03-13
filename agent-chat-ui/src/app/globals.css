@@ -74,6 +74,9 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --ring: #214DA5;
   --surface: #F0F4FF;
   --surface-alt: #E4EFFE;
+  --brand-accent: #4586F7;
+  --brand-accent-hover: #3a75e0;
+  --surface-deep: #F0F4FF;
   --chart-1: #214DA5;
   --chart-2: #4586F7;
   --chart-3: #1F356F;
@@ -114,6 +117,9 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --ring: #4586F7;
   --surface: #1A1A2E;
   --surface-alt: #1F356F;
+  --brand-accent: #4586F7;
+  --brand-accent-hover: #3a75e0;
+  --surface-deep: #0D0D14;
   --chart-1: #4586F7;
   --chart-2: #214DA5;
   --chart-3: #D3E4FD;
@@ -154,6 +160,9 @@ button, [role="button"], a, select, label[for], summary, [type="checkbox"], [typ
   --color-ring: var(--ring);
   --color-surface: var(--surface);
   --color-surface-alt: var(--surface-alt);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-hover: var(--brand-accent-hover);
+  --color-surface-deep: var(--surface-deep);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
