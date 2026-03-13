@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, ArrowDown, X } from "lucide-react";
 import { MiniHeader } from "./mini-header";
@@ -33,6 +33,10 @@ import {
 } from "@/hooks/use-suggestions";
 import { SuggestionCards } from "../thread/suggestion-cards";
 import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
+import {
+  ScrollToBottomBridge,
+  StickyToBottomContent,
+} from "../thread/scroll-helpers";
 
 const MINI_CHAT_WIDTH = 420;
 const MINI_CHAT_DEFAULT_HEIGHT = 600;
@@ -81,28 +85,6 @@ function getStoredHeight(): number {
   return MINI_CHAT_DEFAULT_HEIGHT;
 }
 
-function StickyToBottomContent(props: {
-  content: ReactNode;
-  footer?: ReactNode;
-  className?: string;
-  contentClassName?: string;
-}) {
-  const context = useStickToBottomContext();
-  return (
-    <div
-      ref={context.scrollRef}
-      style={{ width: "100%", height: "100%" }}
-      className={props.className}
-    >
-      <div ref={context.contentRef} className={props.contentClassName}>
-        {props.content}
-      </div>
-
-      {props.footer}
-    </div>
-  );
-}
-
 function ScrollToBottom(props: { className?: string }) {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
@@ -120,18 +102,6 @@ function ScrollToBottom(props: { className?: string }) {
       <ArrowDown className="h-4 w-4" />
     </Button>
   );
-}
-
-function ScrollToBottomBridge({
-  scrollRef,
-}: {
-  scrollRef: React.MutableRefObject<(() => void) | null>;
-}) {
-  const { scrollToBottom } = useStickToBottomContext();
-  useEffect(() => {
-    scrollRef.current = scrollToBottom;
-  }, [scrollToBottom, scrollRef]);
-  return null;
 }
 
 function MiniThreadContent({
