@@ -6,7 +6,6 @@ import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   LoaderCircle,
   SendHorizontal,
-  Lightbulb,
   Bookmark,
 } from "lucide-react";
 import { Label } from "../ui/label";
@@ -93,10 +92,6 @@ export interface ChatInputProps {
   handleCreateShortcutFromPopover: () => void;
   handleSaveAsShortcutFromToolbar: () => void;
 
-  // Suggestions
-  showSuggestions: boolean;
-  setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
-
   // Form
   handleSubmit: (e: React.FormEvent) => void;
 
@@ -155,8 +150,6 @@ export function ChatInput({
   handleEditShortcutFromPopover,
   handleCreateShortcutFromPopover,
   handleSaveAsShortcutFromToolbar,
-  showSuggestions,
-  setShowSuggestions,
   handleSubmit,
   textareaRef,
   inputBoxRef,
@@ -170,7 +163,7 @@ export function ChatInput({
         !chatStarted && "input-glow-wrapper",
       )}
     >
-      <div className="flex items-center gap-2.5 rounded-t-2xl border border-b-0 border-border bg-background/60 backdrop-blur-sm px-4 py-2">
+      <div className="glass-panel flex items-center gap-2.5 !rounded-b-none !rounded-t-2xl border-b-0 px-4 py-2">
         <Switch
           id="use-filters"
           checked={useAsContext}
@@ -199,10 +192,8 @@ export function ChatInput({
           inputBoxRef.current = el;
         }}
         className={cn(
-          "bg-background/80 backdrop-blur-sm relative z-10 w-full rounded-b-2xl rounded-t-none transition-all",
-          dragOver
-            ? "border-primary border-2 border-dotted"
-            : "border border-border",
+          "glass-panel relative z-10 w-full !rounded-b-2xl !rounded-t-none transition-all",
+          dragOver && "border-primary border-2 border-dotted",
         )}
       >
         <form
@@ -329,20 +320,6 @@ export function ChatInput({
           </ContextPopover>
 
           <div className="flex items-center gap-1 px-4 py-3">
-            <TooltipIconButton
-              tooltip={showSuggestions ? "Hide suggestions" : "Show suggestions"}
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSuggestions((p) => !p)}
-              className={cn(
-                "h-8 w-8",
-                showSuggestions && "text-primary",
-                !showSuggestions && "text-muted-foreground",
-              )}
-            >
-              <Lightbulb className="h-4 w-4" />
-            </TooltipIconButton>
-
             {input.trim().length > 0 && (
               <button
                 type="button"

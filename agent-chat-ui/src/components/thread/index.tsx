@@ -20,6 +20,7 @@ const ReportSheet = dynamic(
   { ssr: false },
 );
 import { useQueryState, parseAsBoolean } from "nuqs";
+import { useSettings } from "@/providers/Settings";
 import { StickToBottom } from "use-stick-to-bottom";
 import { ScrollToBottomBridge, StickyToBottomContent, ScrollToBottom } from "./scroll-helpers";
 import { toast } from "sonner";
@@ -63,13 +64,9 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
-  const [hideToolCalls, setHideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(true),
-  );
+  const { settings } = useSettings();
   const [input, setInput] = useState("");
   const [reportSheetOpen, setReportSheetOpen] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(true);
   const {
     contentBlocks,
     setContentBlocks,
@@ -332,7 +329,9 @@ export function Thread() {
   return (
     <div className="flex h-screen w-full min-w-0 overflow-hidden bg-background">
       {/* Collapsible sidebar — desktop only */}
-      <ChatSidebar collapsed={sidebarCollapsed ?? true} onToggle={() => setSidebarCollapsed((p) => !p)} />
+      {settings.chatHistoryVisible && (
+        <ChatSidebar collapsed={sidebarCollapsed ?? true} onToggle={() => setSidebarCollapsed((p) => !p)} />
+      )}
 
       {/* Main content area */}
       <div
@@ -350,8 +349,6 @@ export function Thread() {
           {/* Header */}
           <ChatHeader
             chatStarted={chatStarted}
-            hideToolCalls={hideToolCalls}
-            onToggleToolCalls={() => setHideToolCalls(!(hideToolCalls ?? true))}
             onNewThread={() => setThreadId(null)}
             onOpenReport={() => setReportSheetOpen(true)}
             onToggleChatHistory={() => setChatHistoryOpen((p) => !p)}
@@ -364,7 +361,7 @@ export function Thread() {
             {/* Bottom fade gradient */}
             <div className={cn(
               "pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-background via-background/90 to-transparent transition-all duration-300",
-              showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders)
+              settings.showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders)
                 ? "h-[400px] from-30% via-60%"
                 : "h-[100px] from-30% via-60%",
             )} />
@@ -436,7 +433,7 @@ export function Thread() {
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                   <AnimatePresence initial={false}>
-                    {showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
+                    {settings.showSuggestions && (visibleSuggestions.length > 0 || showSuggestionPlaceholders) && (
                       <motion.div
                         key="suggestions"
                         initial={{ opacity: 0, height: 0, marginBottom: 0 }}
@@ -521,8 +518,6 @@ export function Thread() {
                     handleEditShortcutFromPopover={handleEditShortcutFromPopover}
                     handleCreateShortcutFromPopover={handleCreateShortcutFromPopover}
                     handleSaveAsShortcutFromToolbar={handleSaveAsShortcutFromToolbar}
-                    showSuggestions={showSuggestions}
-                    setShowSuggestions={setShowSuggestions}
                     handleSubmit={handleSubmit}
                     textareaRef={textareaRef}
                     inputBoxRef={inputBoxRef}
@@ -532,7 +527,7 @@ export function Thread() {
             />
           </StickToBottom>
         </div>
-        <div className="relative flex flex-col overflow-hidden border-l border-border">
+        <div className={cn("relative flex flex-col overflow-hidden", artifactOpen && "border-l border-border")}>
           <div className="absolute inset-0 flex min-w-[30vw] flex-col">
             <div className="grid grid-cols-[1fr_auto] border-b border-border p-4">
               <ArtifactTitle className="truncate overflow-hidden" />
@@ -547,23 +542,25 @@ export function Thread() {
           </div>
         </div>
       </div>
-      <FilterSidebar
-        selections={filterSelections}
-        dateRange={dateRange}
-        onToggleItem={filterSync.handleToggleFilterItem}
-        onSelectAll={filterSync.handleSelectAllFilter}
-        onClearCategory={filterSync.handleClearFilterCategory}
-        onDateRangeChange={setDateRange}
-        onResetAll={filterSync.handleResetAllFilters}
-        hasSelections={hasFilterSelections}
-        totalSelected={filterTotalSelected}
-        presets={presets}
-        onApplyPreset={handleApplyPreset}
-        onSavePreset={handleSavePreset}
-        onSaveAsNewPreset={() => setPresetNameDialogOpen(true)}
-        onDeletePreset={deletePreset}
-        activePresetName={presetEditing?.presetName ?? null}
-      />
+      {settings.filterSidebarVisible && (
+        <FilterSidebar
+          selections={filterSelections}
+          dateRange={dateRange}
+          onToggleItem={filterSync.handleToggleFilterItem}
+          onSelectAll={filterSync.handleSelectAllFilter}
+          onClearCategory={filterSync.handleClearFilterCategory}
+          onDateRangeChange={setDateRange}
+          onResetAll={filterSync.handleResetAllFilters}
+          hasSelections={hasFilterSelections}
+          totalSelected={filterTotalSelected}
+          presets={presets}
+          onApplyPreset={handleApplyPreset}
+          onSavePreset={handleSavePreset}
+          onSaveAsNewPreset={() => setPresetNameDialogOpen(true)}
+          onDeletePreset={deletePreset}
+          activePresetName={presetEditing?.presetName ?? null}
+        />
+      )}
       <ReportSheet open={reportSheetOpen} onOpenChange={setReportSheetOpen} />
       <PresetNameDialog
         open={presetNameDialogOpen}

@@ -23,6 +23,7 @@ import { WidgetMenu, AIAction } from "@/components/demo/widget-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { FilterSidebar } from "@/components/filters/filter-sidebar";
 import { useFilterContext, FilterProvider } from "@/providers/Filters";
+import { useSettings } from "@/providers/Settings";
 
 function MockDashboard() {
   const [showExecSummary, setShowExecSummary] = useState(true);
@@ -527,13 +528,14 @@ function DemoFilterSidebar() {
 }
 
 export default function DemoPage() {
+  const { settings } = useSettings();
   return (
     <React.Suspense fallback={null}>
       <PageWidgetsContext.Provider value={DEMO_WIDGETS}>
         <Toaster />
         <FilterProvider>
           <MockDashboard />
-          <DemoFilterSidebar />
+          {settings.filterSidebarVisible && <DemoFilterSidebar />}
           <MiniThread />
         </FilterProvider>
       </PageWidgetsContext.Provider>

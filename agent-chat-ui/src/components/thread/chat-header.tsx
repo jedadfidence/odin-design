@@ -2,20 +2,15 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { TooltipIconButton } from "./tooltip-icon-button";
-import { ThemeToggle } from "../ui/theme-toggle";
 import {
   FileBarChart,
   SquarePen,
-  Wrench,
   PanelBottomClose,
   Menu,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface ChatHeaderProps {
   chatStarted: boolean;
-  hideToolCalls: boolean | null;
-  onToggleToolCalls: () => void;
   onNewThread: () => void;
   onOpenReport: () => void;
   onToggleChatHistory: () => void;
@@ -23,8 +18,6 @@ interface ChatHeaderProps {
 
 export function ChatHeader({
   chatStarted,
-  hideToolCalls,
-  onToggleToolCalls,
   onNewThread,
   onOpenReport,
   onToggleChatHistory,
@@ -63,14 +56,6 @@ export function ChatHeader({
             </TooltipIconButton>
           </>
         )}
-        <TooltipIconButton
-          tooltip={hideToolCalls ? "Show details" : "Hide details"}
-          variant="ghost"
-          onClick={onToggleToolCalls}
-          className={cn(hideToolCalls === false && "text-primary")}
-        >
-          <Wrench />
-        </TooltipIconButton>
         <Link
           href={`/demo${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
         >
@@ -82,7 +67,6 @@ export function ChatHeader({
             <PanelBottomClose className="h-4 w-4" />
           </TooltipIconButton>
         </Link>
-        <ThemeToggle />
       </div>
     </header>
   );

@@ -12,9 +12,9 @@ import { Fragment } from "react/jsx-runtime";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
-import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import { useSettings } from "@/providers/Settings";
 
 function CustomComponent({
   message,
@@ -110,10 +110,8 @@ export const AssistantMessage = memo(function AssistantMessage({
 }) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
-  const [hideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(true),
-  );
+  const { settings } = useSettings();
+  const hideToolCalls = !settings.showToolCalls;
 
   const thread = useStreamContext();
   const isLastMessage =
