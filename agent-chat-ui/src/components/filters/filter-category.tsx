@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FilterCategoryProps {
@@ -50,7 +50,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
   return (
     <AccordionItem
       value={id}
-      className="border-b-0 mx-3 my-2.5"
+      className="border-b-0 mx-3 my-4"
       style={{
         borderRadius: "24px",
         background: "rgba(255, 255, 255, 0.05)",
@@ -65,6 +65,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
             <Badge
               variant="secondary"
               className="rounded-full text-[10px] font-normal px-1.5 py-0"
+              style={{ backgroundColor: "#DBEAFE" }}
             >
               {summaryText}
             </Badge>
@@ -79,8 +80,17 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
               placeholder={`Search ${label.toLowerCase()}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-7 pl-7 text-[11px] text-muted-foreground/70 placeholder:text-muted-foreground/40 rounded-full bg-white dark:bg-white/10 shadow-none"
+              className="h-7 pl-7 pr-6 text-[11px] text-muted-foreground/70 placeholder:text-muted-foreground/40 rounded-full bg-white dark:bg-white/10 shadow-none"
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
           <div className="flex items-center justify-between text-[11px] text-muted-foreground">
             <button

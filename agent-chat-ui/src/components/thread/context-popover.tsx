@@ -185,7 +185,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
       {CONTEXT_CATEGORIES.map((cat) => (
         <CommandGroup key={cat.id} heading={cat.label}>
           {cat.items.map((item) => {
-            const checked = selections[cat.id].includes(item);
+            const checked = (selections[cat.id] || []).includes(item);
             return (
               <CommandItem
                 key={`${cat.id}-${item}`}
@@ -225,7 +225,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
   const renderCategoryList = () => (
     <CommandGroup>
       {CONTEXT_CATEGORIES.map((cat) => {
-        const count = selections[cat.id].length;
+        const count = (selections[cat.id] || []).length;
         return (
           <CommandItem
             key={cat.id}
@@ -293,7 +293,7 @@ export const ContextPopover: React.FC<ContextPopoverProps> = ({
         <CommandEmpty>No items found.</CommandEmpty>
         <CommandGroup>
           {activeCategoryConfig?.items.map((item) => {
-            const checked = selections[activeCategory!].includes(item);
+            const checked = (selections[activeCategory!] || []).includes(item);
             return (
               <CommandItem
                 key={item}

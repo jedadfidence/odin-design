@@ -40,12 +40,13 @@ const MINI_CHAT_MIN_HEIGHT = 400;
 const MINI_CHAT_MAX_HEIGHT = 800;
 const LS_HEIGHT_KEY = "mini-chat:height";
 
-const FAB_SIZE = 48;
+const FAB_HEIGHT = 48;
+const FAB_WIDTH = 136;
 
 const collapsedVariant = {
-  width: FAB_SIZE,
-  height: FAB_SIZE,
-  borderRadius: FAB_SIZE / 2,
+  width: FAB_WIDTH,
+  height: FAB_HEIGHT,
+  borderRadius: 24,
 };
 
 const expandedVariant = (h: number) => ({
@@ -512,12 +513,13 @@ export function MiniThread() {
         className={cn(
           "relative flex flex-col overflow-hidden shadow-2xl",
           !isOpen &&
-            "cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover",
+            "cursor-pointer text-white",
           isOpen && "bg-background/80 backdrop-blur-xl border border-border",
         )}
         style={{
           transformOrigin: "bottom right",
           transition: "background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          ...(!isOpen ? { backgroundColor: "#4586F7", boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset" } : {}),
         }}
       >
         {/* FAB icon layer */}
@@ -529,7 +531,7 @@ export function MiniThread() {
             isOpen && "pointer-events-none",
           )}
         >
-          <MessageCircle className="h-5 w-5" />
+          <span className="text-sm font-semibold text-white [text-shadow:none]" style={{ filter: "none" }}>Chat with AI</span>
         </motion.div>
 
         {/* Chat content layer */}
