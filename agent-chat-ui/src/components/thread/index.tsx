@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { useState } from "react";
-import { Button } from "../ui/button";
 import { SuggestionCards } from "./suggestion-cards";
 import {
   useSuggestions,
@@ -12,13 +11,8 @@ import {
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import { DO_NOT_RENDER_ID_PREFIX } from "@/lib/ensure-tool-responses";
-import { TooltipIconButton } from "./tooltip-icon-button";
 import {
-  LoaderCircle,
-  SendHorizontal,
   XIcon,
-  Lightbulb,
-  Bookmark,
 } from "lucide-react";
 import { ReportSheet } from "./report-sheet";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -27,10 +21,7 @@ import { ScrollToBottomBridge, StickyToBottomContent, ScrollToBottom } from "./s
 import { toast } from "sonner";
 import { ChatSidebar } from "./chat-sidebar";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import { getContentString } from "./utils";
 import {
   useArtifactOpen,
@@ -45,16 +36,13 @@ import { FilterSidebar } from "@/components/filters/filter-sidebar";
 import { useFilterSync } from "@/hooks/use-filter-sync";
 import { useTextQuotes } from "@/hooks/use-text-quotes";
 import { useTextSelection } from "@/hooks/use-text-selection";
-import { ContextBadges } from "./context-badges";
-import { ContextPopover } from "./context-popover";
 import { SelectionPopup } from "./selection-popup";
-import { QuoteCards } from "./quote-cards";
 import { useContextPresets } from "@/hooks/use-context-presets";
 import { PresetNameDialog } from "./preset-name-dialog";
 import { useShortcuts } from "@/hooks/use-shortcuts";
-import { ShortcutPopover } from "./shortcut-popover";
 import { ShortcutDialog } from "./shortcut-dialog";
 import { useChatHandlers } from "./use-chat-handlers";
+import { ChatInput } from "./chat-input";
 
 export function Thread() {
   const [artifactContext, setArtifactContext] = useArtifactContext();
@@ -471,319 +459,62 @@ export function Thread() {
                     )}
                   </AnimatePresence>
 
-                  <div
-                    className={cn(
-                      "relative mx-auto mb-6 w-full max-w-[816px]",
-                      !chatStarted && "input-glow-wrapper",
-                    )}
-                  >
-                  <div className="flex items-center gap-2.5 rounded-t-2xl border border-b-0 border-border bg-background/60 backdrop-blur-sm px-4 py-2">
-                    <Switch
-                      id="use-filters"
-                      checked={useAsContext}
-                      onCheckedChange={(checked) => {
-                        setUseAsContext(checked);
-                        toast(
-                          checked
-                            ? "AI will now use your selected filters as context"
-                            : "AI will no longer use your filters",
-                        );
-                      }}
-                      className="scale-[0.85]"
-                    />
-                    <Label htmlFor="use-filters" className="text-xs text-muted-foreground cursor-pointer select-none">
-                      Include filters with your conversation
-                    </Label>
-                    {useAsContext && !hasFilterSelections && (
-                      <span className="text-[11px] text-muted-foreground/60">
-                        — select filters in the panel
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    ref={(el) => {
-                      dropRef.current = el;
-                      inputBoxRef.current = el;
-                    }}
-                    className={cn(
-                      "bg-background/80 backdrop-blur-sm relative z-10 w-full rounded-b-2xl rounded-t-none transition-all",
-                      dragOver
-                        ? "border-primary border-2 border-dotted"
-                        : "border border-border",
-                    )}
-                  >
-                    <form
-                      onSubmit={handleSubmit}
-                      className="grid grid-rows-[1fr_auto]"
-                    >
-                      <ContentBlocksPreview
-                        blocks={contentBlocks}
-                        onRemove={removeBlock}
-                      />
-                      <AnimatePresence initial={false}>
-                        {quotes.length > 0 && (
-                          <motion.div
-                            key="quote-cards"
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{
-                              duration: 0.2,
-                              ease: [0.25, 0.1, 0.25, 1],
-                            }}
-                            style={{ overflow: "clip" }}
-                          >
-                            <QuoteCards
-                              quotes={quotes}
-                              onUpdate={updateQuote}
-                              onRemove={removeQuote}
-                              onScrollToSource={handleScrollToQuoteSource}
-                              onClearAll={clearQuotes}
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                      <AnimatePresence initial={false}>
-                        {(hasContextSelections || (useAsContext && hasFilterSelections)) && (
-                          <motion.div
-                            key="context-badges"
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{
-                              duration: 0.2,
-                              ease: [0.25, 0.1, 0.25, 1],
-                            }}
-                            style={{ overflow: "clip" }}
-                          >
-                            <ContextBadges
-                              selections={contextSelections}
-                              onRemove={filterSync.handleRemoveContextItem}
-                              onClearAll={handleClearSelections}
-                              onSave={presetEditing && (hasContextSelections || hasFilterSelections) ? handleSavePreset : undefined}
-                              onSaveAsNew={(hasContextSelections || hasFilterSelections) ? handleSaveAsNewPreset : undefined}
-                              activePresetName={presetEditing?.presetName ?? null}
-                              onDeactivatePreset={handleDeactivatePreset}
-                              onRenameActivePreset={presetEditing ? () => handleRenamePreset(presetEditing.presetId, presetEditing.presetName) : undefined}
-                              filterSelections={useAsContext ? filterSelections : undefined}
-                              onRemoveFilter={useAsContext ? removeFilterItem : undefined}
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                      <ContextPopover
-                        open={contextPopoverOpen && triggerSource === "keyboard"}
-                        onOpenChange={(open) => {
-                          if (!open) {
-                            closeContextPopover();
-                            textareaRef.current?.focus();
-                          }
-                        }}
-                        activeCategory={activeCategory}
-                        onCategorySelect={setActiveCategory}
-                        selections={contextSelections}
-                        onToggleItem={filterSync.handleToggleContextItem}
-                        anchorRef={inputBoxRef}
-                        align="start"
-                        side="top"
-                        presets={presets}
-                        onApplyPreset={handleApplyPreset}
-                        onEditPreset={handleEditPreset}
-                        onDuplicatePreset={handleDuplicatePreset}
-                        onDeletePreset={deletePreset}
-                        onRenamePreset={handleRenamePreset}
-                        onSavePreset={handleSavePreset}
-                        hasSelections={hasContextSelections}
-                        isEditing={!!presetEditing}
-                      >
-                        <textarea
-                          ref={textareaRef}
-                          value={input}
-                          onChange={(e) => setInput(e.target.value)}
-                          onPaste={handlePaste}
-                          onKeyDown={(e) => {
-                            if (e.key === "@") {
-                              const val = (e.target as HTMLTextAreaElement).value;
-                              const pos = (e.target as HTMLTextAreaElement).selectionStart;
-                              if (pos === 0 || val[pos - 1] === " " || val[pos - 1] === "\n") {
-                                e.preventDefault();
-                                openContextPopover(undefined, "keyboard");
-                              }
-                            }
-                            if (e.key === "/") {
-                              const val = (e.target as HTMLTextAreaElement).value;
-                              const pos = (e.target as HTMLTextAreaElement).selectionStart;
-                              if (pos === 0 || val[pos - 1] === " " || val[pos - 1] === "\n") {
-                                e.preventDefault();
-                                openShortcutPopover();
-                              }
-                            }
-                            if (
-                              e.key === "Enter" &&
-                              !e.shiftKey &&
-                              !e.metaKey &&
-                              !e.nativeEvent.isComposing
-                            ) {
-                              e.preventDefault();
-                              const el = e.target as HTMLElement | undefined;
-                              const form = el?.closest("form");
-                              form?.requestSubmit();
-                            }
-                          }}
-                          placeholder="Type your message..."
-                          className="field-sizing-content w-full resize-none border-none bg-transparent px-5 pt-4 pb-0 text-foreground shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
-                        />
-                      </ContextPopover>
-
-                      <div className="flex items-center gap-1 px-4 py-3">
-                        <TooltipIconButton
-                          tooltip={showSuggestions ? "Hide suggestions" : "Show suggestions"}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowSuggestions((p) => !p)}
-                          className={cn(
-                            "h-8 w-8",
-                            showSuggestions && "text-primary",
-                            !showSuggestions && "text-muted-foreground",
-                          )}
-                        >
-                          <Lightbulb className="h-4 w-4" />
-                        </TooltipIconButton>
-
-                        {input.trim().length > 0 && (
-                          <button
-                            type="button"
-                            onClick={handleSaveAsShortcutFromToolbar}
-                            className="flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-sm transition-colors hover:bg-muted/80"
-                          >
-                            <Bookmark className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span
-                              className="inline-block bg-clip-text font-medium text-transparent"
-                              style={{
-                                backgroundImage: "linear-gradient(90deg, #4586F7 0%, #8fb4fc 30%, #4586F7 60%, #8fb4fc 90%, #4586F7 100%)",
-                                backgroundSize: "200% 100%",
-                                animation: "gradient-shift 2s linear infinite",
-                              }}
-                            >
-                              Save Shortcut
-                            </span>
-                          </button>
-                        )}
-
-                        <ShortcutPopover
-                          open={shortcutPopoverOpen && shortcutTriggerSource === "icon"}
-                          onOpenChange={(open) => {
-                            if (open) openShortcutPopover("icon");
-                            else closeShortcutPopover();
-                          }}
-                          shortcuts={shortcuts}
-                          onSelectShortcut={handleSelectShortcut}
-                          onEditShortcut={handleEditShortcutFromPopover}
-                          onCreateNew={handleCreateShortcutFromPopover}
-                          textareaRef={textareaRef}
-                        >
-                          <button
-                            type="button"
-                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted"
-                          >
-                            <span className="font-medium">/</span>
-                            <span>Quick prompts</span>
-                          </button>
-                        </ShortcutPopover>
-
-                        <ContextPopover
-                          open={contextPopoverOpen && triggerSource === "icon"}
-                          onOpenChange={(open) => {
-                            if (open) openContextPopover(undefined, "icon");
-                            else closeContextPopover();
-                          }}
-                          activeCategory={activeCategory}
-                          onCategorySelect={setActiveCategory}
-                          selections={contextSelections}
-                          onToggleItem={filterSync.handleToggleContextItem}
-                          align="start"
-                          side="top"
-                          presets={presets}
-                          onApplyPreset={handleApplyPreset}
-                          onEditPreset={handleEditPreset}
-                          onDuplicatePreset={handleDuplicatePreset}
-                          onDeletePreset={deletePreset}
-                          onRenamePreset={handleRenamePreset}
-                          onSavePreset={handleSavePreset}
-                          hasSelections={hasContextSelections}
-                          isEditing={!!presetEditing}
-                        >
-                          <button
-                            type="button"
-                            className={cn(
-                              "flex items-center gap-1 rounded-md px-2 py-1 text-sm transition-colors hover:bg-muted",
-                              hasContextSelections
-                                ? "text-primary"
-                                : "text-muted-foreground",
-                            )}
-                          >
-                            <span className="font-medium">@</span>
-                            <span>Add Context</span>
-                          </button>
-                        </ContextPopover>
-
-                        {/* Hidden for now – uncomment to re-enable file uploads
-                        <Label
-                          htmlFor="file-input"
-                          className="flex cursor-pointer items-center gap-2"
-                        >
-                          <Plus className="size-5 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Upload PDF or Image
-                          </span>
-                        </Label>
-                        <input
-                          id="file-input"
-                          type="file"
-                          onChange={handleFileUpload}
-                          multiple
-                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                          className="hidden"
-                        />
-                        */}
-                        {stream.isLoading ? (
-                          <Button
-                            key="stop"
-                            onClick={() => stream.stop()}
-                            className="ml-auto"
-                          >
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                            Cancel
-                          </Button>
-                        ) : (
-                          <Button
-                            type="submit"
-                            size="icon"
-                            className="ml-auto h-9 w-9 rounded-full bg-[#4586F7] text-white hover:bg-[#3a75e0] shadow-md transition-all"
-                            disabled={
-                              isLoading ||
-                              (!input.trim() && contentBlocks.length === 0)
-                            }
-                          >
-                            <SendHorizontal className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                      <ShortcutPopover
-                        open={shortcutPopoverOpen && shortcutTriggerSource === "keyboard"}
-                        onOpenChange={(open) => {
-                          if (!open) closeShortcutPopover();
-                        }}
-                        shortcuts={shortcuts}
-                        onSelectShortcut={handleSelectShortcut}
-                        onEditShortcut={handleEditShortcutFromPopover}
-                        onCreateNew={handleCreateShortcutFromPopover}
-                        anchorRef={inputBoxRef}
-                        textareaRef={textareaRef}
-                      />
-                    </form>
-                  </div>
-                  </div>
+                  <ChatInput
+                    input={input}
+                    setInput={setInput}
+                    chatStarted={chatStarted}
+                    stream={stream}
+                    useAsContext={useAsContext}
+                    setUseAsContext={setUseAsContext}
+                    hasFilterSelections={hasFilterSelections}
+                    contentBlocks={contentBlocks}
+                    removeBlock={removeBlock}
+                    dropRef={dropRef}
+                    dragOver={dragOver}
+                    handlePaste={handlePaste}
+                    quotes={quotes}
+                    updateQuote={updateQuote}
+                    removeQuote={removeQuote}
+                    clearQuotes={clearQuotes}
+                    handleScrollToQuoteSource={handleScrollToQuoteSource}
+                    contextSelections={contextSelections}
+                    hasContextSelections={hasContextSelections}
+                    contextPopoverOpen={contextPopoverOpen}
+                    activeCategory={activeCategory}
+                    setActiveCategory={setActiveCategory}
+                    triggerSource={triggerSource}
+                    openContextPopover={openContextPopover}
+                    closeContextPopover={closeContextPopover}
+                    handleToggleContextItem={filterSync.handleToggleContextItem}
+                    handleRemoveContextItem={filterSync.handleRemoveContextItem}
+                    handleClearSelections={handleClearSelections}
+                    presets={presets}
+                    presetEditing={presetEditing}
+                    handleApplyPreset={handleApplyPreset}
+                    handleEditPreset={handleEditPreset}
+                    handleDuplicatePreset={handleDuplicatePreset}
+                    deletePreset={deletePreset}
+                    handleRenamePreset={handleRenamePreset}
+                    handleSavePreset={handleSavePreset}
+                    handleSaveAsNewPreset={handleSaveAsNewPreset}
+                    handleDeactivatePreset={handleDeactivatePreset}
+                    filterSelections={useAsContext ? filterSelections : undefined}
+                    removeFilterItem={useAsContext ? removeFilterItem : undefined}
+                    shortcuts={shortcuts}
+                    shortcutPopoverOpen={shortcutPopoverOpen}
+                    shortcutTriggerSource={shortcutTriggerSource}
+                    openShortcutPopover={openShortcutPopover}
+                    closeShortcutPopover={closeShortcutPopover}
+                    handleSelectShortcut={handleSelectShortcut}
+                    handleEditShortcutFromPopover={handleEditShortcutFromPopover}
+                    handleCreateShortcutFromPopover={handleCreateShortcutFromPopover}
+                    handleSaveAsShortcutFromToolbar={handleSaveAsShortcutFromToolbar}
+                    showSuggestions={showSuggestions}
+                    setShowSuggestions={setShowSuggestions}
+                    handleSubmit={handleSubmit}
+                    textareaRef={textareaRef}
+                    inputBoxRef={inputBoxRef}
+                  />
                 </div>
               }
             />
