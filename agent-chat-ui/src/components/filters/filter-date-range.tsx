@@ -31,12 +31,7 @@ export const FilterDateRange: React.FC<FilterDateRangeProps> = ({
 
   return (
     <div
-      className="border-0 p-3 space-y-2"
-      style={{
-        borderRadius: "24px",
-        background: "rgba(255, 255, 255, 0.05)",
-        boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset",
-      }}
+      className="border-0 p-3 space-y-2 glass-panel"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium">

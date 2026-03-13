@@ -155,7 +155,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r-0 bg-[#EDF2F7] dark:bg-[#0D0D14] [&>[data-sidebar=sidebar]]:bg-transparent"
+      className="border-r-0 bg-[#F0F4FF] dark:bg-[#0D0D14] [&>[data-sidebar=sidebar]]:bg-transparent"
     >
       <SidebarHeader className="px-2 py-4">
         <SidebarLogo />
@@ -170,7 +170,7 @@ export function AppSidebar() {
                   asChild
                   isActive={isAiChat}
                   tooltip="AI Chat"
-                  className="data-[active=true]:rounded-full data-[active=true]:border data-[active=true]:border-[#F5F9FF] data-[active=true]:bg-[rgba(255,255,255,0.20)] data-[active=true]:[box-shadow:0_10px_20px_0_rgba(255,255,255,0.20)_inset,0_0_0_0.5px_rgba(255,255,255,0.20)_inset,0.5px_0.5px_4px_0_rgba(255,255,255,0.40)_inset,-0.5px_-0.5px_0_0_rgba(255,255,255,0.40)_inset]"
+                  className="nav-glass-active"
                 >
                   <Link href="/">
                     <MessageCircle style={{ stroke: "url(#ai-chat-gradient)" }} />
@@ -197,7 +197,7 @@ export function AppSidebar() {
                     asChild
                     isActive={item.title === "Home" && isDashboard}
                     tooltip={item.title}
-                    className="data-[active=true]:rounded-full data-[active=true]:border data-[active=true]:border-[#F5F9FF] data-[active=true]:bg-[rgba(255,255,255,0.20)] data-[active=true]:[box-shadow:0_10px_20px_0_rgba(255,255,255,0.20)_inset,0_0_0_0.5px_rgba(255,255,255,0.20)_inset,0.5px_0.5px_4px_0_rgba(255,255,255,0.40)_inset,-0.5px_-0.5px_0_0_rgba(255,255,255,0.40)_inset]"
+                    className="nav-glass-active"
                   >
                     <Link href={item.title === "Home" ? "/demo" : "#"}>
                       <item.icon />

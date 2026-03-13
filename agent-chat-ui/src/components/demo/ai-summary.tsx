@@ -362,7 +362,7 @@ export function AISummary({
           backgroundSize: "300% 300%",
           animation: "ai-gradient-rotate 8s ease infinite",
           boxShadow:
-            "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+            "0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.50) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.60) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset",
         }}
       >
         <div className="absolute right-2 top-2 flex items-center gap-0.5">
@@ -476,7 +476,7 @@ export function AISummary({
           backgroundSize: "300% 300%",
           animation: "ai-gradient-rotate 8s ease infinite",
           boxShadow:
-            "0 4px 20px 0 rgba(0, 0, 0, 0.03), 0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
+            "0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.50) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.60) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.70) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.70) inset",
         }}
       >
       <div className="flex items-center justify-between mb-1">

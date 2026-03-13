@@ -513,13 +513,13 @@ export function MiniThread() {
         className={cn(
           "relative flex flex-col overflow-hidden shadow-2xl",
           !isOpen &&
-            "cursor-pointer text-white",
+            "cursor-pointer text-white glass-panel",
           isOpen && "bg-background/80 backdrop-blur-xl border border-border",
         )}
         style={{
           transformOrigin: "bottom right",
           transition: "background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
-          ...(!isOpen ? { backgroundColor: "#4586F7", boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset" } : {}),
+          ...(!isOpen ? { backgroundColor: "#4586F7" } : {}),
         }}
       >
         {/* FAB icon layer */}

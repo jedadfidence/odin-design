@@ -111,7 +111,7 @@ function MockDashboard() {
   };
 
   return (
-    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-[#EDF2F7] dark:bg-[#0D0D14] text-foreground">
+    <div className="flex-1 min-w-0 overflow-auto min-h-screen bg-[#F0F4FF] dark:bg-[#0D0D14] text-foreground">
       <div className="p-4 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
@@ -142,12 +142,7 @@ function MockDashboard() {
 
         {/* KPIs Section */}
         <div
-          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6"
-          style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            boxShadow:
-              "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-          }}
+          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6 glass-panel"
         >
           <div className="w-full flex items-center justify-between">
             <h2 className="text-lg font-semibold">KPIs</h2>
@@ -175,12 +170,7 @@ function MockDashboard() {
           <div className="w-full mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* KPI: Total Revenue */}
             <div
-              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
-              style={{
-                background: "rgba(255, 255, 255, 0.20)",
-                boxShadow:
-                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-              }}
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6 glass-panel"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
@@ -212,12 +202,7 @@ function MockDashboard() {
 
             {/* KPI: Active Users */}
             <div
-              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
-              style={{
-                background: "rgba(255, 255, 255, 0.20)",
-                boxShadow:
-                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-              }}
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6 glass-panel"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">Active Users</p>
@@ -249,12 +234,7 @@ function MockDashboard() {
 
             {/* KPI: Conversion Rate */}
             <div
-              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
-              style={{
-                background: "rgba(255, 255, 255, 0.20)",
-                boxShadow:
-                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-              }}
+              className="group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6 glass-panel"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
@@ -290,12 +270,7 @@ function MockDashboard() {
 
         {/* Analytics Section */}
         <div
-          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6"
-          style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            boxShadow:
-              "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-          }}
+          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6 glass-panel"
         >
           <div className="w-full flex items-center justify-between">
             <h2 className="text-lg font-semibold">Analytics</h2>
@@ -326,11 +301,6 @@ function MockDashboard() {
             {/* Revenue Over Time Chart */}
             <div
               className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
-              style={{
-                background: "rgba(255, 255, 255, 0.20)",
-                boxShadow:
-                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-              }}
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
@@ -372,11 +342,6 @@ function MockDashboard() {
             {/* User Activity Chart */}
             <div
               className="group relative flex min-h-64 flex-col justify-center rounded-3xl border border-[#F5F9FF] p-6"
-              style={{
-                background: "rgba(255, 255, 255, 0.20)",
-                boxShadow:
-                  "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-              }}
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
@@ -426,12 +391,7 @@ function MockDashboard() {
 
         {/* Transactions Section */}
         <div
-          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6"
-          style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            boxShadow:
-              "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-          }}
+          className="group/section flex flex-col items-stretch self-stretch rounded-3xl p-6 glass-panel"
         >
           <div className="w-full flex items-center justify-between">
             <h2 className="text-lg font-semibold">Transactions</h2>
@@ -461,12 +421,7 @@ function MockDashboard() {
           </AnimatePresence>
 
           <div
-            className="w-full mt-4 group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF]"
-            style={{
-              background: "rgba(255, 255, 255, 0.20)",
-              boxShadow:
-                "0 10px 20px 0 rgba(255, 255, 255, 0.20) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.20) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.40) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.40) inset",
-            }}
+            className="w-full mt-4 group relative flex flex-col justify-center rounded-3xl border border-[#F5F9FF] glass-panel"
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <p className="font-medium">Recent Transactions</p>

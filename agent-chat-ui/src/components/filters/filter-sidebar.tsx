@@ -86,7 +86,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex h-full shrink-0 flex-col border-0 !bg-[#EDF2F7] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
+        "flex h-full shrink-0 flex-col border-0 !bg-[#F0F4FF] dark:!bg-[#0D0D14] transition-[width] duration-200 ease-in-out",
         expanded ? "w-[var(--sidebar-width,16rem)]" : "w-[50px]",
       )}
     >
@@ -140,8 +140,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="h-[40px] text-sm gap-1.5 w-full justify-center"
-                      style={{ borderRadius: "24px", backgroundColor: "#4586F7", color: "#fff", boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset" }}
+                      className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel"
+                      style={{ backgroundColor: "#4586F7", color: "#fff" }}
                     >
                       <Save className="h-4 w-4" />
                       Save preset
@@ -160,8 +160,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               ) : (
                 <Button
                   variant="ghost"
-                  className="h-[40px] text-sm gap-1.5 w-full justify-center"
-                  style={{ borderRadius: "24px", backgroundColor: "#4586F7", color: "#fff", boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.02), 0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset" }}
+                  className="h-[40px] text-sm gap-1.5 w-full justify-center glass-panel"
+                  style={{ backgroundColor: "#4586F7", color: "#fff" }}
                   onClick={onSaveAsNewPreset}
                 >
                   <Save className="h-4 w-4" />

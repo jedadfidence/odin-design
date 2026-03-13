@@ -50,13 +50,7 @@ export const FilterCategory: React.FC<FilterCategoryProps> = ({
   return (
     <AccordionItem
       value={id}
-      className="border-b-0 mx-3 my-4"
-      style={{
-        borderRadius: "24px",
-        background: "rgba(255, 255, 255, 0.05)",
-        boxShadow:
-          "0 10px 20px 0 rgba(255, 255, 255, 0.40) inset, 0 0 0 0.5px rgba(255, 255, 255, 0.40) inset, 0.5px 0.5px 4px 0 rgba(255, 255, 255, 0.60) inset, -0.5px -0.5px 0 0 rgba(255, 255, 255, 0.60) inset",
-      }}
+      className="border-b-0 mx-3 my-4 glass-panel"
     >
       <AccordionTrigger className="px-4 py-2.5 text-sm font-normal hover:no-underline">
         <div className="flex items-center gap-2">
